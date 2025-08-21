@@ -38,12 +38,20 @@ def _deep_update(d: Dict[str, Any], u: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def process_cli(input_dir: Path, output: Path, config: Optional[Path] = None) -> None:
-    """Core processing logic used by the command line interface."""
+    """Core processing logic used by the command line interface.
+
+    The current git commit hash is recorded in the output metadata when
+    available. If the commit hash cannot be determined (e.g., not running
+    inside a git repository), ``git_commit`` will be ``None``.
+    """
     setup_logging(output)
     cfg = load_config(config)
 
     run_id = datetime.utcnow().isoformat()
-    git_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    try:
+        git_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    except Exception:  # pragma: no cover - git may not be available
+        git_commit = None
 
     events = []
     dwc_rows = []
