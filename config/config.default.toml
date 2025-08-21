@@ -1,0 +1,39 @@
+[ocr]
+preferred_engine = "vision"
+allow_tesseract_on_macos = true
+allow_gpt = true
+confidence_threshold = 0.70
+
+[gpt]
+fallback_threshold = 0.85
+dry_run = false
+model = "gpt-4.1-mini"
+
+[tesseract]
+oem = 1
+psm = 6
+langs = ["eng","fra","lat"]
+extra_args = []
+
+[preprocess]
+grayscale = true
+deskew = true
+binarize = "adaptive_sauvola"
+max_dim_px = 4000
+
+[dwc]
+assume_country_if_missing = "Canada"
+strict_minimal_fields = ["catalogNumber","scientificName","eventDate","recordedBy","locality"]
+flag_if_missing_minimal = true
+parse_scientific_names = true
+normalize_spelling = true
+do_not_update_nomenclature = true
+
+[qc]
+dupes = ["catalog","sha256","phash"]
+phash_threshold = 10
+low_confidence_flag = true
+top_fifth_scan_pct = 20
+
+[report]
+html = true
