@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any
 import sys
+from importlib import resources
 
 if sys.version_info >= (3, 11):
     import tomllib as tomli
@@ -17,7 +18,8 @@ from io_utils.write import write_dwc_csv, write_jsonl, write_manifest
 
 
 def load_config(config_path: Optional[Path]) -> Dict[str, Any]:
-    with open("config/config.default.toml", "rb") as f:
+    cfg_path = resources.files("config").joinpath("config.default.toml")
+    with cfg_path.open("rb") as f:
         config = tomli.load(f)
     if config_path:
         with config_path.open("rb") as f:
