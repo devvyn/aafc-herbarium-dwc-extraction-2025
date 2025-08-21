@@ -1,0 +1,18 @@
+[project]
+name = "herbarium-dwc"
+version = "0.1.0"
+description = "Herbarium OCR to Darwin Core extraction toolkit"
+authors = [{name = "AAFC"}]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "typer",
+    "pydantic",
+]
+
+[project.scripts]
+herbarium-dwc = "cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
