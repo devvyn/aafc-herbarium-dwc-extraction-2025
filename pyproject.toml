@@ -17,14 +17,15 @@ herbarium-dwc = "cli:app"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.hatch.build]
-include = ["config/config.default.toml"]
-
 [tool.hatch.build.targets.wheel]
 packages = [
+    "config",
     "dwc",
     "engines",
     "io_utils",
     "qc",
 ]
 py-modules = ["cli"]
+
+[tool.hatch.build.targets.wheel.package-data]
+config = ["config.default.toml", "rules/*.toml"]
