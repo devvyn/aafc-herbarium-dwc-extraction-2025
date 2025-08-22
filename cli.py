@@ -16,6 +16,7 @@ else:  # pragma: no cover
 from io_utils.logs import setup_logging
 from io_utils.read import iter_images, compute_sha256
 from io_utils.write import write_dwc_csv, write_jsonl, write_manifest
+from preprocess import preprocess_image
 
 
 def load_config(config_path: Optional[Path]) -> Dict[str, Any]:
@@ -68,11 +69,16 @@ def process_cli(input_dir: Path, output: Path, config: Optional[Path] = None) ->
             "flags": [],
             "errors": [],
         }
+        pre_cfg = cfg.get("preprocess", {})
+        if any(pre_cfg.get(k) for k in ["grayscale", "deskew", "binarize", "max_dim_px"]):
+            proc_path = preprocess_image(img_path, pre_cfg)
+        else:
+            proc_path = img_path
         image_conf = 0.0
         if cfg.get("ocr", {}).get("allow_gpt") and image_conf < cfg.get("gpt", {}).get("fallback_threshold", 1.0):
             text, _ = dispatch(
                 "image_to_text",
-                image=img_path,
+                image=proc_path,
                 model=cfg["gpt"]["model"],
                 dry_run=cfg["gpt"]["dry_run"],
             )
