@@ -8,6 +8,8 @@ requires-python = ">=3.11"
 dependencies = [
     "typer",
     "pydantic",
+    "Pillow",
+    "numpy",
 ]
 
 [project.scripts]
@@ -24,6 +26,7 @@ packages = [
     "engines",
     "io_utils",
     "qc",
+    "preprocess",
 ]
 py-modules = ["cli"]
 
