@@ -12,13 +12,13 @@ if sys.version_info >= (3, 11):
 else:  # pragma: no cover
     import tomli  # type: ignore
 
-from io_utils.logs import setup_logging
-from io_utils.read import iter_images, compute_sha256
-from io_utils.write import write_dwc_csv, write_jsonl, write_manifest
+from herbarium_dwc.io_utils.logs import setup_logging
+from herbarium_dwc.io_utils.read import iter_images, compute_sha256
+from herbarium_dwc.io_utils.write import write_dwc_csv, write_jsonl, write_manifest
 
 
 def load_config(config_path: Optional[Path]) -> Dict[str, Any]:
-    cfg_path = resources.files("config").joinpath("config.default.toml")
+    cfg_path = resources.files("herbarium_dwc.config").joinpath("config.default.toml")
     with cfg_path.open("rb") as f:
         config = tomli.load(f)
     if config_path:
@@ -91,9 +91,21 @@ try:  # optional dependency
 
     @app.command()
     def process(
-        input: Path = typer.Option(..., "--input", "-i", exists=True, file_ok=False, dir_ok=True, help="Directory of images"),
-        output: Path = typer.Option(..., "--output", "-o", file_ok=False, dir_ok=True, help="Output directory"),
-        config: Optional[Path] = typer.Option(None, "--config", "-c", exists=True, dir_ok=False, file_ok=True, help="Optional config file"),
+        input: Path = typer.Option(
+            ..., "--input", "-i", exists=True, file_okay=False, dir_okay=True, help="Directory of images"
+        ),
+        output: Path = typer.Option(
+            ..., "--output", "-o", file_okay=False, dir_okay=True, help="Output directory"
+        ),
+        config: Optional[Path] = typer.Option(
+            None,
+            "--config",
+            "-c",
+            exists=True,
+            dir_okay=False,
+            file_okay=True,
+            help="Optional config file",
+        ),
     ) -> None:
         process_cli(input, output, config)
 

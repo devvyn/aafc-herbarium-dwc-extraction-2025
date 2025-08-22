@@ -1,9 +1,6 @@
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-
-from cli import load_config
+from herbarium_dwc.cli import load_config
 
 
 def test_load_config_merge(tmp_path: Path) -> None:
