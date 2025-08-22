@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 import sys
 from importlib import resources
+from engines import dispatch
 
 if sys.version_info >= (3, 11):
     import tomllib as tomli
@@ -67,6 +68,25 @@ def process_cli(input_dir: Path, output: Path, config: Optional[Path] = None) ->
             "flags": [],
             "errors": [],
         }
+        image_conf = 0.0
+        if cfg.get("ocr", {}).get("allow_gpt") and image_conf < cfg.get("gpt", {}).get("fallback_threshold", 1.0):
+            text, _ = dispatch(
+                "image_to_text",
+                image=img_path,
+                model=cfg["gpt"]["model"],
+                dry_run=cfg["gpt"]["dry_run"],
+            )
+            dwc_data, field_conf = dispatch(
+                "text_to_dwc",
+                text=text,
+                model=cfg["gpt"]["model"],
+                dry_run=cfg["gpt"]["dry_run"],
+            )
+            event["dwc"] = dwc_data
+            event["dwc_confidence"] = field_conf
+            event["engine"] = "gpt"
+            event["engine_version"] = cfg["gpt"]["model"]
+
         events.append(event)
         dwc_rows.append(event["dwc"])
 

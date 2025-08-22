@@ -1,0 +1,46 @@
+from __future__ import annotations
+
+import json
+from importlib import resources
+from typing import Dict, Tuple
+
+try:  # optional dependency
+    from openai import OpenAI  # type: ignore
+except Exception:  # pragma: no cover
+    OpenAI = None
+
+
+def _load_prompt(name: str) -> str:
+    return resources.files(__package__).joinpath("prompts", name).read_text(encoding="utf-8")
+
+
+def text_to_dwc(text: str, *, model: str, dry_run: bool = False) -> Tuple[Dict[str, str], Dict[str, float]]:
+    """Map unstructured text to Darwin Core terms using a GPT model.
+
+    The model is expected to return JSON where each key is a Darwin Core
+    term mapping to a dictionary containing ``value`` and ``confidence``
+    entries.  Any parsing errors result in empty outputs.
+    """
+    prompt = _load_prompt("text_to_dwc.prompt")
+    if dry_run or OpenAI is None:
+        return {}, {}
+
+    client = OpenAI()
+    resp = client.responses.create(
+        model=model,
+        input=[
+            {
+                "role": "user",
+                "content": [{"type": "text", "text": f"{prompt}\n{text}"}],
+            }
+        ],
+    )
+    content = getattr(resp, "output_text", "{}")
+    try:
+        data = json.loads(content)
+    except Exception:
+        return {}, {}
+
+    dwc = {k: v.get("value", "") for k, v in data.items() if isinstance(v, dict)}
+    confidences = {k: float(v.get("confidence", 0.0)) for k, v in data.items() if isinstance(v, dict)}
+    return dwc, confidences
