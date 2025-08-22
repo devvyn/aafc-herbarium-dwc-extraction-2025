@@ -29,3 +29,4 @@ py-modules = ["cli"]
 
 [tool.hatch.build.targets.wheel.package-data]
 config = ["config.default.toml", "rules/*.toml"]
+engines = ["gpt/prompts/*"]
