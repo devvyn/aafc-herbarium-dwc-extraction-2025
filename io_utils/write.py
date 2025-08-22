@@ -3,32 +3,8 @@ from typing import Iterable, Dict, Any
 import csv
 import json
 
-DWC_COLUMNS = [
-    "catalogNumber",
-    "collectionCode",
-    "institutionCode",
-    "ownerInstitutionCode",
-    "scientificName",
-    "scientificNameAuthorship",
-    "scientificName_verbatim",
-    "recordedBy",
-    "recordNumber",
-    "eventDate",
-    "verbatimEventDate",
-    "eventDateUncertaintyInDays",
-    "locality",
-    "country",
-    "stateProvince",
-    "municipality",
-    "identifiedBy",
-    "dateIdentified",
-    "identificationRemarks",
-    "basisOfRecord",
-    "datasetName",
-    "occurrenceRemarks",
-    "verbatimLabel",
-    "flags",
-]
+# Use the canonical list of Darwin Core terms defined by the schema module
+from dwc.schema import DWC_TERMS as DWC_COLUMNS
 
 def write_manifest(output_dir: Path, meta: Dict[str, Any]) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
