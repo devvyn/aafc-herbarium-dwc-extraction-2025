@@ -18,6 +18,8 @@ from io_utils.read import iter_images, compute_sha256
 from io_utils.write import write_dwc_csv, write_jsonl, write_manifest
 from preprocess import preprocess_image
 
+import qc
+
 
 def load_config(config_path: Optional[Path]) -> Dict[str, Any]:
     cfg_path = resources.files("config").joinpath("config.default.toml")
@@ -48,6 +50,7 @@ def process_cli(input_dir: Path, output: Path, config: Optional[Path] = None) ->
     """
     setup_logging(output)
     cfg = load_config(config)
+    qc.TOP_FIFTH_PCT = cfg.get("qc", {}).get("top_fifth_scan_pct", qc.TOP_FIFTH_PCT)
 
     run_id = datetime.utcnow().isoformat()
     try:
@@ -57,6 +60,7 @@ def process_cli(input_dir: Path, output: Path, config: Optional[Path] = None) ->
 
     events = []
     dwc_rows = []
+    dupe_catalog: Dict[str, int] = {}
     for img_path in iter_images(input_dir):
         sha256 = compute_sha256(img_path)
         event = {
@@ -92,6 +96,23 @@ def process_cli(input_dir: Path, output: Path, config: Optional[Path] = None) ->
             event["dwc_confidence"] = field_conf
             event["engine"] = "gpt"
             event["engine_version"] = cfg["gpt"]["model"]
+
+        qc_cfg = cfg.get("qc", {})
+        flags = []
+        flags.extend(qc.detect_duplicates(dupe_catalog, sha256, qc_cfg.get("phash_threshold", 0)))
+        if qc_cfg.get("low_confidence_flag"):
+            confidence = event.get("dwc_confidence")
+            if isinstance(confidence, (int, float)):
+                flags.extend(
+                    qc.flag_low_confidence(
+                        confidence, cfg.get("ocr", {}).get("confidence_threshold", 0.0)
+                    )
+                )
+        scan_pct = event.get("scan_pct")
+        if isinstance(scan_pct, (int, float)):
+            flags.extend(qc.flag_top_fifth(scan_pct))
+        if flags:
+            event["flags"].extend(flags)
 
         events.append(event)
         dwc_rows.append(event["dwc"])
