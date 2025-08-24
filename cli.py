@@ -78,24 +78,46 @@ def process_cli(input_dir: Path, output: Path, config: Optional[Path] = None) ->
             proc_path = preprocess_image(img_path, pre_cfg)
         else:
             proc_path = img_path
-        image_conf = 0.0
-        if cfg.get("ocr", {}).get("allow_gpt") and image_conf < cfg.get("gpt", {}).get("fallback_threshold", 1.0):
+        ocr_cfg = cfg.get("ocr", {})
+        preferred = ocr_cfg.get("preferred_engine", "vision")
+        if preferred == "tesseract" and sys.platform == "darwin" and not ocr_cfg.get(
+            "allow_tesseract_on_macos", False
+        ):
+            preferred = "gpt" if ocr_cfg.get("allow_gpt") else "vision"
+        if preferred == "gpt" and not ocr_cfg.get("allow_gpt"):
+            preferred = "vision"
+
+        text = ""
+        confidences: list[float] = []
+        try:
+            text, confidences = dispatch("image_to_text", image=proc_path, engine=preferred)
+            event["engine"] = preferred
+        except Exception as exc:  # pragma: no cover - exercised in tests via monkeypatch
+            event["errors"].append(str(exc))
+        image_conf = sum(confidences) / len(confidences) if confidences else 0.0
+        if (
+            ocr_cfg.get("allow_gpt")
+            and (not text or image_conf < ocr_cfg.get("confidence_threshold", 0.0))
+            and image_conf < cfg.get("gpt", {}).get("fallback_threshold", 1.0)
+        ):
             text, _ = dispatch(
                 "image_to_text",
                 image=proc_path,
+                engine="gpt",
                 model=cfg["gpt"]["model"],
                 dry_run=cfg["gpt"]["dry_run"],
             )
-            dwc_data, field_conf = dispatch(
-                "text_to_dwc",
-                text=text,
-                model=cfg["gpt"]["model"],
-                dry_run=cfg["gpt"]["dry_run"],
-            )
-            event["dwc"] = dwc_data
-            event["dwc_confidence"] = field_conf
             event["engine"] = "gpt"
             event["engine_version"] = cfg["gpt"]["model"]
+
+        dwc_data, field_conf = dispatch(
+            "text_to_dwc",
+            text=text,
+            model=cfg["gpt"]["model"],
+            dry_run=cfg["gpt"]["dry_run"],
+        )
+        event["dwc"] = dwc_data
+        event["dwc_confidence"] = field_conf
 
         qc_cfg = cfg.get("qc", {})
         flags = []
