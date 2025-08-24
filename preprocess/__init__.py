@@ -30,7 +30,7 @@ def deskew(image: Image.Image) -> Image.Image:
     """Attempt to deskew the image using its principal components."""
     gray = np.array(image.convert("L"))
     angle = _principal_angle(gray)
-    return image.rotate(-angle, expand=True, fillcolor=255)
+    return image.rotate(angle, expand=True, fillcolor=255)
 
 
 def _otsu_threshold(gray: np.ndarray) -> int:
