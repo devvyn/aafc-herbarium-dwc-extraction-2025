@@ -5,6 +5,7 @@ _TASKS = {
     "image_to_text": {
         "gpt": ("engines.gpt", "image_to_text"),
         "vision": ("engines.vision_swift", "image_to_text"),
+        "tesseract": ("engines.tesseract", "image_to_text"),
     },
     "text_to_dwc": {
         "gpt": ("engines.gpt", "text_to_dwc"),
