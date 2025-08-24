@@ -1,0 +1,3 @@
+occurrenceID,identificationID,identifiedBy,dateIdentified,scientificName,scientificNameAuthorship,taxonRank,identificationQualifier,identificationRemarks,identificationReferences,identificationVerificationStatus,isCurrent
+64bdda45-ac42-48b0-a7e0-9dd019541d8a,b5d765f7-5261-40c1-a8f5-d0e50204440f,J. Smith,1983-02-01,Artemisia frigida Willd.,Willd.,species,,Initial determination,,verified,TRUE
+64bdda45-ac42-48b0-a7e0-9dd019541d8a,37f13961-7f44-4783-985b-4cb42f5dfb64,M. Brown,1995-06-20,Artemisia frigida Willd.,Willd.,species,cf.,Considered A. frigida cf.; retained existing name,"Flora of Alberta, 2nd ed.",provisional,FALSE
