@@ -1,1 +1,5 @@
-# Placeholder for institution normalization rules
+# Institution normalization rules
+# Map legacy codes or names to canonical institution codes.
+
+DAS = "AAFC-SRDC"
+"Department of Agriculture Saskatchewan" = "AAFC-SRDC"
