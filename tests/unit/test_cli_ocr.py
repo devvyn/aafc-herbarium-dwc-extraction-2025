@@ -1,6 +1,7 @@
 from pathlib import Path
 from types import SimpleNamespace
 from PIL import Image
+import pytest
 
 import cli
 
@@ -12,6 +13,8 @@ def _setup(monkeypatch, tmp_path, cfg, dispatch):
     out_dir.mkdir()
     monkeypatch.setattr(cli, "load_config", lambda p: cfg)
     monkeypatch.setattr(cli, "dispatch", dispatch)
+    import engines
+    monkeypatch.setattr(engines, "dispatch", dispatch)
     monkeypatch.setattr(cli, "preprocess_image", lambda p, c: p)
     monkeypatch.setattr(cli, "setup_logging", lambda o: None)
     monkeypatch.setattr(cli, "write_jsonl", lambda *a, **k: None)
@@ -103,3 +106,24 @@ def test_process_cli_avoids_tesseract_on_macos(monkeypatch, tmp_path):
     out_dir = _setup(monkeypatch, tmp_path, cfg, fake_dispatch)
     cli.process_cli(tmp_path, out_dir, None)
     assert calls == ["gpt"]
+
+
+def test_process_cli_errors_when_preferred_missing(monkeypatch, tmp_path):
+    def fake_dispatch(task, *args, engine="gpt", **kwargs):
+        if task == "text_to_dwc":
+            return {}, 0.9
+        raise AssertionError
+
+    cfg = {
+        "ocr": {
+            "preferred_engine": "gpt",
+            "allow_tesseract_on_macos": True,
+            "allow_gpt": True,
+            "confidence_threshold": 0.7,
+        },
+        "gpt": {"model": "gpt-4.1-mini", "dry_run": True, "fallback_threshold": 0.85},
+    }
+    monkeypatch.setattr(cli, "available_engines", lambda task: ["vision"])
+    out_dir = _setup(monkeypatch, tmp_path, cfg, fake_dispatch)
+    with pytest.raises(ValueError):
+        cli.process_cli(tmp_path, out_dir, None)
