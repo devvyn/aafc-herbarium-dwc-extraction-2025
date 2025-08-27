@@ -1,3 +1,8 @@
+# Engines register themselves via the ``herbarium.engines`` entry-point group.
+# Third-party packages can expose engines with:
+# [project.entry-points."herbarium.engines"]
+# name = "pkg.module"
+# ``preferred_engine`` must correspond to a registered engine name.
 [ocr]
 preferred_engine = "vision"
 allow_tesseract_on_macos = true
