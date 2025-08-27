@@ -1,0 +1,18 @@
+# Example configuration using only the Tesseract OCR engine
+
+[ocr]
+preferred_engine = "tesseract"
+enabled_engines = ["tesseract"]
+allow_gpt = false
+allow_tesseract_on_macos = true
+confidence_threshold = 0.70
+
+[gpt]
+dry_run = true
+model = "gpt-4.1-mini"
+
+[tesseract]
+oem = 1
+psm = 6
+langs = ["eng","fra","lat"]
+extra_args = []
