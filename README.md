@@ -44,4 +44,24 @@ pytest -q
 Additional OCR engines (Apple Vision, Tesseract, GPT), quality-control checks,
 and Darwin Core mapping logic will be implemented as the project evolves.
 
+## Engine plugins
+
+OCR and transformation engines are discovered at runtime.  Each engine module
+registers the tasks it implements using:
+
+```python
+from engines import register_task
+register_task("image_to_text", "my_engine", __name__, "image_to_text")
+```
+
+Third-party packages can expose engines via Python entry points in their
+`pyproject.toml`:
+
+```toml
+[project.entry-points."herbarium.engines"]
+my_engine = "my_package.my_module"
+```
+
+The referenced module should call :func:`register_task` during import.
+
 
