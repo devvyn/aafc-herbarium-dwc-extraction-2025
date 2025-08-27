@@ -3,6 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import List, Tuple
 
+from .. import register_task
+
 
 def image_to_text(image: Path, oem: int, psm: int, langs: List[str], extra_args: List[str]) -> Tuple[str, float]:
     """Run Tesseract OCR on an image and return text and average confidence.
@@ -40,5 +42,6 @@ def image_to_text(image: Path, oem: int, psm: int, langs: List[str], extra_args:
     avg_conf = sum(confidences) / len(confidences) / 100 if confidences else 0.0
     return text, avg_conf
 
+register_task("image_to_text", "tesseract", __name__, "image_to_text")
 
 __all__ = ["image_to_text"]

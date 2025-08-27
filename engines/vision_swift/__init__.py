@@ -7,6 +7,8 @@ from typing import List, Tuple
 
 from .run import run
 
+from .. import register_task
+
 
 def image_to_text(image: Path) -> Tuple[str, List[float]]:
     """Extract text from an image using Apple's Vision framework.
@@ -27,5 +29,7 @@ def image_to_text(image: Path) -> Tuple[str, List[float]]:
     text = " ".join(tokens)
     return text, confidences
 
+
+register_task("image_to_text", "vision", __name__, "image_to_text")
 
 __all__ = ["image_to_text", "run"]
