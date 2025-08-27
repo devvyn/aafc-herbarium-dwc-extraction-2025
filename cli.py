@@ -3,10 +3,10 @@ from __future__ import annotations
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import sys
 from importlib import resources
-from engines import dispatch
+from engines import dispatch, available_engines, get_fallback_policy
 
 if sys.version_info >= (3, 11):
     import tomllib as tomli
@@ -41,7 +41,12 @@ def _deep_update(d: Dict[str, Any], u: Dict[str, Any]) -> Dict[str, Any]:
     return d
 
 
-def process_cli(input_dir: Path, output: Path, config: Optional[Path] = None) -> None:
+def process_cli(
+    input_dir: Path,
+    output: Path,
+    config: Optional[Path] = None,
+    enabled_engines: Optional[List[str]] = None,
+) -> None:
     """Core processing logic used by the command line interface.
 
     The current git commit hash is recorded in the output metadata when
@@ -50,6 +55,8 @@ def process_cli(input_dir: Path, output: Path, config: Optional[Path] = None) ->
     """
     setup_logging(output)
     cfg = load_config(config)
+    if enabled_engines is not None:
+        cfg.setdefault("ocr", {})["enabled_engines"] = list(enabled_engines)
     qc.TOP_FIFTH_PCT = cfg.get("qc", {}).get("top_fifth_scan_pct", qc.TOP_FIFTH_PCT)
 
     run_id = datetime.utcnow().isoformat()
@@ -79,36 +86,40 @@ def process_cli(input_dir: Path, output: Path, config: Optional[Path] = None) ->
         else:
             proc_path = img_path
         ocr_cfg = cfg.get("ocr", {})
-        preferred = ocr_cfg.get("preferred_engine", "vision")
+        available = available_engines("image_to_text")
+        enabled = ocr_cfg.get("enabled_engines")
+        if enabled:
+            available = [e for e in available if e in enabled]
+        if not available:
+            raise RuntimeError("No OCR engines available")
+        preferred = ocr_cfg.get("preferred_engine", available[0])
+        if preferred not in available:
+            raise ValueError(
+                f"Preferred engine '{preferred}' unavailable. Available: {', '.join(available)}"
+            )
         if preferred == "tesseract" and sys.platform == "darwin" and not ocr_cfg.get(
             "allow_tesseract_on_macos", False
         ):
-            preferred = "gpt" if ocr_cfg.get("allow_gpt") else "vision"
-        if preferred == "gpt" and not ocr_cfg.get("allow_gpt"):
-            preferred = "vision"
+            preferred = "gpt" if "gpt" in available and ocr_cfg.get("allow_gpt") else available[0]
+        if preferred == "gpt" and (not ocr_cfg.get("allow_gpt") or "gpt" not in available):
+            preferred = available[0]
 
         text = ""
         confidences: list[float] = []
         try:
             text, confidences = dispatch("image_to_text", image=proc_path, engine=preferred)
-            event["engine"] = preferred
+            policy = get_fallback_policy(preferred)
+            if policy:
+                text, confidences, final_engine, engine_version = policy(
+                    proc_path, text, confidences, cfg
+                )
+            else:
+                final_engine, engine_version = preferred, None
+            event["engine"] = final_engine
+            if engine_version:
+                event["engine_version"] = engine_version
         except Exception as exc:  # pragma: no cover - exercised in tests via monkeypatch
             event["errors"].append(str(exc))
-        image_conf = sum(confidences) / len(confidences) if confidences else 0.0
-        if (
-            ocr_cfg.get("allow_gpt")
-            and (not text or image_conf < ocr_cfg.get("confidence_threshold", 0.0))
-            and image_conf < cfg.get("gpt", {}).get("fallback_threshold", 1.0)
-        ):
-            text, _ = dispatch(
-                "image_to_text",
-                image=proc_path,
-                engine="gpt",
-                model=cfg["gpt"]["model"],
-                dry_run=cfg["gpt"]["dry_run"],
-            )
-            event["engine"] = "gpt"
-            event["engine_version"] = cfg["gpt"]["model"]
 
         dwc_data, field_conf = dispatch(
             "text_to_dwc",
@@ -175,8 +186,14 @@ try:  # optional dependency
             file_okay=True,
             help="Optional config file",
         ),
+        enabled_engine: List[str] = typer.Option(
+            None,
+            "--engine",
+            "-e",
+            help="OCR engines to enable (repeatable)",
+        ),
     ) -> None:
-        process_cli(input, output, config)
+        process_cli(input, output, config, list(enabled_engine) if enabled_engine else None)
 
     if __name__ == "__main__":
         app()

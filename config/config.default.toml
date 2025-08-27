@@ -5,6 +5,10 @@
 # ``preferred_engine`` must correspond to a registered engine name.
 [ocr]
 preferred_engine = "vision"
+# Engines can be limited via ``enabled_engines``.
+# Example for running with only Vision installed:
+# enabled_engines = ["vision"]
+enabled_engines = ["vision", "tesseract", "gpt"]
 allow_tesseract_on_macos = true
 allow_gpt = true
 confidence_threshold = 0.70
