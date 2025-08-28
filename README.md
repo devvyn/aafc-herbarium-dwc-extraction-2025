@@ -45,6 +45,22 @@ The repository ships optional plugins for Apple Vision, Tesseract, and GPT
 engines. Quality-control checks and full Darwin Core mapping logic will be
 implemented as the project evolves.
 
+## Preprocessing pipeline
+
+Images can be passed through an ordered preprocessing pipeline before OCR.
+Steps are referenced by name and resolved via a simple registry. Configure the
+pipeline and step options in the `[preprocess]` section of the TOML file:
+
+```toml
+[preprocess]
+pipeline = ["grayscale", "deskew", "binarize", "resize"]
+max_dim_px = 4000  # used by the "resize" step
+```
+
+Built-in steps register themselves when `preprocess` is imported, and external
+modules may register additional steps with
+`preprocess.register_preprocessor(name, func)`.
+
 ## Engine plugins
 
 Built-in plugins for Apple Vision (`vision`), Tesseract (`tesseract`), and GPT
