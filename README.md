@@ -12,8 +12,8 @@ This project is an early-stage skeleton. The current codebase includes:
 * minimal I/O helpers that compute image hashes and write CSV, JSONL, and a
   manifest file
 
-OCR engines, quality-control heuristics, and full Darwin Core mapping are not yet
-implemented.
+Optional OCR engine plugins for Apple Vision, Tesseract, and GPT are available
+and register themselves when their dependencies are installed.
 
 ## CLI Usage
 
@@ -41,10 +41,21 @@ pip install -e .
 pytest -q
 ```
 
-Additional OCR engines (Apple Vision, Tesseract, GPT), quality-control checks,
-and Darwin Core mapping logic will be implemented as the project evolves.
+The repository ships optional plugins for Apple Vision, Tesseract, and GPT
+engines. Quality-control checks and full Darwin Core mapping logic will be
+implemented as the project evolves.
 
 ## Engine plugins
+
+Built-in plugins for Apple Vision (`vision`), Tesseract (`tesseract`), and GPT
+(`gpt`) register themselves when their optional dependencies are installed.
+Enable or restrict engines via the `[ocr]` section of your configuration:
+
+```toml
+[ocr]
+enabled_engines = ["vision", "tesseract", "gpt"]
+preferred_engine = "vision"
+```
 
 OCR and transformation engines are discovered at runtime.  Each engine module
 registers the tasks it implements using:
@@ -54,8 +65,11 @@ from engines import register_task
 register_task("image_to_text", "my_engine", __name__, "image_to_text")
 ```
 
-Engine implementations should follow the call signatures defined in ``engines.protocols``.
-For OCR tasks implement :class:`engines.protocols.ImageToTextEngine` and for text extraction to Darwin
+The registry loads these built-in plugins on import and discovers any
+additional engines that advertise the `herbarium.engines` entry-point group.
+Engine implementations should follow the call signatures defined in
+``engines.protocols``. For OCR tasks implement
+:class:`engines.protocols.ImageToTextEngine` and for text extraction to Darwin
 Core implement :class:`engines.protocols.TextToDwcEngine`.
 
 Third-party packages can expose engines via Python entry points in their
