@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+
 import base64
 from importlib import resources
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import List, Tuple
+
+from ..protocols import ImageToTextEngine
 
 try:  # optional dependency
     from openai import OpenAI  # type: ignore
@@ -15,7 +18,7 @@ def _load_prompt(name: str) -> str:
     return resources.files(__package__).joinpath("prompts", name).read_text(encoding="utf-8")
 
 
-def image_to_text(image: Path, *, model: str, dry_run: bool = False) -> Tuple[str, Dict[str, float]]:
+def image_to_text(image: Path, *, model: str, dry_run: bool = False) -> Tuple[str, List[float]]:
     """Use a GPT model to extract text from an image.
 
     Parameters
@@ -30,7 +33,7 @@ def image_to_text(image: Path, *, model: str, dry_run: bool = False) -> Tuple[st
     """
     prompt = _load_prompt("image_to_text.prompt")
     if dry_run or OpenAI is None:
-        return "", {"text": 0.0}
+        return "", []
 
     client = OpenAI()
     with image.open("rb") as f:
@@ -55,4 +58,8 @@ def image_to_text(image: Path, *, model: str, dry_run: bool = False) -> Tuple[st
 
     text = getattr(resp, "output_text", "")
     confidence = float(getattr(resp, "confidence", 1.0))
-    return text, {"text": confidence}
+    return text, [confidence]
+
+
+# Static type checking helper
+_IMAGE_TO_TEXT_CHECK: ImageToTextEngine = image_to_text
