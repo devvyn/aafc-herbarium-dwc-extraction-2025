@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sys
 import types
 from pathlib import Path
@@ -6,7 +8,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from cli import load_config
 from engines import dispatch
-
 
 
 def test_load_config_tesseract_overrides(tmp_path: Path) -> None:
@@ -50,7 +51,7 @@ def test_image_to_text_parses_output(monkeypatch, tmp_path: Path) -> None:
 
     text, conf = image_to_text(tmp_path / "img.png", 2, 7, ["eng", "spa"], ["--foo", "bar"])
     assert text == "hello world"
-    assert conf == (90 + 80) / 2 / 100
+    assert conf == [0.9, 0.8]
 
 
 def test_dispatch_uses_tesseract_engine(monkeypatch, tmp_path: Path) -> None:
@@ -74,7 +75,7 @@ extra_args = ["--foo","bar"]
 
     def fake_image_to_text(image, oem, psm, langs, extra_args):
         called["args"] = (image, oem, psm, langs, extra_args)
-        return "hi", 0.9
+        return "hi", [0.9]
 
     monkeypatch.setattr(tesseract, "image_to_text", fake_image_to_text)
 
@@ -92,4 +93,4 @@ extra_args = ["--foo","bar"]
         Path("img.png"), 2, 7, ["eng", "spa"], ["--foo", "bar"]
     )
     assert text == "hi"
-    assert conf == 0.9
+    assert conf == [0.9]
