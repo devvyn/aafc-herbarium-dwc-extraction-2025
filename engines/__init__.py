@@ -131,6 +131,12 @@ def _register_default_fallbacks() -> None:
                 and (not text or image_conf < ocr_cfg.get("confidence_threshold", 0.0))
                 and image_conf < gpt_cfg.get("fallback_threshold", 1.0)
             ):
+                available = available_engines("image_to_text")
+                enabled = ocr_cfg.get("enabled_engines")
+                if enabled:
+                    available = [e for e in available if e in enabled]
+                if "gpt" not in available:
+                    return text, confidences, engine_name, None
                 text, conf = dispatch(
                     "image_to_text",
                     image=image,
