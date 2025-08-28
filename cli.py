@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 import sys
@@ -59,7 +59,7 @@ def process_cli(
         cfg.setdefault("ocr", {})["enabled_engines"] = list(enabled_engines)
     qc.TOP_FIFTH_PCT = cfg.get("qc", {}).get("top_fifth_scan_pct", qc.TOP_FIFTH_PCT)
 
-    run_id = datetime.utcnow().isoformat()
+    run_id = datetime.now(timezone.utc).isoformat()
     try:
         git_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     except Exception:  # pragma: no cover - git may not be available
