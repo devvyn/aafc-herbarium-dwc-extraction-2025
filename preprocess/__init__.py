@@ -2,10 +2,21 @@ from __future__ import annotations
 
 from pathlib import Path
 import tempfile
-from typing import Dict, Any
+from typing import Dict, Any, Callable
 
 import numpy as np
 from PIL import Image, ImageOps
+
+_PREPROCESSORS: Dict[str, Callable[[Image.Image, Dict[str, Any]], Image.Image]] = {}
+
+
+def register_preprocessor(name: str, func: Callable[[Image.Image, Dict[str, Any]], Image.Image]) -> None:
+    """Register a preprocessing step.
+
+    Steps are called with the current :class:`PIL.Image.Image` and the
+    ``preprocess`` section of the configuration and must return a new image.
+    """
+    _PREPROCESSORS[name] = func
 
 
 def grayscale(image: Image.Image) -> Image.Image:
@@ -80,22 +91,32 @@ def resize(image: Image.Image, max_dim: int) -> Image.Image:
 def preprocess_image(path: Path, cfg: Dict[str, Any]) -> Path:
     """Apply configured preprocessing steps to the image and return new path."""
     img = Image.open(path)
-    if cfg.get("grayscale"):
-        img = grayscale(img)
-    if cfg.get("deskew"):
-        img = deskew(img)
-    binarize_method = cfg.get("binarize")
-    if binarize_method:
-        img = binarize(img)
-    max_dim = cfg.get("max_dim_px")
-    if max_dim:
-        img = resize(img, int(max_dim))
+    for step in cfg.get("pipeline", []):
+        func = _PREPROCESSORS.get(step)
+        if not func:
+            raise KeyError(f"Preprocessor '{step}' is not registered")
+        img = func(img, cfg)
     tmp = tempfile.NamedTemporaryFile(suffix=path.suffix or ".png", delete=False)
     img.save(tmp.name)
     return Path(tmp.name)
 
 
+register_preprocessor("grayscale", lambda img, cfg: grayscale(img))
+register_preprocessor("deskew", lambda img, cfg: deskew(img))
+register_preprocessor("binarize", lambda img, cfg: binarize(img))
+
+
+def _resize_step(img: Image.Image, cfg: Dict[str, Any]) -> Image.Image:
+    max_dim = cfg.get("max_dim_px")
+    if max_dim:
+        return resize(img, int(max_dim))
+    return img
+
+
+register_preprocessor("resize", _resize_step)
+
 __all__ = [
+    "register_preprocessor",
     "grayscale",
     "deskew",
     "binarize",

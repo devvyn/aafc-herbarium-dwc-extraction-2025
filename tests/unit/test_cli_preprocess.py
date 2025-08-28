@@ -20,7 +20,7 @@ def test_process_cli_invokes_preprocess_when_enabled(monkeypatch, tmp_path):
     out_dir.mkdir()
 
     cfg_file = tmp_path / "cfg.toml"
-    cfg_file.write_text("[preprocess]\ngrayscale=true\n")
+    cfg_file.write_text("[preprocess]\npipeline=[\"grayscale\"]\n")
 
     called = {"n": 0}
 
@@ -43,11 +43,7 @@ def test_process_cli_skips_preprocess_when_disabled(monkeypatch, tmp_path):
     out_dir.mkdir()
 
     cfg_file = tmp_path / "cfg.toml"
-    cfg_file.write_text("""[preprocess]\n"""
-                        "grayscale=false\n"
-                        "deskew=false\n"
-                        "binarize=false\n"
-                        "max_dim_px=0\n")
+    cfg_file.write_text("[preprocess]\npipeline=[]\n")
 
     called = {"n": 0}
 
