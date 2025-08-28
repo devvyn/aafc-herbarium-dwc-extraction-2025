@@ -34,8 +34,7 @@ def text_to_dwc(text: str, *, model: str, dry_run: bool = False) -> Tuple[Dict[s
         input=[
             {
                 "role": "user",
-                "content": [{"type": "text", "text": f"{prompt}
-{text}"}],
+                "content": [{"type": "text", "text": f"{prompt}{text}"}],
             }
         ],
     )
