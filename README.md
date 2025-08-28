@@ -54,6 +54,10 @@ from engines import register_task
 register_task("image_to_text", "my_engine", __name__, "image_to_text")
 ```
 
+Engine implementations should follow the call signatures defined in ``engines.protocols``.
+For OCR tasks implement :class:`engines.protocols.ImageToTextEngine` and for text extraction to Darwin
+Core implement :class:`engines.protocols.TextToDwcEngine`.
+
 Third-party packages can expose engines via Python entry points in their
 `pyproject.toml`:
 

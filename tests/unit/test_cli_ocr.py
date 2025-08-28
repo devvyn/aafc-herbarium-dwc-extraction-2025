@@ -37,7 +37,7 @@ def test_process_cli_uses_preferred_engine(monkeypatch, tmp_path):
             calls.append(engine)
             return "gpt text", [0.95]
         if task == "text_to_dwc":
-            return {}, 0.9
+            return {}, {"field": 0.9}
         raise AssertionError
 
     cfg = {
@@ -65,7 +65,7 @@ def test_process_cli_falls_back_to_gpt_on_low_confidence(monkeypatch, tmp_path):
             calls.append(engine)
             return "gpt text", [0.95]
         if task == "text_to_dwc":
-            return {}, 0.9
+            return {}, {"field": 0.9}
         raise AssertionError
 
     cfg = {
@@ -90,7 +90,7 @@ def test_process_cli_avoids_tesseract_on_macos(monkeypatch, tmp_path):
             calls.append(engine)
             return "text", [0.9]
         if task == "text_to_dwc":
-            return {}, 0.9
+            return {}, {"field": 0.9}
         raise AssertionError
 
     cfg = {
@@ -111,7 +111,7 @@ def test_process_cli_avoids_tesseract_on_macos(monkeypatch, tmp_path):
 def test_process_cli_errors_when_preferred_missing(monkeypatch, tmp_path):
     def fake_dispatch(task, *args, engine="gpt", **kwargs):
         if task == "text_to_dwc":
-            return {}, 0.9
+            return {}, {"field": 0.9}
         raise AssertionError
 
     cfg = {
