@@ -25,8 +25,7 @@ langs = ["eng","fra","lat"]
 extra_args = []
 
 [preprocess]
-grayscale = true
-deskew = true
+pipeline = ["grayscale", "deskew", "binarize", "resize"]
 binarize = "adaptive_sauvola"
 max_dim_px = 4000
 

@@ -81,10 +81,8 @@ def process_cli(
             "errors": [],
         }
         pre_cfg = cfg.get("preprocess", {})
-        if any(pre_cfg.get(k) for k in ["grayscale", "deskew", "binarize", "max_dim_px"]):
-            proc_path = preprocess_image(img_path, pre_cfg)
-        else:
-            proc_path = img_path
+        pipeline = pre_cfg.get("pipeline", [])
+        proc_path = preprocess_image(img_path, pre_cfg) if pipeline else img_path
         ocr_cfg = cfg.get("ocr", {})
         available = available_engines("image_to_text")
         enabled = ocr_cfg.get("enabled_engines")
