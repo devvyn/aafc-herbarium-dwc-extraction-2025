@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+
 import json
 from importlib import resources
 from typing import Dict, Tuple
+
+from ..protocols import TextToDwcEngine
 
 try:  # optional dependency
     from openai import OpenAI  # type: ignore
@@ -31,7 +34,8 @@ def text_to_dwc(text: str, *, model: str, dry_run: bool = False) -> Tuple[Dict[s
         input=[
             {
                 "role": "user",
-                "content": [{"type": "text", "text": f"{prompt}\n{text}"}],
+                "content": [{"type": "text", "text": f"{prompt}
+{text}"}],
             }
         ],
     )
@@ -44,3 +48,7 @@ def text_to_dwc(text: str, *, model: str, dry_run: bool = False) -> Tuple[Dict[s
     dwc = {k: v.get("value", "") for k, v in data.items() if isinstance(v, dict)}
     confidences = {k: float(v.get("confidence", 0.0)) for k, v in data.items() if isinstance(v, dict)}
     return dwc, confidences
+
+
+# Static type checking helper
+_TEXT_TO_DWC_CHECK: TextToDwcEngine = text_to_dwc

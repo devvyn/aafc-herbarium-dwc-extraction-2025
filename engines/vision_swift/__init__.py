@@ -1,13 +1,12 @@
-"""Interface to Apple's Vision text recognition via Swift."""
-
 from __future__ import annotations
+
 
 from pathlib import Path
 from typing import List, Tuple
 
 from .run import run
-
 from .. import register_task
+from ..protocols import ImageToTextEngine
 
 
 def image_to_text(image: Path) -> Tuple[str, List[float]]:
@@ -31,5 +30,8 @@ def image_to_text(image: Path) -> Tuple[str, List[float]]:
 
 
 register_task("image_to_text", "vision", __name__, "image_to_text")
+
+# Static type checking helper
+_IMAGE_TO_TEXT_CHECK: ImageToTextEngine = image_to_text
 
 __all__ = ["image_to_text", "run"]
