@@ -5,7 +5,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from io_utils.write import write_manifest, write_dwc_csv, write_jsonl, DWC_COLUMNS
+from io_utils.write import (
+    write_manifest,
+    write_dwc_csv,
+    write_jsonl,
+    write_identification_history_csv,
+    DWC_COLUMNS,
+    IDENT_HISTORY_COLUMNS,
+)
 
 def test_write_manifest(tmp_path: Path) -> None:
     meta = {"foo": "bar"}
@@ -17,7 +24,7 @@ def test_write_manifest(tmp_path: Path) -> None:
 def test_write_dwc_csv(tmp_path: Path) -> None:
     rows = [{"catalogNumber": "1", "scientificName": "Test"}]
     write_dwc_csv(tmp_path, rows)
-    csv_path = tmp_path / "dwc.csv"
+    csv_path = tmp_path / "occurrence.csv"
     assert csv_path.exists()
     with csv_path.open() as f:
         reader = csv.DictReader(f)
@@ -27,6 +34,23 @@ def test_write_dwc_csv(tmp_path: Path) -> None:
     assert data[0]["catalogNumber"] == "1"
     assert data[0]["scientificName"] == "Test"
     assert data[0]["collectionCode"] == ""
+
+
+def test_write_identification_history_csv(tmp_path: Path) -> None:
+    rows = [
+        {"occurrenceID": "1", "identificationID": "a", "scientificName": "A", "isCurrent": "TRUE"},
+        {"occurrenceID": "1", "identificationID": "b", "scientificName": "B", "isCurrent": "FALSE"},
+    ]
+    write_identification_history_csv(tmp_path, rows)
+    csv_path = tmp_path / "identification_history.csv"
+    assert csv_path.exists()
+    with csv_path.open() as f:
+        reader = csv.DictReader(f)
+        data = list(reader)
+        fieldnames = reader.fieldnames
+    assert fieldnames == IDENT_HISTORY_COLUMNS
+    assert len(data) == 2
+    assert data[0]["scientificName"] == "A"
 
 def test_write_jsonl(tmp_path: Path) -> None:
     events = [{"id": 1}, {"id": 2}]

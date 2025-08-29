@@ -19,6 +19,7 @@ def _setup(monkeypatch, tmp_path, cfg, dispatch):
     monkeypatch.setattr(cli, "setup_logging", lambda o: None)
     monkeypatch.setattr(cli, "write_jsonl", lambda *a, **k: None)
     monkeypatch.setattr(cli, "write_dwc_csv", lambda *a, **k: None)
+    monkeypatch.setattr(cli, "write_identification_history_csv", lambda *a, **k: None)
     monkeypatch.setattr(cli, "write_manifest", lambda *a, **k: None)
     monkeypatch.setattr(cli.qc, "detect_duplicates", lambda *a, **k: [])
     monkeypatch.setattr(cli.qc, "flag_low_confidence", lambda *a, **k: [])
