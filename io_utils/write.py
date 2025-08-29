@@ -6,6 +6,21 @@ import json
 # Use the canonical list of Darwin Core terms defined by the schema module
 from dwc.schema import DWC_TERMS as DWC_COLUMNS
 
+IDENT_HISTORY_COLUMNS = [
+    "occurrenceID",
+    "identificationID",
+    "identifiedBy",
+    "dateIdentified",
+    "scientificName",
+    "scientificNameAuthorship",
+    "taxonRank",
+    "identificationQualifier",
+    "identificationRemarks",
+    "identificationReferences",
+    "identificationVerificationStatus",
+    "isCurrent",
+]
+
 def write_manifest(output_dir: Path, meta: Dict[str, Any]) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     manifest_path = output_dir / "manifest.json"
@@ -13,12 +28,22 @@ def write_manifest(output_dir: Path, meta: Dict[str, Any]) -> None:
 
 def write_dwc_csv(output_dir: Path, rows: Iterable[Dict[str, Any]]) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
-    csv_path = output_dir / "dwc.csv"
+    csv_path = output_dir / "occurrence.csv"
     with csv_path.open("w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=DWC_COLUMNS)
         writer.writeheader()
         for row in rows:
             writer.writerow({k: row.get(k, "") for k in DWC_COLUMNS})
+
+
+def write_identification_history_csv(output_dir: Path, rows: Iterable[Dict[str, Any]]) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    csv_path = output_dir / "identification_history.csv"
+    with csv_path.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=IDENT_HISTORY_COLUMNS)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({k: row.get(k, "") for k in IDENT_HISTORY_COLUMNS})
 
 def write_jsonl(output_dir: Path, events: Iterable[Dict[str, Any]]) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)

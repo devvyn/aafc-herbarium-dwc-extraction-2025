@@ -15,7 +15,12 @@ else:  # pragma: no cover
 
 from io_utils.logs import setup_logging
 from io_utils.read import iter_images, compute_sha256
-from io_utils.write import write_dwc_csv, write_jsonl, write_manifest
+from io_utils.write import (
+    write_dwc_csv,
+    write_jsonl,
+    write_manifest,
+    write_identification_history_csv,
+)
 from preprocess import preprocess_image
 
 import qc
@@ -67,6 +72,7 @@ def process_cli(
 
     events = []
     dwc_rows = []
+    ident_history_rows = []
     dupe_catalog: Dict[str, int] = {}
     for img_path in iter_images(input_dir):
         sha256 = compute_sha256(img_path)
@@ -125,8 +131,14 @@ def process_cli(
             model=cfg["gpt"]["model"],
             dry_run=cfg["gpt"]["dry_run"],
         )
+        ident_history = dwc_data.pop("identificationHistory", [])
         event["dwc"] = dwc_data
         event["dwc_confidence"] = field_conf
+        if ident_history:
+            event["identification_history"] = ident_history
+            for ident in ident_history:
+                ident.setdefault("occurrenceID", dwc_data.get("occurrenceID", ""))
+                ident_history_rows.append(ident)
 
         qc_cfg = cfg.get("qc", {})
         flags = []
@@ -157,6 +169,7 @@ def process_cli(
 
     write_jsonl(output, events)
     write_dwc_csv(output, dwc_rows)
+    write_identification_history_csv(output, ident_history_rows)
     write_manifest(output, meta)
 
     print(f"Processed {len(events)} images. Output written to {output}")
