@@ -61,6 +61,9 @@ Built-in steps register themselves when `preprocess` is imported, and external
 modules may register additional steps with
 `preprocess.register_preprocessor(name, func)`.
 
+Prototype configurations for Apple Vision, Tesseract, and GPT are documented in
+[`docs/preprocessing_flows.md`](docs/preprocessing_flows.md).
+
 ## Engine plugins
 
 Built-in plugins for Apple Vision (`vision`), Tesseract (`tesseract`), and GPT
