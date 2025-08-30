@@ -24,13 +24,25 @@ from __future__ import annotations
 
 from typing import Dict, List
 
+from .gbif import (
+    GBIF_REVERSE_GEOCODE_ENDPOINT,
+    GBIF_SPECIES_MATCH_ENDPOINT,
+    LOCALITY_FIELDS,
+    LOCALITY_QUERY_MAP,
+    TAXONOMY_FIELDS,
+    TAXONOMY_QUERY_MAP,
+    GbifLookup,
+)
+
 # Percentage used by ``flag_top_fifth``.  The value represents the size of
 # the top segment (in percent) that should be flagged.  For example a value
 # of 20 means that scan percentages of 80 or higher will be flagged.
 TOP_FIFTH_PCT: float = 20.0
 
 
-def detect_duplicates(catalog: Dict[str, int], sha256: str, phash_threshold: int) -> List[str]:
+def detect_duplicates(
+    catalog: Dict[str, int], sha256: str, phash_threshold: int
+) -> List[str]:
     """Detect duplicate images.
 
     Parameters
@@ -101,5 +113,11 @@ __all__ = [
     "flag_low_confidence",
     "flag_top_fifth",
     "TOP_FIFTH_PCT",
+    "GbifLookup",
+    "GBIF_SPECIES_MATCH_ENDPOINT",
+    "GBIF_REVERSE_GEOCODE_ENDPOINT",
+    "TAXONOMY_QUERY_MAP",
+    "LOCALITY_QUERY_MAP",
+    "TAXONOMY_FIELDS",
+    "LOCALITY_FIELDS",
 ]
-
