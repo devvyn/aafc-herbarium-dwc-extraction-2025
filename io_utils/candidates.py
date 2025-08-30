@@ -21,6 +21,7 @@ class Decision(BaseModel):
 
     value: str
     engine: str
+    run_id: str | None
     decided_at: str
 
 
@@ -97,19 +98,22 @@ def record_decision(
     )
     conn.commit()
     return Decision(
-        value=candidate.value, engine=candidate.engine, decided_at=decided_at
+        value=candidate.value,
+        engine=candidate.engine,
+        run_id=run_id,
+        decided_at=decided_at,
     )
 
 
 def fetch_decision(conn: sqlite3.Connection, image: str) -> Optional[Decision]:
     """Retrieve the stored decision for an image if present."""
     row = conn.execute(
-        "SELECT value, engine, decided_at FROM decisions WHERE image = ? ORDER BY decided_at DESC LIMIT 1",
+        "SELECT value, engine, run_id, decided_at FROM decisions WHERE image = ? ORDER BY decided_at DESC LIMIT 1",
         (image,),
     ).fetchone()
     if not row:
         return None
-    return Decision(value=row[0], engine=row[1], decided_at=row[2])
+    return Decision(value=row[0], engine=row[1], run_id=row[2], decided_at=row[3])
 
 
 __all__ = [
@@ -120,4 +124,5 @@ __all__ = [
     "best_candidate",
     "record_decision",
     "fetch_decision",
+    "Decision",
 ]
