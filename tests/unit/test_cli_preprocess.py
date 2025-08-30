@@ -1,4 +1,3 @@
-from pathlib import Path
 from PIL import Image
 
 import cli
@@ -20,7 +19,7 @@ def test_process_cli_invokes_preprocess_when_enabled(monkeypatch, tmp_path):
     out_dir.mkdir()
 
     cfg_file = tmp_path / "cfg.toml"
-    cfg_file.write_text("[preprocess]\npipeline=[\"grayscale\"]\n")
+    cfg_file.write_text('[preprocess]\npipeline=["grayscale"]\n')
 
     called = {"n": 0}
 
