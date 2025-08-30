@@ -1,5 +1,4 @@
-from pathlib import Path
-from types import SimpleNamespace
+import sqlite3
 from PIL import Image
 import pytest
 
@@ -14,6 +13,7 @@ def _setup(monkeypatch, tmp_path, cfg, dispatch):
     monkeypatch.setattr(cli, "load_config", lambda p: cfg)
     monkeypatch.setattr(cli, "dispatch", dispatch)
     import engines
+
     monkeypatch.setattr(engines, "dispatch", dispatch)
     monkeypatch.setattr(cli, "preprocess_image", lambda p, c: p)
     monkeypatch.setattr(cli, "setup_logging", lambda o: None)
@@ -53,6 +53,10 @@ def test_process_cli_uses_preferred_engine(monkeypatch, tmp_path):
     out_dir = _setup(monkeypatch, tmp_path, cfg, fake_dispatch)
     cli.process_cli(tmp_path, out_dir, None)
     assert calls == ["vision"]
+    conn = sqlite3.connect(out_dir / "candidates.db")
+    rows = conn.execute("SELECT engine FROM candidates").fetchall()
+    conn.close()
+    assert rows == [("vision",)]
 
 
 def test_process_cli_falls_back_to_gpt_on_low_confidence(monkeypatch, tmp_path):
@@ -81,6 +85,12 @@ def test_process_cli_falls_back_to_gpt_on_low_confidence(monkeypatch, tmp_path):
     out_dir = _setup(monkeypatch, tmp_path, cfg, fake_dispatch)
     cli.process_cli(tmp_path, out_dir, None)
     assert calls == ["vision", "gpt"]
+    conn = sqlite3.connect(out_dir / "candidates.db")
+    rows = conn.execute(
+        "SELECT engine FROM candidates ORDER BY confidence DESC"
+    ).fetchall()
+    conn.close()
+    assert rows == [("gpt",), ("vision",)] or rows == [("vision",), ("gpt",)]
 
 
 def test_process_cli_avoids_tesseract_on_macos(monkeypatch, tmp_path):
@@ -107,6 +117,10 @@ def test_process_cli_avoids_tesseract_on_macos(monkeypatch, tmp_path):
     out_dir = _setup(monkeypatch, tmp_path, cfg, fake_dispatch)
     cli.process_cli(tmp_path, out_dir, None)
     assert calls == ["gpt"]
+    conn = sqlite3.connect(out_dir / "candidates.db")
+    rows = conn.execute("SELECT engine FROM candidates").fetchall()
+    conn.close()
+    assert rows == [("gpt",)]
 
 
 def test_process_cli_errors_when_preferred_missing(monkeypatch, tmp_path):

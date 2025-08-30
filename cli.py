@@ -21,6 +21,7 @@ from io_utils.write import (
     write_manifest,
     write_identification_history_csv,
 )
+from io_utils.candidates import Candidate, init_db, insert_candidate
 from preprocess import preprocess_image
 
 import qc
@@ -66,7 +67,9 @@ def process_cli(
 
     run_id = datetime.now(timezone.utc).isoformat()
     try:
-        git_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+        git_commit = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], text=True
+        ).strip()
     except Exception:  # pragma: no cover - git may not be available
         git_commit = None
 
@@ -74,6 +77,7 @@ def process_cli(
     dwc_rows = []
     ident_history_rows = []
     dupe_catalog: Dict[str, int] = {}
+    cand_conn = init_db(output / "candidates.db")
     for img_path in iter_images(input_dir):
         sha256 = compute_sha256(img_path)
         event = {
@@ -101,28 +105,57 @@ def process_cli(
             raise ValueError(
                 f"Preferred engine '{preferred}' unavailable. Available: {', '.join(available)}"
             )
-        if preferred == "tesseract" and sys.platform == "darwin" and not ocr_cfg.get(
-            "allow_tesseract_on_macos", False
+        if (
+            preferred == "tesseract"
+            and sys.platform == "darwin"
+            and not ocr_cfg.get("allow_tesseract_on_macos", False)
         ):
-            preferred = "gpt" if "gpt" in available and ocr_cfg.get("allow_gpt") else available[0]
-        if preferred == "gpt" and (not ocr_cfg.get("allow_gpt") or "gpt" not in available):
+            preferred = (
+                "gpt"
+                if "gpt" in available and ocr_cfg.get("allow_gpt")
+                else available[0]
+            )
+        if preferred == "gpt" and (
+            not ocr_cfg.get("allow_gpt") or "gpt" not in available
+        ):
             preferred = available[0]
 
         text = ""
         confidences: list[float] = []
         try:
-            text, confidences = dispatch("image_to_text", image=proc_path, engine=preferred)
+            text, confidences = dispatch(
+                "image_to_text", image=proc_path, engine=preferred
+            )
+            avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
+            insert_candidate(
+                cand_conn,
+                run_id,
+                img_path.name,
+                Candidate(value=text, engine=preferred, confidence=avg_conf),
+            )
             policy = get_fallback_policy(preferred)
             if policy:
                 text, confidences, final_engine, engine_version = policy(
                     proc_path, text, confidences, cfg
                 )
+                if final_engine != preferred:
+                    avg_conf = (
+                        sum(confidences) / len(confidences) if confidences else 0.0
+                    )
+                    insert_candidate(
+                        cand_conn,
+                        run_id,
+                        img_path.name,
+                        Candidate(value=text, engine=final_engine, confidence=avg_conf),
+                    )
             else:
                 final_engine, engine_version = preferred, None
             event["engine"] = final_engine
             if engine_version:
                 event["engine_version"] = engine_version
-        except Exception as exc:  # pragma: no cover - exercised in tests via monkeypatch
+        except (
+            Exception
+        ) as exc:  # pragma: no cover - exercised in tests via monkeypatch
             event["errors"].append(str(exc))
 
         dwc_data, field_conf = dispatch(
@@ -142,7 +175,9 @@ def process_cli(
 
         qc_cfg = cfg.get("qc", {})
         flags = []
-        flags.extend(qc.detect_duplicates(dupe_catalog, sha256, qc_cfg.get("phash_threshold", 0)))
+        flags.extend(
+            qc.detect_duplicates(dupe_catalog, sha256, qc_cfg.get("phash_threshold", 0))
+        )
         if qc_cfg.get("low_confidence_flag"):
             confidence = event.get("dwc_confidence")
             if isinstance(confidence, (int, float)):
@@ -171,6 +206,7 @@ def process_cli(
     write_dwc_csv(output, dwc_rows)
     write_identification_history_csv(output, ident_history_rows)
     write_manifest(output, meta)
+    cand_conn.close()
 
     print(f"Processed {len(events)} images. Output written to {output}")
 
@@ -183,10 +219,21 @@ try:  # optional dependency
     @app.command()
     def process(
         input: Path = typer.Option(
-            ..., "--input", "-i", exists=True, file_okay=False, dir_okay=True, help="Directory of images"
+            ...,
+            "--input",
+            "-i",
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            help="Directory of images",
         ),
         output: Path = typer.Option(
-            ..., "--output", "-o", file_okay=False, dir_okay=True, help="Output directory"
+            ...,
+            "--output",
+            "-o",
+            file_okay=False,
+            dir_okay=True,
+            help="Output directory",
         ),
         config: Optional[Path] = typer.Option(
             None,
@@ -204,7 +251,9 @@ try:  # optional dependency
             help="OCR engines to enable (repeatable)",
         ),
     ) -> None:
-        process_cli(input, output, config, list(enabled_engine) if enabled_engine else None)
+        process_cli(
+            input, output, config, list(enabled_engine) if enabled_engine else None
+        )
 
     if __name__ == "__main__":
         app()
