@@ -1,104 +1,86 @@
 # Herbarium OCR to Darwin Core
 
-Toolkit for extracting text from herbarium specimen images and mapping the
-results to the Darwin Core standard.
+A toolkit for extracting text from herbarium specimen images, mapping the results to the Darwin Core standard, and recording metadata and quality-control information.
 
-## Status
-
-This project is an early-stage skeleton. The current codebase includes:
-
-* configuration loading with default values in `config/config.default.toml`
-* a Typer-based CLI with a stub `process` command
-* minimal I/O helpers that compute image hashes and write CSV, JSONL, and a
-  manifest file
-
-Optional OCR engine plugins for Apple Vision, Tesseract, and GPT are available
-and register themselves when their dependencies are installed.
-
-## CLI Usage
-
-Process a directory of images by invoking the CLI with Python:
-
-```bash
-python cli.py process --input /path/to/images --output /path/to/output [--config path/to/config.toml]
-```
-
-**Options**
-
-* `--input` / `-i`: directory of JPG/PNG images to process
-* `--output` / `-o`: directory where CSV, JSONL, and manifest files are written
-* `--config` / `-c`: optional TOML file overriding the default configuration
-
-The current implementation iterates images, computes SHA-256 hashes, and writes
-placeholder outputs. OCR and data extraction will be added in future commits.
-
-## Development
-
-Install dependencies and run tests:
+## Installation
 
 ```bash
 pip install -e .
-pytest -q
+# Add optional dependencies for engines you plan to use:
+#   Tesseract OCR  -> tesseract-ocr and pytesseract
+#   Apple Vision   -> macOS + pyobjc
+#   GPT models     -> openai
+pytest -q  # run the unit tests
 ```
 
-The repository ships optional plugins for Apple Vision, Tesseract, and GPT
-engines. Quality-control checks and full Darwin Core mapping logic will be
-implemented as the project evolves.
+## Command line interface
+
+Two subcommands drive the pipeline:
+
+```bash
+python cli.py process --input PATH/TO/images --output PATH/TO/output \
+    [--config CONFIG.toml] [--engine vision --engine tesseract ...]
+
+python cli.py resume  --input PATH/TO/images --output PATH/TO/output \
+    [--config CONFIG.toml] [--engine vision --engine tesseract ...]
+```
+
+**Key options**
+
+- `--input/-i`   – directory of JPG/PNG images
+- `--output/-o`  – destination for all artifacts
+- `--config/-c`  – optional TOML file merged over `config/config.default.toml`
+- `--engine/-e`  – limit OCR engines (repeatable flag)
+
+`process` starts a new run; `resume` skips specimens whose processing status is already “done”.
+
+### Outputs
+
+| File/DB                    | Purpose                                   |
+|----------------------------|-------------------------------------------|
+| `occurrence.csv`           | Darwin Core records                       |
+| `identification_history.csv` | Identification history rows              |
+| `raw.jsonl`                | Per-image event log (OCR text, flags, etc.) |
+| `manifest.json`            | Run metadata and configuration snapshot   |
+| `candidates.db`            | Raw OCR candidates                        |
+| `app.db`                   | Specimen metadata and processing state    |
+
+## Configuration highlights (`config/config.default.toml`)
+
+- **OCR** – `preferred_engine`, `enabled_engines`, `allow_gpt`, `allow_tesseract_on_macos`, `confidence_threshold`
+- **GPT** – `model`, `dry_run`, `fallback_threshold`
+- **Tesseract** – `oem`, `psm`, `langs`, `extra_args`
+- **Preprocess** – `pipeline = ["grayscale","deskew","binarize","resize"]`, `max_dim_px`, `contrast_factor`
+- **DWc mapping** – `assume_country_if_missing`, `strict_minimal_fields`, normalization toggles
+- **QC** – duplicate detection (`phash_threshold`), low-confidence flagging, top-fifth scan flag
+- **Processing** – `retry_limit` for failed specimens
 
 ## Preprocessing pipeline
 
-Images can be passed through an ordered preprocessing pipeline before OCR.
-Steps are referenced by name and resolved via a simple registry. Configure the
-pipeline and step options in the `[preprocess]` section of the TOML file:
+Preprocessing steps are registered via `preprocess.register_preprocessor`. Configure them under `[preprocess]`:
 
 ```toml
 [preprocess]
-pipeline = ["grayscale", "deskew", "binarize", "resize"]
-max_dim_px = 4000  # used by the "resize" step
+pipeline   = ["grayscale", "deskew", "binarize", "resize"]
+max_dim_px = 4000
 ```
 
-Built-in steps register themselves when `preprocess` is imported, and external
-modules may register additional steps with
-`preprocess.register_preprocessor(name, func)`.
-
-Prototype configurations for Apple Vision, Tesseract, and GPT are documented in
-[`docs/preprocessing_flows.md`](docs/preprocessing_flows.md).
+Prototype flows for each engine are documented in `docs/preprocessing_flows.md`.
 
 ## Engine plugins
 
-Built-in plugins for Apple Vision (`vision`), Tesseract (`tesseract`), and GPT
-(`gpt`) register themselves when their optional dependencies are installed.
-Enable or restrict engines via the `[ocr]` section of your configuration:
-
-```toml
-[ocr]
-enabled_engines = ["vision", "tesseract", "gpt"]
-preferred_engine = "vision"
-```
-
-OCR and transformation engines are discovered at runtime.  Each engine module
-registers the tasks it implements using:
-
-```python
-from engines import register_task
-register_task("image_to_text", "my_engine", __name__, "image_to_text")
-```
-
-The registry loads these built-in plugins on import and discovers any
-additional engines that advertise the `herbarium.engines` entry-point group.
-Engine implementations should follow the call signatures defined in
-``engines.protocols``. For OCR tasks implement
-:class:`engines.protocols.ImageToTextEngine` and for text extraction to Darwin
-Core implement :class:`engines.protocols.TextToDwcEngine`.
-
-Third-party packages can expose engines via Python entry points in their
-`pyproject.toml`:
+Built‑in engines (`vision`, `tesseract`, `gpt`) register themselves when their dependencies are available. Additional engines can be added with Python entry points:
 
 ```toml
 [project.entry-points."herbarium.engines"]
 my_engine = "my_package.my_module"
 ```
 
-The referenced module should call :func:`register_task` during import.
+Within the module, register tasks:
 
+```python
+from engines import register_task
+register_task("image_to_text", "my_engine", __name__, "image_to_text")
+```
 
+Fallback policies allow engines such as GPT to take over when confidence is low.
