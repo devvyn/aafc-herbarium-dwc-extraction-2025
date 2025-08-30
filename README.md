@@ -4,14 +4,37 @@ A toolkit for extracting text from herbarium specimen images, mapping the result
 
 ## Installation
 
-```bash
-pip install -e .
-# Add optional dependencies for engines you plan to use:
-#   Tesseract OCR  -> tesseract-ocr and pytesseract
-#   Apple Vision   -> macOS + pyobjc
-#   GPT models     -> openai
-pytest -q  # run the unit tests
+This project uses a modern pyproject.toml layout and works with uv, pip, or other PEP 621–compatible tools.
+
+Quick start (with uv)
+
+### Install base package + dev dependencies
 ```
+uv sync --dev
+
+# (Optional) add extras depending on the engine(s) you need:
+#   Tesseract OCR  -> brew install tesseract && uv add ".[tesseract]"
+#   Apple Vision   -> macOS only: uv add ".[apple-vision]"
+#   GPT models     -> uv add ".[gpt]"
+```
+
+### Run the tests
+```
+uv run pytest -q
+```
+
+With pip (classic approach)
+```
+pip install -e .[dev]
+
+# Install extras manually if needed:
+#   Tesseract OCR  -> brew install tesseract && pip install pytesseract
+#   Apple Vision   -> macOS only: pip install pyobjc
+#   GPT models     -> pip install openai
+
+pytest -q
+```
+
 
 ## Command line interface
 
