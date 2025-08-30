@@ -14,6 +14,7 @@ class Candidate(BaseModel):
     value: str
     engine: str
     confidence: float
+    error: bool = False
 
 
 class Decision(BaseModel):
@@ -35,7 +36,8 @@ def init_db(db_path: Path) -> sqlite3.Connection:
             image TEXT,
             value TEXT,
             engine TEXT,
-            confidence REAL
+            confidence REAL,
+            error INTEGER DEFAULT 0
         )
         """
     )
@@ -50,6 +52,10 @@ def init_db(db_path: Path) -> sqlite3.Connection:
         )
         """
     )
+    try:
+        conn.execute("ALTER TABLE candidates ADD COLUMN error INTEGER DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
     return conn
 
 
@@ -61,8 +67,15 @@ def insert_candidate(
 ) -> None:
     """Persist a candidate record to the database."""
     conn.execute(
-        "INSERT INTO candidates (run_id, image, value, engine, confidence) VALUES (?, ?, ?, ?, ?)",
-        (run_id, image, candidate.value, candidate.engine, candidate.confidence),
+        "INSERT INTO candidates (run_id, image, value, engine, confidence, error) VALUES (?, ?, ?, ?, ?, ?)",
+        (
+            run_id,
+            image,
+            candidate.value,
+            candidate.engine,
+            candidate.confidence,
+            int(candidate.error),
+        ),
     )
     conn.commit()
 
@@ -70,10 +83,13 @@ def insert_candidate(
 def fetch_candidates(conn: sqlite3.Connection, image: str) -> List[Candidate]:
     """Retrieve all candidate values for an image sorted by confidence."""
     rows = conn.execute(
-        "SELECT value, engine, confidence FROM candidates WHERE image = ? ORDER BY confidence DESC",
+        "SELECT value, engine, confidence, error FROM candidates WHERE image = ? ORDER BY confidence DESC",
         (image,),
     ).fetchall()
-    return [Candidate(value=row[0], engine=row[1], confidence=row[2]) for row in rows]
+    return [
+        Candidate(value=row[0], engine=row[1], confidence=row[2], error=bool(row[3]))
+        for row in rows
+    ]
 
 
 def best_candidate(conn: sqlite3.Connection, image: str) -> Optional[Candidate]:

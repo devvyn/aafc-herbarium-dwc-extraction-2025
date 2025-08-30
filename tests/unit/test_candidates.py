@@ -25,13 +25,14 @@ def test_candidate_roundtrip(tmp_path: Path) -> None:
         conn,
         "run1",
         "img1.jpg",
-        Candidate(value="hola", engine="tesseract", confidence=0.7),
+        Candidate(value="hola", engine="tesseract", confidence=0.7, error=True),
     )
     conn.close()
 
     conn = sqlite3.connect(db_path)
     candidates = fetch_candidates(conn, "img1.jpg")
     assert [c.engine for c in candidates] == ["vision", "tesseract"]
+    assert [c.error for c in candidates] == [False, True]
     best = best_candidate(conn, "img1.jpg")
     assert best and best.engine == "vision"
     conn.close()
