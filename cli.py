@@ -21,7 +21,17 @@ from io_utils.write import (
     write_manifest,
     write_identification_history_csv,
 )
-from io_utils.candidates import Candidate, init_db, insert_candidate
+from io_utils.candidates import Candidate, init_db as init_candidate_db, insert_candidate
+from io_utils.database import (
+    Specimen,
+    ProcessingState,
+    init_db as init_app_db,
+    insert_specimen,
+    fetch_processing_state,
+    record_failure,
+    upsert_processing_state,
+)
+from engines.errors import EngineError
 from preprocess import preprocess_image
 
 import qc
@@ -52,6 +62,7 @@ def process_cli(
     output: Path,
     config: Optional[Path] = None,
     enabled_engines: Optional[List[str]] = None,
+    resume: bool = False,
 ) -> None:
     """Core processing logic used by the command line interface.
 
@@ -77,8 +88,19 @@ def process_cli(
     dwc_rows = []
     ident_history_rows = []
     dupe_catalog: Dict[str, int] = {}
-    cand_conn = init_db(output / "candidates.db")
+    cand_conn = init_candidate_db(output / "candidates.db")
+    app_conn = init_app_db(output / "app.db")
+    retry_limit = cfg.get("processing", {}).get("retry_limit", 3)
     for img_path in iter_images(input_dir):
+        specimen_id = img_path.stem
+        insert_specimen(app_conn, Specimen(specimen_id=specimen_id, image=img_path.name))
+        state = fetch_processing_state(app_conn, specimen_id, "process")
+        if resume and state and state.status == "done":
+            continue
+        if state and state.error and state.retries >= retry_limit:
+            print(f"Skipping {img_path.name}: retry limit reached")
+            continue
+
         sha256 = compute_sha256(img_path)
         event = {
             "run_id": run_id,
@@ -153,47 +175,68 @@ def process_cli(
             event["engine"] = final_engine
             if engine_version:
                 event["engine_version"] = engine_version
-        except (
-            Exception
-        ) as exc:  # pragma: no cover - exercised in tests via monkeypatch
-            event["errors"].append(str(exc))
 
-        dwc_data, field_conf = dispatch(
-            "text_to_dwc",
-            text=text,
-            model=cfg["gpt"]["model"],
-            dry_run=cfg["gpt"]["dry_run"],
-        )
-        ident_history = dwc_data.pop("identificationHistory", [])
-        event["dwc"] = dwc_data
-        event["dwc_confidence"] = field_conf
-        if ident_history:
-            event["identification_history"] = ident_history
-            for ident in ident_history:
-                ident.setdefault("occurrenceID", dwc_data.get("occurrenceID", ""))
-                ident_history_rows.append(ident)
+            dwc_data, field_conf = dispatch(
+                "text_to_dwc",
+                text=text,
+                model=cfg["gpt"]["model"],
+                dry_run=cfg["gpt"]["dry_run"],
+            )
+            ident_history = dwc_data.pop("identificationHistory", [])
+            event["dwc"] = dwc_data
+            event["dwc_confidence"] = field_conf
+            if ident_history:
+                event["identification_history"] = ident_history
+                for ident in ident_history:
+                    ident.setdefault("occurrenceID", dwc_data.get("occurrenceID", ""))
+                    ident_history_rows.append(ident)
 
-        qc_cfg = cfg.get("qc", {})
-        flags = []
-        flags.extend(
-            qc.detect_duplicates(dupe_catalog, sha256, qc_cfg.get("phash_threshold", 0))
-        )
-        if qc_cfg.get("low_confidence_flag"):
-            confidence = event.get("dwc_confidence")
-            if isinstance(confidence, (int, float)):
-                flags.extend(
-                    qc.flag_low_confidence(
-                        confidence, cfg.get("ocr", {}).get("confidence_threshold", 0.0)
+            qc_cfg = cfg.get("qc", {})
+            flags = []
+            flags.extend(
+                qc.detect_duplicates(dupe_catalog, sha256, qc_cfg.get("phash_threshold", 0))
+            )
+            if qc_cfg.get("low_confidence_flag"):
+                confidence = event.get("dwc_confidence")
+                if isinstance(confidence, (int, float)):
+                    flags.extend(
+                        qc.flag_low_confidence(
+                            confidence, cfg.get("ocr", {}).get("confidence_threshold", 0.0)
+                        )
                     )
-                )
-        scan_pct = event.get("scan_pct")
-        if isinstance(scan_pct, (int, float)):
-            flags.extend(qc.flag_top_fifth(scan_pct))
-        if flags:
-            event["flags"].extend(flags)
+            scan_pct = event.get("scan_pct")
+            if isinstance(scan_pct, (int, float)):
+                flags.extend(qc.flag_top_fifth(scan_pct))
+            if flags:
+                event["flags"].extend(flags)
 
-        events.append(event)
-        dwc_rows.append(event["dwc"])
+            events.append(event)
+            dwc_rows.append(event["dwc"])
+
+            avg_field_conf = (
+                sum(field_conf.values()) / len(field_conf) if field_conf else None
+            )
+            upsert_processing_state(
+                app_conn,
+                ProcessingState(
+                    specimen_id=specimen_id,
+                    module="process",
+                    status="done",
+                    confidence=avg_field_conf,
+                ),
+            )
+        except EngineError as exc:
+            event["errors"].append(str(exc))
+            state = record_failure(app_conn, specimen_id, "process", exc.code, exc.message)
+            events.append(event)
+            if state.retries >= retry_limit:
+                print(f"Skipping {img_path.name}: retry limit reached")
+        except Exception as exc:  # pragma: no cover - unexpected
+            event["errors"].append(str(exc))
+            state = record_failure(app_conn, specimen_id, "process", "UNKNOWN", str(exc))
+            events.append(event)
+            if state.retries >= retry_limit:
+                print(f"Skipping {img_path.name}: retry limit reached")
 
     meta = {
         "run_id": run_id,
@@ -207,6 +250,7 @@ def process_cli(
     write_identification_history_csv(output, ident_history_rows)
     write_manifest(output, meta)
     cand_conn.close()
+    app_conn.close()
 
     print(f"Processed {len(events)} images. Output written to {output}")
 
@@ -252,7 +296,54 @@ try:  # optional dependency
         ),
     ) -> None:
         process_cli(
-            input, output, config, list(enabled_engine) if enabled_engine else None
+            input,
+            output,
+            config,
+            list(enabled_engine) if enabled_engine else None,
+            resume=False,
+        )
+
+    @app.command()
+    def resume(
+        input: Path = typer.Option(
+            ...,
+            "--input",
+            "-i",
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            help="Directory of images",
+        ),
+        output: Path = typer.Option(
+            ...,
+            "--output",
+            "-o",
+            file_okay=False,
+            dir_okay=True,
+            help="Output directory",
+        ),
+        config: Optional[Path] = typer.Option(
+            None,
+            "--config",
+            "-c",
+            exists=True,
+            dir_okay=False,
+            file_okay=True,
+            help="Optional config file",
+        ),
+        enabled_engine: List[str] = typer.Option(
+            None,
+            "--engine",
+            "-e",
+            help="OCR engines to enable (repeatable)",
+        ),
+    ) -> None:
+        process_cli(
+            input,
+            output,
+            config,
+            list(enabled_engine) if enabled_engine else None,
+            resume=True,
         )
 
     if __name__ == "__main__":

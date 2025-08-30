@@ -5,13 +5,20 @@ from pathlib import Path
 from typing import List, Tuple
 
 from .. import register_task
+from ..errors import EngineError
 from ..protocols import ImageToTextEngine
 
 
-def image_to_text(image: Path, oem: int, psm: int, langs: List[str], extra_args: List[str]) -> Tuple[str, List[float]]:
+def image_to_text(
+    image: Path, oem: int, psm: int, langs: List[str], extra_args: List[str]
+) -> Tuple[str, List[float]]:
     """Run Tesseract OCR on an image and return text and token confidences."""
-    import pytesseract
-    from pytesseract import Output
+    try:
+        import pytesseract
+        from pytesseract import Output  # type: ignore
+        TesseractError = getattr(pytesseract, "TesseractError", Exception)
+    except Exception as exc:  # pragma: no cover - optional dependency
+        raise EngineError("MISSING_DEPENDENCY", "pytesseract not available") from exc
 
     config_parts = [f"--oem {oem}", f"--psm {psm}"]
     if extra_args:
@@ -19,9 +26,12 @@ def image_to_text(image: Path, oem: int, psm: int, langs: List[str], extra_args:
     config = " ".join(config_parts)
     lang = "+".join(langs)
 
-    data = pytesseract.image_to_data(
-        str(image), lang=lang, config=config, output_type=Output.DICT
-    )
+    try:
+        data = pytesseract.image_to_data(
+            str(image), lang=lang, config=config, output_type=Output.DICT
+        )
+    except TesseractError as exc:  # pragma: no cover - runtime failure
+        raise EngineError("OCR_ERROR", str(exc)) from exc
     tokens = [t for t in data.get("text", []) if t.strip()]
     confidences = [
         float(c) / 100
