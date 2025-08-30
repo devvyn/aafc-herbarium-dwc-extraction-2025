@@ -11,6 +11,7 @@ This project is an early-stage skeleton. The current codebase includes:
 * a Typer-based CLI with a stub `process` command
 * minimal I/O helpers that compute image hashes and write CSV, JSONL, and a
   manifest file
+* archive utilities that generate `meta.xml` and optionally zip outputs into a Darwin Core Archive bundle
 
 Optional OCR engine plugins for Apple Vision, Tesseract, and GPT are available
 and register themselves when their dependencies are installed.

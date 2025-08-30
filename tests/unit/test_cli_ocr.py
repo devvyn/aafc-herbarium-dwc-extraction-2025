@@ -1,5 +1,3 @@
-from pathlib import Path
-from types import SimpleNamespace
 from PIL import Image
 import pytest
 
@@ -14,6 +12,7 @@ def _setup(monkeypatch, tmp_path, cfg, dispatch):
     monkeypatch.setattr(cli, "load_config", lambda p: cfg)
     monkeypatch.setattr(cli, "dispatch", dispatch)
     import engines
+
     monkeypatch.setattr(engines, "dispatch", dispatch)
     monkeypatch.setattr(cli, "preprocess_image", lambda p, c: p)
     monkeypatch.setattr(cli, "setup_logging", lambda o: None)
@@ -21,6 +20,7 @@ def _setup(monkeypatch, tmp_path, cfg, dispatch):
     monkeypatch.setattr(cli, "write_dwc_csv", lambda *a, **k: None)
     monkeypatch.setattr(cli, "write_identification_history_csv", lambda *a, **k: None)
     monkeypatch.setattr(cli, "write_manifest", lambda *a, **k: None)
+    monkeypatch.setattr(cli, "write_meta_xml", lambda *a, **k: None)
     monkeypatch.setattr(cli.qc, "detect_duplicates", lambda *a, **k: [])
     monkeypatch.setattr(cli.qc, "flag_low_confidence", lambda *a, **k: [])
     monkeypatch.setattr(cli.qc, "flag_top_fifth", lambda *a, **k: [])
