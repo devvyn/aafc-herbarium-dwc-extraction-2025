@@ -6,6 +6,7 @@ from importlib import resources
 from pathlib import Path
 from typing import List, Tuple
 
+from ..errors import EngineError
 from ..protocols import ImageToTextEngine
 
 try:  # optional dependency
@@ -32,8 +33,10 @@ def image_to_text(image: Path, *, model: str, dry_run: bool = False) -> Tuple[st
         call is performed and an empty result is returned.
     """
     prompt = _load_prompt("image_to_text.prompt")
-    if dry_run or OpenAI is None:
+    if dry_run:
         return "", []
+    if OpenAI is None:
+        raise EngineError("MISSING_DEPENDENCY", "OpenAI SDK not available")
 
     client = OpenAI()
     with image.open("rb") as f:
@@ -43,18 +46,21 @@ def image_to_text(image: Path, *, model: str, dry_run: bool = False) -> Tuple[st
     # This implementation targets the Responses API available in the
     # official SDK.  If the API changes, the call below should be
     # updated accordingly.
-    resp = client.responses.create(
-        model=model,
-        input=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "image", "image": {"b64": b64}},
-                ],
-            }
-        ],
-    )
+    try:
+        resp = client.responses.create(
+            model=model,
+            input=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {"type": "image", "image": {"b64": b64}},
+                    ],
+                }
+            ],
+        )
+    except Exception as exc:  # pragma: no cover - network issues
+        raise EngineError("API_ERROR", str(exc)) from exc
 
     text = getattr(resp, "output_text", "")
     confidence = float(getattr(resp, "confidence", 1.0))

@@ -37,6 +37,9 @@ class ProcessingState(BaseModel):
     status: str
     confidence: float | None = None
     error: bool = False
+    retries: int = 0
+    error_code: str | None = None
+    error_message: str | None = None
     updated_at: str | None = None
 
 
@@ -73,11 +76,24 @@ def init_db(db_path: Path) -> sqlite3.Connection:
             status TEXT,
             confidence REAL,
             error INTEGER DEFAULT 0,
+            retries INTEGER DEFAULT 0,
+            error_code TEXT,
+            error_message TEXT,
             updated_at TEXT,
             PRIMARY KEY (specimen_id, module)
         )
         """
     )
+    # migrations
+    for stmt in (
+        "ALTER TABLE processing_state ADD COLUMN retries INTEGER DEFAULT 0",
+        "ALTER TABLE processing_state ADD COLUMN error_code TEXT",
+        "ALTER TABLE processing_state ADD COLUMN error_message TEXT",
+    ):
+        try:
+            conn.execute(stmt)
+        except sqlite3.OperationalError:
+            pass
     conn.commit()
     return conn
 
@@ -157,8 +173,8 @@ def upsert_processing_state(
     conn.execute(
         """
         INSERT OR REPLACE INTO processing_state
-            (specimen_id, module, status, confidence, error, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?)
+            (specimen_id, module, status, confidence, error, retries, error_code, error_message, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             state.specimen_id,
@@ -166,6 +182,9 @@ def upsert_processing_state(
             state.status,
             state.confidence,
             int(state.error),
+            state.retries,
+            state.error_code,
+            state.error_message,
             updated_at,
         ),
     )
@@ -179,7 +198,7 @@ def fetch_processing_state(
     """Fetch processing state for a specimen/module pair."""
     row = conn.execute(
         """
-        SELECT specimen_id, module, status, confidence, error, updated_at
+        SELECT specimen_id, module, status, confidence, error, retries, error_code, error_message, updated_at
         FROM processing_state
         WHERE specimen_id = ? AND module = ?
         """,
@@ -193,8 +212,33 @@ def fetch_processing_state(
         status=row[2],
         confidence=row[3],
         error=bool(row[4]),
-        updated_at=row[5],
+        retries=row[5],
+        error_code=row[6],
+        error_message=row[7],
+        updated_at=row[8],
     )
+
+
+def record_failure(
+    conn: sqlite3.Connection,
+    specimen_id: str,
+    module: str,
+    error_code: str,
+    error_message: str,
+) -> ProcessingState:
+    """Increment retry count and store failure details."""
+    existing = fetch_processing_state(conn, specimen_id, module)
+    retries = existing.retries + 1 if existing else 1
+    state = ProcessingState(
+        specimen_id=specimen_id,
+        module=module,
+        status="error",
+        error=True,
+        retries=retries,
+        error_code=error_code,
+        error_message=error_message,
+    )
+    return upsert_processing_state(conn, state)
 
 
 def migrate(db_path: Path) -> None:
@@ -214,5 +258,6 @@ __all__ = [
     "fetch_final_value",
     "upsert_processing_state",
     "fetch_processing_state",
+    "record_failure",
     "migrate",
 ]

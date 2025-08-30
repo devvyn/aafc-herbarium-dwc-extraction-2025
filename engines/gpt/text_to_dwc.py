@@ -5,6 +5,7 @@ import json
 from importlib import resources
 from typing import Dict, Tuple
 
+from ..errors import EngineError
 from ..protocols import TextToDwcEngine
 
 try:  # optional dependency
@@ -25,24 +26,29 @@ def text_to_dwc(text: str, *, model: str, dry_run: bool = False) -> Tuple[Dict[s
     entries.  Any parsing errors result in empty outputs.
     """
     prompt = _load_prompt("text_to_dwc.prompt")
-    if dry_run or OpenAI is None:
+    if dry_run:
         return {}, {}
+    if OpenAI is None:
+        raise EngineError("MISSING_DEPENDENCY", "OpenAI SDK not available")
 
     client = OpenAI()
-    resp = client.responses.create(
-        model=model,
-        input=[
-            {
-                "role": "user",
-                "content": [{"type": "text", "text": f"{prompt}{text}"}],
-            }
-        ],
-    )
+    try:
+        resp = client.responses.create(
+            model=model,
+            input=[
+                {
+                    "role": "user",
+                    "content": [{"type": "text", "text": f"{prompt}{text}"}],
+                }
+            ],
+        )
+    except Exception as exc:  # pragma: no cover - network issues
+        raise EngineError("API_ERROR", str(exc)) from exc
     content = getattr(resp, "output_text", "{}")
     try:
         data = json.loads(content)
-    except Exception:
-        return {}, {}
+    except Exception as exc:
+        raise EngineError("PARSE_ERROR", str(exc)) from exc
 
     dwc = {k: v.get("value", "") for k, v in data.items() if isinstance(v, dict)}
     confidences = {k: float(v.get("confidence", 0.0)) for k, v in data.items() if isinstance(v, dict)}

@@ -11,6 +11,7 @@ from io_utils.database import (
     insert_final_value,
     insert_specimen,
     upsert_processing_state,
+    record_failure,
 )
 
 
@@ -40,4 +41,11 @@ def test_specimen_and_state_roundtrip(tmp_path: Path) -> None:
     stored_final = insert_final_value(conn, final)
     fetched_final = fetch_final_value(conn, "s1", "scientificName")
     assert fetched_final == stored_final
+
+    fail_state = record_failure(conn, "s1", "ocr", "ERR", "boom")
+    assert fail_state.retries == 1 and fail_state.error
+    fail_state = record_failure(conn, "s1", "ocr", "ERR", "boom")
+    assert fail_state.retries == 2
+    fetched_fail = fetch_processing_state(conn, "s1", "ocr")
+    assert fetched_fail and fetched_fail.retries == 2
     conn.close()

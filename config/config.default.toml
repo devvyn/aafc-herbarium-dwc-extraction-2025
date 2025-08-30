@@ -45,3 +45,6 @@ top_fifth_scan_pct = 20
 
 [report]
 html = true
+
+[processing]
+retry_limit = 3
