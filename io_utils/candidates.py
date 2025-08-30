@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from pathlib import Path
 import sqlite3
 from typing import List, Optional
@@ -15,6 +16,14 @@ class Candidate(BaseModel):
     confidence: float
 
 
+class Decision(BaseModel):
+    """Represents a reviewer-selected value."""
+
+    value: str
+    engine: str
+    decided_at: str
+
+
 def init_db(db_path: Path) -> sqlite3.Connection:
     """Initialise the candidate SQLite database."""
     conn = sqlite3.connect(db_path)
@@ -26,6 +35,17 @@ def init_db(db_path: Path) -> sqlite3.Connection:
             value TEXT,
             engine TEXT,
             confidence REAL
+        )
+        """
+    )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS decisions (
+            run_id TEXT,
+            image TEXT,
+            value TEXT,
+            engine TEXT,
+            decided_at TEXT
         )
         """
     )
@@ -61,10 +81,43 @@ def best_candidate(conn: sqlite3.Connection, image: str) -> Optional[Candidate]:
     return rows[0] if rows else None
 
 
+def record_decision(
+    conn: sqlite3.Connection, image: str, candidate: Candidate
+) -> Decision:
+    """Persist a reviewer decision and return the stored record."""
+    run_row = conn.execute(
+        "SELECT run_id FROM candidates WHERE image = ? AND value = ? AND engine = ? ORDER BY confidence DESC LIMIT 1",
+        (image, candidate.value, candidate.engine),
+    ).fetchone()
+    run_id = run_row[0] if run_row else None
+    decided_at = datetime.now(timezone.utc).isoformat()
+    conn.execute(
+        "INSERT INTO decisions (run_id, image, value, engine, decided_at) VALUES (?, ?, ?, ?, ?)",
+        (run_id, image, candidate.value, candidate.engine, decided_at),
+    )
+    conn.commit()
+    return Decision(
+        value=candidate.value, engine=candidate.engine, decided_at=decided_at
+    )
+
+
+def fetch_decision(conn: sqlite3.Connection, image: str) -> Optional[Decision]:
+    """Retrieve the stored decision for an image if present."""
+    row = conn.execute(
+        "SELECT value, engine, decided_at FROM decisions WHERE image = ? ORDER BY decided_at DESC LIMIT 1",
+        (image,),
+    ).fetchone()
+    if not row:
+        return None
+    return Decision(value=row[0], engine=row[1], decided_at=row[2])
+
+
 __all__ = [
     "Candidate",
     "init_db",
     "insert_candidate",
     "fetch_candidates",
     "best_candidate",
+    "record_decision",
+    "fetch_decision",
 ]
