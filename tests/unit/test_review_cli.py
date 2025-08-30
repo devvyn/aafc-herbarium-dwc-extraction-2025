@@ -23,12 +23,14 @@ def test_review_cli_records_choice(tmp_path: Path, monkeypatch) -> None:
     conn.close()
 
     monkeypatch.setattr("builtins.input", lambda _: "1")
-    review_candidates(db_path, "img1.jpg")
+    decision = review_candidates(db_path, "img1.jpg")
+    assert decision and decision.engine == "tesseract"
+    assert decision.run_id == "run1"
     conn = sqlite3.connect(db_path)
     row = conn.execute(
-        "SELECT value, engine FROM decisions WHERE image = ?", ("img1.jpg",)
+        "SELECT value, engine, run_id FROM decisions WHERE image = ?", ("img1.jpg",)
     ).fetchone()
-    assert row == ("hola", "tesseract")
+    assert row == ("hola", "tesseract", "run1")
     rows = conn.execute(
         "SELECT value FROM candidates WHERE image = ?", ("img1.jpg",)
     ).fetchall()
