@@ -57,6 +57,183 @@ def _deep_update(d: Dict[str, Any], u: Dict[str, Any]) -> Dict[str, Any]:
     return d
 
 
+def setup_run(
+    output: Path, config: Optional[Path], enabled_engines: Optional[List[str]]
+) -> Dict[str, Any]:
+    """Prepare configuration and logging for a run."""
+    setup_logging(output)
+    cfg = load_config(config)
+    if enabled_engines is not None:
+        cfg.setdefault("ocr", {})["enabled_engines"] = list(enabled_engines)
+    qc.TOP_FIFTH_PCT = cfg.get("qc", {}).get("top_fifth_scan_pct", qc.TOP_FIFTH_PCT)
+    return cfg
+
+
+def process_image(
+    img_path: Path,
+    cfg: Dict[str, Any],
+    run_id: str,
+    dupe_catalog: Dict[str, int],
+    cand_conn,
+    app_conn,
+    retry_limit: int,
+    resume: bool,
+) -> tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]], List[Dict[str, Any]]]:
+    """Process a single image and return event data."""
+    specimen_id = img_path.stem
+    insert_specimen(app_conn, Specimen(specimen_id=specimen_id, image=img_path.name))
+    state = fetch_processing_state(app_conn, specimen_id, "process")
+    if resume and state and state.status == "done":
+        return None, None, []
+    if state and state.error and state.retries >= retry_limit:
+        print(f"Skipping {img_path.name}: retry limit reached")
+        return None, None, []
+
+    sha256 = compute_sha256(img_path)
+    event: Dict[str, Any] = {
+        "run_id": run_id,
+        "image": img_path.name,
+        "sha256": sha256,
+        "engine": None,
+        "engine_version": None,
+        "dwc": {},
+        "flags": [],
+        "errors": [],
+    }
+    pre_cfg = cfg.get("preprocess", {})
+    pipeline = pre_cfg.get("pipeline", [])
+    proc_path = preprocess_image(img_path, pre_cfg) if pipeline else img_path
+    ocr_cfg = cfg.get("ocr", {})
+    available = available_engines("image_to_text")
+    enabled = ocr_cfg.get("enabled_engines")
+    if enabled:
+        available = [e for e in available if e in enabled]
+    if not available:
+        raise RuntimeError("No OCR engines available")
+    preferred = ocr_cfg.get("preferred_engine", available[0])
+    if preferred not in available:
+        raise ValueError(
+            f"Preferred engine '{preferred}' unavailable. Available: {', '.join(available)}"
+        )
+    if (
+        preferred == "tesseract"
+        and sys.platform == "darwin"
+        and not ocr_cfg.get("allow_tesseract_on_macos", False)
+    ):
+        preferred = (
+            "gpt" if "gpt" in available and ocr_cfg.get("allow_gpt") else available[0]
+        )
+    if preferred == "gpt" and (not ocr_cfg.get("allow_gpt") or "gpt" not in available):
+        preferred = available[0]
+
+    ident_history_rows: List[Dict[str, Any]] = []
+    try:
+        text, confidences = dispatch("image_to_text", image=proc_path, engine=preferred)
+        avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
+        insert_candidate(
+            cand_conn,
+            run_id,
+            img_path.name,
+            Candidate(value=text, engine=preferred, confidence=avg_conf),
+        )
+        policy = get_fallback_policy(preferred)
+        if policy:
+            text, confidences, final_engine, engine_version = policy(
+                proc_path, text, confidences, cfg
+            )
+            if final_engine != preferred:
+                avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
+                insert_candidate(
+                    cand_conn,
+                    run_id,
+                    img_path.name,
+                    Candidate(value=text, engine=final_engine, confidence=avg_conf),
+                )
+        else:
+            final_engine, engine_version = preferred, None
+        event["engine"] = final_engine
+        if engine_version:
+            event["engine_version"] = engine_version
+
+        dwc_data, field_conf = dispatch(
+            "text_to_dwc",
+            text=text,
+            model=cfg["gpt"]["model"],
+            dry_run=cfg["gpt"]["dry_run"],
+        )
+        ident_history = dwc_data.pop("identificationHistory", [])
+        event["dwc"] = dwc_data
+        event["dwc_confidence"] = field_conf
+        if ident_history:
+            event["identification_history"] = ident_history
+            for ident in ident_history:
+                ident.setdefault("occurrenceID", dwc_data.get("occurrenceID", ""))
+                ident_history_rows.append(ident)
+
+        qc_cfg = cfg.get("qc", {})
+        flags = []
+        flags.extend(
+            qc.detect_duplicates(dupe_catalog, sha256, qc_cfg.get("phash_threshold", 0))
+        )
+        if qc_cfg.get("low_confidence_flag"):
+            confidence = event.get("dwc_confidence")
+            if isinstance(confidence, (int, float)):
+                flags.extend(
+                    qc.flag_low_confidence(
+                        confidence, cfg.get("ocr", {}).get("confidence_threshold", 0.0)
+                    )
+                )
+        scan_pct = event.get("scan_pct")
+        if isinstance(scan_pct, (int, float)):
+            flags.extend(qc.flag_top_fifth(scan_pct))
+        if flags:
+            event["flags"].extend(flags)
+
+        avg_field_conf = (
+            sum(field_conf.values()) / len(field_conf) if field_conf else None
+        )
+        upsert_processing_state(
+            app_conn,
+            ProcessingState(
+                specimen_id=specimen_id,
+                module="process",
+                status="done",
+                confidence=avg_field_conf,
+            ),
+        )
+        return event, event["dwc"], ident_history_rows
+    except EngineError as exc:
+        event["errors"].append(str(exc))
+        state = record_failure(app_conn, specimen_id, "process", exc.code, exc.message)
+        if state.retries >= retry_limit:
+            print(f"Skipping {img_path.name}: retry limit reached")
+        return event, None, []
+    except Exception as exc:  # pragma: no cover - unexpected
+        event["errors"].append(str(exc))
+        state = record_failure(app_conn, specimen_id, "process", "UNKNOWN", str(exc))
+        if state.retries >= retry_limit:
+            print(f"Skipping {img_path.name}: retry limit reached")
+        return event, None, []
+
+
+def write_outputs(
+    output: Path,
+    events: List[Dict[str, Any]],
+    dwc_rows: List[Dict[str, Any]],
+    ident_history_rows: List[Dict[str, Any]],
+    meta: Dict[str, Any],
+    append: bool,
+) -> None:
+    """Write all output artifacts for a run."""
+    if events:
+        write_jsonl(output, events, append=append)
+    if dwc_rows:
+        write_dwc_csv(output, dwc_rows, append=append)
+    if ident_history_rows:
+        write_identification_history_csv(output, ident_history_rows, append=append)
+    write_manifest(output, meta)
+
+
 def process_cli(
     input_dir: Path,
     output: Path,
@@ -70,11 +247,7 @@ def process_cli(
     available. If the commit hash cannot be determined (e.g., not running
     inside a git repository), ``git_commit`` will be ``None``.
     """
-    setup_logging(output)
-    cfg = load_config(config)
-    if enabled_engines is not None:
-        cfg.setdefault("ocr", {})["enabled_engines"] = list(enabled_engines)
-    qc.TOP_FIFTH_PCT = cfg.get("qc", {}).get("top_fifth_scan_pct", qc.TOP_FIFTH_PCT)
+    cfg = setup_run(output, config, enabled_engines)
 
     run_id = datetime.now(timezone.utc).isoformat()
     try:
@@ -84,159 +257,30 @@ def process_cli(
     except Exception:  # pragma: no cover - git may not be available
         git_commit = None
 
-    events = []
-    dwc_rows = []
-    ident_history_rows = []
+    events: List[Dict[str, Any]] = []
+    dwc_rows: List[Dict[str, Any]] = []
+    ident_history_rows: List[Dict[str, Any]] = []
     dupe_catalog: Dict[str, int] = {}
     cand_conn = init_candidate_db(output / "candidates.db")
     app_conn = init_app_db(output / "app.db")
     retry_limit = cfg.get("processing", {}).get("retry_limit", 3)
     for img_path in iter_images(input_dir):
-        specimen_id = img_path.stem
-        insert_specimen(app_conn, Specimen(specimen_id=specimen_id, image=img_path.name))
-        state = fetch_processing_state(app_conn, specimen_id, "process")
-        if resume and state and state.status == "done":
+        event, dwc_row, ident_rows = process_image(
+            img_path,
+            cfg,
+            run_id,
+            dupe_catalog,
+            cand_conn,
+            app_conn,
+            retry_limit,
+            resume,
+        )
+        if event is None:
             continue
-        if state and state.error and state.retries >= retry_limit:
-            print(f"Skipping {img_path.name}: retry limit reached")
-            continue
-
-        sha256 = compute_sha256(img_path)
-        event = {
-            "run_id": run_id,
-            "image": img_path.name,
-            "sha256": sha256,
-            "engine": None,
-            "engine_version": None,
-            "dwc": {},
-            "flags": [],
-            "errors": [],
-        }
-        pre_cfg = cfg.get("preprocess", {})
-        pipeline = pre_cfg.get("pipeline", [])
-        proc_path = preprocess_image(img_path, pre_cfg) if pipeline else img_path
-        ocr_cfg = cfg.get("ocr", {})
-        available = available_engines("image_to_text")
-        enabled = ocr_cfg.get("enabled_engines")
-        if enabled:
-            available = [e for e in available if e in enabled]
-        if not available:
-            raise RuntimeError("No OCR engines available")
-        preferred = ocr_cfg.get("preferred_engine", available[0])
-        if preferred not in available:
-            raise ValueError(
-                f"Preferred engine '{preferred}' unavailable. Available: {', '.join(available)}"
-            )
-        if (
-            preferred == "tesseract"
-            and sys.platform == "darwin"
-            and not ocr_cfg.get("allow_tesseract_on_macos", False)
-        ):
-            preferred = (
-                "gpt"
-                if "gpt" in available and ocr_cfg.get("allow_gpt")
-                else available[0]
-            )
-        if preferred == "gpt" and (
-            not ocr_cfg.get("allow_gpt") or "gpt" not in available
-        ):
-            preferred = available[0]
-
-        text = ""
-        confidences: list[float] = []
-        try:
-            text, confidences = dispatch(
-                "image_to_text", image=proc_path, engine=preferred
-            )
-            avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
-            insert_candidate(
-                cand_conn,
-                run_id,
-                img_path.name,
-                Candidate(value=text, engine=preferred, confidence=avg_conf),
-            )
-            policy = get_fallback_policy(preferred)
-            if policy:
-                text, confidences, final_engine, engine_version = policy(
-                    proc_path, text, confidences, cfg
-                )
-                if final_engine != preferred:
-                    avg_conf = (
-                        sum(confidences) / len(confidences) if confidences else 0.0
-                    )
-                    insert_candidate(
-                        cand_conn,
-                        run_id,
-                        img_path.name,
-                        Candidate(value=text, engine=final_engine, confidence=avg_conf),
-                    )
-            else:
-                final_engine, engine_version = preferred, None
-            event["engine"] = final_engine
-            if engine_version:
-                event["engine_version"] = engine_version
-
-            dwc_data, field_conf = dispatch(
-                "text_to_dwc",
-                text=text,
-                model=cfg["gpt"]["model"],
-                dry_run=cfg["gpt"]["dry_run"],
-            )
-            ident_history = dwc_data.pop("identificationHistory", [])
-            event["dwc"] = dwc_data
-            event["dwc_confidence"] = field_conf
-            if ident_history:
-                event["identification_history"] = ident_history
-                for ident in ident_history:
-                    ident.setdefault("occurrenceID", dwc_data.get("occurrenceID", ""))
-                    ident_history_rows.append(ident)
-
-            qc_cfg = cfg.get("qc", {})
-            flags = []
-            flags.extend(
-                qc.detect_duplicates(dupe_catalog, sha256, qc_cfg.get("phash_threshold", 0))
-            )
-            if qc_cfg.get("low_confidence_flag"):
-                confidence = event.get("dwc_confidence")
-                if isinstance(confidence, (int, float)):
-                    flags.extend(
-                        qc.flag_low_confidence(
-                            confidence, cfg.get("ocr", {}).get("confidence_threshold", 0.0)
-                        )
-                    )
-            scan_pct = event.get("scan_pct")
-            if isinstance(scan_pct, (int, float)):
-                flags.extend(qc.flag_top_fifth(scan_pct))
-            if flags:
-                event["flags"].extend(flags)
-
-            events.append(event)
-            dwc_rows.append(event["dwc"])
-
-            avg_field_conf = (
-                sum(field_conf.values()) / len(field_conf) if field_conf else None
-            )
-            upsert_processing_state(
-                app_conn,
-                ProcessingState(
-                    specimen_id=specimen_id,
-                    module="process",
-                    status="done",
-                    confidence=avg_field_conf,
-                ),
-            )
-        except EngineError as exc:
-            event["errors"].append(str(exc))
-            state = record_failure(app_conn, specimen_id, "process", exc.code, exc.message)
-            events.append(event)
-            if state.retries >= retry_limit:
-                print(f"Skipping {img_path.name}: retry limit reached")
-        except Exception as exc:  # pragma: no cover - unexpected
-            event["errors"].append(str(exc))
-            state = record_failure(app_conn, specimen_id, "process", "UNKNOWN", str(exc))
-            events.append(event)
-            if state.retries >= retry_limit:
-                print(f"Skipping {img_path.name}: retry limit reached")
+        events.append(event)
+        if dwc_row:
+            dwc_rows.append(dwc_row)
+        ident_history_rows.extend(ident_rows)
 
     meta = {
         "run_id": run_id,
@@ -245,13 +289,7 @@ def process_cli(
         "config": cfg,
     }
 
-    if events:
-        write_jsonl(output, events, append=resume)
-    if dwc_rows:
-        write_dwc_csv(output, dwc_rows, append=resume)
-    if ident_history_rows:
-        write_identification_history_csv(output, ident_history_rows, append=resume)
-    write_manifest(output, meta)
+    write_outputs(output, events, dwc_rows, ident_history_rows, meta, resume)
     cand_conn.close()
     app_conn.close()
 
