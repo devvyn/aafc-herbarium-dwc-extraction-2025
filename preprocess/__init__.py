@@ -5,7 +5,7 @@ import tempfile
 from typing import Dict, Any, Callable
 
 import numpy as np
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageEnhance
 
 _PREPROCESSORS: Dict[str, Callable[[Image.Image, Dict[str, Any]], Image.Image]] = {}
 
@@ -77,6 +77,12 @@ def binarize(image: Image.Image, method: str | bool = "otsu") -> Image.Image:
     return Image.fromarray(binary)
 
 
+def contrast(image: Image.Image, factor: float) -> Image.Image:
+    """Adjust image contrast by ``factor``."""
+    enhancer = ImageEnhance.Contrast(image)
+    return enhancer.enhance(factor)
+
+
 def resize(image: Image.Image, max_dim: int) -> Image.Image:
     """Resize image so that its longest dimension equals ``max_dim``."""
     w, h = image.size
@@ -106,6 +112,16 @@ register_preprocessor("deskew", lambda img, cfg: deskew(img))
 register_preprocessor("binarize", lambda img, cfg: binarize(img))
 
 
+def _contrast_step(img: Image.Image, cfg: Dict[str, Any]) -> Image.Image:
+    factor = cfg.get("contrast_factor")
+    if factor:
+        return contrast(img, float(factor))
+    return img
+
+
+register_preprocessor("contrast", _contrast_step)
+
+
 def _resize_step(img: Image.Image, cfg: Dict[str, Any]) -> Image.Image:
     max_dim = cfg.get("max_dim_px")
     if max_dim:
@@ -120,6 +136,7 @@ __all__ = [
     "grayscale",
     "deskew",
     "binarize",
+    "contrast",
     "resize",
     "preprocess_image",
 ]
