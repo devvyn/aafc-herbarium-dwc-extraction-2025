@@ -6,6 +6,7 @@ from .validators import (
     validate_minimal_fields,
     validate_event_date,
 )
+from .archive import build_meta_xml, create_archive
 
 __all__ = [
     "DwcRecord",
@@ -16,4 +17,6 @@ __all__ = [
     "validate",
     "validate_minimal_fields",
     "validate_event_date",
+    "build_meta_xml",
+    "create_archive",
 ]
