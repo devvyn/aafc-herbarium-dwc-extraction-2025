@@ -245,9 +245,12 @@ def process_cli(
         "config": cfg,
     }
 
-    write_jsonl(output, events)
-    write_dwc_csv(output, dwc_rows)
-    write_identification_history_csv(output, ident_history_rows)
+    if events:
+        write_jsonl(output, events, append=resume)
+    if dwc_rows:
+        write_dwc_csv(output, dwc_rows, append=resume)
+    if ident_history_rows:
+        write_identification_history_csv(output, ident_history_rows, append=resume)
     write_manifest(output, meta)
     cand_conn.close()
     app_conn.close()
