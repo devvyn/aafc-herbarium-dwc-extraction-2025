@@ -5,24 +5,30 @@ import sqlite3
 from pathlib import Path
 from typing import List
 
-from io_utils.candidates import Candidate, fetch_candidates, record_decision
+from io_utils.candidates import Candidate, Decision, fetch_candidates, record_decision
 
 
-def review_candidates(db_path: Path, image: str) -> None:
+def review_candidates(db_path: Path, image: str) -> Decision | None:
     """Interactive review of candidate values for an image."""
     conn = sqlite3.connect(db_path)
     candidates: List[Candidate] = fetch_candidates(conn, image)
+    # Ensure candidates are ranked by descending confidence
+    candidates.sort(key=lambda c: c.confidence, reverse=True)
     if not candidates:
         print(f"No candidates found for {image}")
         conn.close()
-        return
+        return None
     for idx, cand in enumerate(candidates):
         print(f"[{idx}] {cand.engine} ({cand.confidence:.2f}): {cand.value}")
     choice = input("Select preferred candidate [0]: ").strip()
     sel = int(choice) if choice else 0
     sel = max(0, min(sel, len(candidates) - 1))
-    record_decision(conn, image, candidates[sel])
+    decision = record_decision(conn, image, candidates[sel])
+    print(
+        f"Selected '{decision.value}' from {decision.engine} at {decision.decided_at}"
+    )
     conn.close()
+    return decision
 
 
 def main() -> None:
