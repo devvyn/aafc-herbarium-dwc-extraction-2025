@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import subprocess
+import logging
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, Dict, Any, List
@@ -21,7 +22,11 @@ from io_utils.write import (
     write_manifest,
     write_identification_history_csv,
 )
-from io_utils.candidates import Candidate, init_db as init_candidate_db, insert_candidate
+from io_utils.candidates import (
+    Candidate,
+    init_db as init_candidate_db,
+    insert_candidate,
+)
 from io_utils.database import (
     Specimen,
     ProcessingState,
@@ -86,7 +91,7 @@ def process_image(
     if resume and state and state.status == "done":
         return None, None, []
     if state and state.error and state.retries >= retry_limit:
-        print(f"Skipping {img_path.name}: retry limit reached")
+        logging.warning("Skipping %s: retry limit reached", img_path.name)
         return None, None, []
 
     sha256 = compute_sha256(img_path)
@@ -206,13 +211,13 @@ def process_image(
         event["errors"].append(str(exc))
         state = record_failure(app_conn, specimen_id, "process", exc.code, exc.message)
         if state.retries >= retry_limit:
-            print(f"Skipping {img_path.name}: retry limit reached")
+            logging.warning("Skipping %s: retry limit reached", img_path.name)
         return event, None, []
     except Exception as exc:  # pragma: no cover - unexpected
         event["errors"].append(str(exc))
         state = record_failure(app_conn, specimen_id, "process", "UNKNOWN", str(exc))
         if state.retries >= retry_limit:
-            print(f"Skipping {img_path.name}: retry limit reached")
+            logging.warning("Skipping %s: retry limit reached", img_path.name)
         return event, None, []
 
 
@@ -293,7 +298,7 @@ def process_cli(
     cand_conn.close()
     app_conn.close()
 
-    print(f"Processed {len(events)} images. Output written to {output}")
+    logging.info("Processed %d images. Output written to %s", len(events), output)
 
 
 try:  # optional dependency
