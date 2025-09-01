@@ -23,6 +23,7 @@ def _patch_cli(monkeypatch, call_counter: Dict[str, int]) -> None:
             "gpt": {"model": "fake", "dry_run": True},
             "processing": {"retry_limit": 1},
             "qc": {},
+            "pipeline": {"steps": ["image_to_text", "text_to_dwc"]},
         }
 
     def fake_available_engines(task: str) -> list[str]:
