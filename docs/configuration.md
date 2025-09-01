@@ -4,6 +4,18 @@ The toolkit reads settings from TOML files in the [`../config`](../config) direc
 `cli.py` with `--config` to overlay custom values on top of
 [`config.default.toml`](../config/config.default.toml).
 
+## Pipeline steps
+
+The `[pipeline]` section lists high-level tasks to run for each image.
+Steps run in order and use the preferred engine from their matching
+configuration section. The default pipeline processes text and maps it
+to Darwin Core terms:
+
+```toml
+[pipeline]
+steps = ["image_to_text", "text_to_dwc"]
+```
+
 ## Rules directory
 
 Mapping and normalisation rules live under [`../config/rules`](../config/rules).

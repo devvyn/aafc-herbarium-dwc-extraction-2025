@@ -4,6 +4,7 @@
 
 ### Added
 - support GPT image-to-Darwin Core extraction with default prompts
+- :gear: configurable task pipeline via `pipeline.steps`
 
 ### Fixed
 - guard against non-dict GPT responses to avoid crashes
