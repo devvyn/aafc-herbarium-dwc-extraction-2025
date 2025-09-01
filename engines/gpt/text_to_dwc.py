@@ -27,6 +27,12 @@ def load_messages(task: str, prompt_dir: Optional[Path] = None) -> List[Dict[str
         file = base.joinpath(f"{task}.{role}.prompt")
         if file.is_file():
             messages.append({"role": role, "content": file.read_text(encoding="utf-8")})
+    if not messages or messages[-1]["role"] != "user":
+        legacy = base.joinpath(f"{task}.prompt")
+        if legacy.is_file():
+            messages.append({"role": "user", "content": legacy.read_text(encoding="utf-8")})
+    if not messages or messages[-1]["role"] != "user":
+        raise EngineError("MISSING_PROMPT", f"user prompt for {task} not found")
     return messages
 
 
