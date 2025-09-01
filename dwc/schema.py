@@ -3,9 +3,15 @@ from __future__ import annotations
 from typing import Dict, Optional
 from pydantic import BaseModel, ConfigDict
 
-# Darwin Core terms supported by this project. These mirror the column order
-# used when writing CSV output. The list is based on the AAFC-SRDC example
+# Default namespace for Darwin Core terms.  Alternative schemas may override
+# this via configuration.
+DEFAULT_SCHEMA_URI = "http://rs.tdwg.org/dwc/terms/"
+
+# Darwin Core terms supported by this project.  These mirror the column order
+# used when writing CSV output.  The list is based on the AAFC-SRDC example
 # dataset and extended with a few project-specific fields at the end.
+# TODO: Load term definitions from the configured schema instead of hard-coding
+# this list.
 DWC_TERMS = [
     "occurrenceID",
     "catalogNumber",
