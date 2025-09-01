@@ -4,7 +4,7 @@ from __future__ import annotations
 import base64
 from importlib import resources
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import Dict, List, Optional, Tuple
 
 from ..errors import EngineError
 from ..protocols import ImageToTextEngine
@@ -15,10 +15,25 @@ except Exception:  # pragma: no cover
     OpenAI = None
 
 
-def _load_prompt(name: str, prompt_dir: Optional[Path] = None) -> str:
-    if prompt_dir:
-        return (Path(prompt_dir) / name).read_text(encoding="utf-8")
-    return resources.files("config").joinpath("prompts", name).read_text(encoding="utf-8")
+
+def load_messages(task: str, prompt_dir: Optional[Path] = None) -> List[Dict[str, str]]:
+    base = (
+        Path(prompt_dir)
+        if prompt_dir
+        else resources.files("config").joinpath("prompts")
+    )
+    messages: List[Dict[str, str]] = []
+    for role in ("system", "assistant", "user"):
+        file = base.joinpath(f"{task}.{role}.prompt")
+        if file.is_file():
+            messages.append({"role": role, "content": file.read_text(encoding="utf-8")})
+    if not messages or messages[-1]["role"] != "user":
+        legacy = base.joinpath(f"{task}.prompt")
+        if legacy.is_file():
+            messages.append({"role": "user", "content": legacy.read_text(encoding="utf-8")})
+    if not messages or messages[-1]["role"] != "user":
+        raise EngineError("MISSING_PROMPT", f"user prompt for {task} not found")
+    return messages
 
 
 def image_to_text(
@@ -40,7 +55,7 @@ def image_to_text(
         When ``True`` or when the OpenAI SDK is unavailable, no network
         call is performed and an empty result is returned.
     """
-    prompt = _load_prompt("image_to_text.prompt", prompt_dir)
+    messages = load_messages("image_to_text", prompt_dir)
     if dry_run:
         return "", []
     if OpenAI is None:
@@ -54,19 +69,13 @@ def image_to_text(
     # This implementation targets the Responses API available in the
     # official SDK.  If the API changes, the call below should be
     # updated accordingly.
+    messages[-1]["content"] = [
+        {"type": "text", "text": messages[-1]["content"]},
+        {"type": "image", "image": {"b64": b64}},
+    ]
+
     try:
-        resp = client.responses.create(
-            model=model,
-            input=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {"type": "image", "image": {"b64": b64}},
-                    ],
-                }
-            ],
-        )
+        resp = client.responses.create(model=model, input=messages)
     except Exception as exc:  # pragma: no cover - network issues
         raise EngineError("API_ERROR", str(exc)) from exc
 
