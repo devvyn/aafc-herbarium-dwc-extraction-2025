@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- support GPT image-to-Darwin Core extraction with default prompts
+
 ## 0.1.0 - 2025-09-01
 
 - document configuration files and GPT usage
