@@ -5,6 +5,9 @@ from pathlib import Path
 import sqlite3
 from typing import Optional
 
+# TODO: Replace direct SQLite calls with an ORM such as SQLAlchemy for clearer
+# data models and easier migrations.
+
 from pydantic import BaseModel
 
 from .candidates import init_db as init_candidate_db

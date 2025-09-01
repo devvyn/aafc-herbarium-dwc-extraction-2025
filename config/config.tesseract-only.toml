@@ -16,3 +16,7 @@ oem = 1
 psm = 6
 langs = ["eng","fra","lat"]
 extra_args = []
+
+[dwc]
+schema = "dwc-abcd"
+schema_uri = "http://rs.tdwg.org/dwc/terms/"

@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List
 
 # GBIF API endpoints used for validation
+# TODO: Move API endpoints into configuration.
 GBIF_SPECIES_MATCH_ENDPOINT = "https://api.gbif.org/v1/species/match"
 GBIF_REVERSE_GEOCODE_ENDPOINT = "https://api.gbif.org/v1/geocode/reverse"
 
