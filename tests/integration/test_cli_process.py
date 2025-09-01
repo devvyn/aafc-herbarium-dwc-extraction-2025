@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Any
 
 from PIL import Image
 from typer.testing import CliRunner
@@ -39,6 +39,32 @@ def _patch_cli(monkeypatch, call_counter: Dict[str, int]) -> None:
                 "identificationHistory": [{"identificationID": "1"}],
             }, {}
         raise ValueError(task)
+
+    monkeypatch.setattr(cli, "load_config", fake_load_config)
+    monkeypatch.setattr(cli, "available_engines", fake_available_engines)
+    monkeypatch.setattr(cli, "dispatch", fake_dispatch)
+
+
+def _patch_cli_image_to_dwc(monkeypatch, call_data: Dict[str, Any]) -> None:
+    def fake_load_config(_: Path | None) -> Dict[str, object]:
+        return {
+            "preprocess": {"pipeline": []},
+            "gpt": {"model": "fake", "dry_run": True},
+            "processing": {"retry_limit": 1},
+            "qc": {},
+            "pipeline": {
+                "steps": ["image_to_dwc"],
+                "image_to_dwc_instructions": "Extract fields",
+            },
+        }
+
+    def fake_available_engines(task: str) -> list[str]:
+        return ["stub"]
+
+    def fake_dispatch(task: str, **kwargs):
+        call_data["task"] = task
+        call_data["kwargs"] = kwargs
+        return {"occurrenceID": "1"}, {}
 
     monkeypatch.setattr(cli, "load_config", fake_load_config)
     monkeypatch.setattr(cli, "available_engines", fake_available_engines)
@@ -96,3 +122,20 @@ def test_resume_skips_processed_specimens(tmp_path: Path, monkeypatch) -> None:
     # Outputs remain unchanged
     assert _line_count(output_dir / "occurrence.csv") == 3
     assert _line_count(output_dir / "raw.jsonl") == 2
+
+
+def test_image_to_dwc_step_passes_arguments(tmp_path: Path, monkeypatch) -> None:
+    input_dir = tmp_path / "input"
+    output_dir = tmp_path / "output"
+    _create_images(input_dir, 1)
+    call_data: Dict[str, Any] = {}
+    _patch_cli_image_to_dwc(monkeypatch, call_data)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli.app, ["process", "--input", str(input_dir), "--output", str(output_dir)]
+    )
+    assert result.exit_code == 0
+    assert call_data["task"] == "image_to_dwc"
+    assert call_data["kwargs"]["image"].name == "0.jpg"
+    assert call_data["kwargs"]["instructions"] == "Extract fields"
