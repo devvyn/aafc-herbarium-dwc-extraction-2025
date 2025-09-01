@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="occurrenceID" type="xs:string"/>
+  <xs:element name="catalogNumber" type="xs:string"/>
+  <xs:element name="otherCatalogNumbers" type="xs:string"/>
+  <xs:element name="institutionCode" type="xs:string"/>
+  <xs:element name="collectionCode" type="xs:string"/>
+  <xs:element name="ownerInstitutionCode" type="xs:string"/>
+  <xs:element name="basisOfRecord" type="xs:string"/>
+  <xs:element name="preparations" type="xs:string"/>
+  <xs:element name="hasFragmentPacket" type="xs:string"/>
+  <xs:element name="disposition" type="xs:string"/>
+  <xs:element name="recordedBy" type="xs:string"/>
+  <xs:element name="recordedByID" type="xs:string"/>
+  <xs:element name="recordNumber" type="xs:string"/>
+  <xs:element name="eventDate" type="xs:string"/>
+  <xs:element name="eventTime" type="xs:string"/>
+  <xs:element name="country" type="xs:string"/>
+  <xs:element name="stateProvince" type="xs:string"/>
+  <xs:element name="county" type="xs:string"/>
+  <xs:element name="municipality" type="xs:string"/>
+  <xs:element name="locality" type="xs:string"/>
+  <xs:element name="verbatimLocality" type="xs:string"/>
+</xs:schema>

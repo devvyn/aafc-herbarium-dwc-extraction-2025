@@ -8,9 +8,9 @@ The toolkit reads settings from TOML files in the [`../config`](../config) direc
 
 Mapping and normalisation rules live under [`../config/rules`](../config/rules).
 
-- [`dwc_rules.toml`](../config/rules/dwc_rules.toml) – placeholder for Darwin Core mapping rules.
+- [`dwc_rules.toml`](../config/rules/dwc_rules.toml) – transformation rules for raw OCR fields.
 - [`institutions.toml`](../config/rules/institutions.toml) – maps legacy institution codes to canonical values.
-- [`vocab.toml`](../config/rules/vocab.toml) – reserved for future vocabulary normalisation.
+- [`vocab.toml`](../config/rules/vocab.toml) – vocabulary normalisation tables.
 
 These files support the mapping phase and are independent from preprocessing and OCR
 artifacts stored in the pipeline database.
@@ -18,13 +18,14 @@ artifacts stored in the pipeline database.
 ## GPT prompts and secrets
 
 Prompt templates for the GPT engine reside in
-[`../engines/gpt/prompts`](../engines/gpt/prompts). Adjust them to customise the
-remote API requests. Configure the model and behaviour via the `[gpt]` section in
-the configuration file. Set the `OPENAI_API_KEY` environment variable to supply
+[`../config/prompts`](../config/prompts). Adjust them or change
+`gpt.prompt_dir` to customise the remote API requests. Configure the model and
+behaviour via the `[gpt]` section in the configuration file. Set the
+`OPENAI_API_KEY` environment variable (for example via `.env`) to supply
 credentials securely—never hard-code API keys.
 
 ## Schema selection
 
-The `[dwc]` section defaults to the Darwin Core plus ABCD data structure. Use the
-`schema` and `schema_uri` keys to experiment with alternative schemas by providing
-an appropriate namespace URI.
+The `[dwc]` section defaults to the Darwin Core plus ABCD data structure. Use
+`schema_files` to reference alternative XSDs or adjust the `schema_uri` to
+experiment with other vocabularies.

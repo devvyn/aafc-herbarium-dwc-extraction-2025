@@ -36,6 +36,7 @@ from io_utils.database import (
     record_failure,
     upsert_processing_state,
 )
+from dwc import configure_terms
 from engines.errors import EngineError
 from preprocess import preprocess_image
 
@@ -68,6 +69,15 @@ def setup_run(
     """Prepare configuration and logging for a run."""
     setup_logging(output)
     cfg = load_config(config)
+    dwc_cfg = cfg.get("dwc", {})
+    schema_files = []
+    for name in dwc_cfg.get("schema_files", []):
+        path = Path(name)
+        if not path.is_absolute():
+            path = resources.files("config").joinpath("schemas", name)
+        schema_files.append(path)
+    if schema_files:
+        configure_terms(schema_files)
     if enabled_engines is not None:
         cfg.setdefault("ocr", {})["enabled_engines"] = list(enabled_engines)
     qc.TOP_FIFTH_PCT = cfg.get("qc", {}).get("top_fifth_scan_pct", qc.TOP_FIFTH_PCT)
@@ -109,6 +119,9 @@ def process_image(
     pipeline = pre_cfg.get("pipeline", [])
     proc_path = preprocess_image(img_path, pre_cfg) if pipeline else img_path
     ocr_cfg = cfg.get("ocr", {})
+    prompt_dir = resources.files("config").joinpath(
+        cfg.get("gpt", {}).get("prompt_dir", "prompts")
+    )
     available = available_engines("image_to_text")
     enabled = ocr_cfg.get("enabled_engines")
     if enabled:
@@ -133,7 +146,17 @@ def process_image(
 
     ident_history_rows: List[Dict[str, Any]] = []
     try:
-        text, confidences = dispatch("image_to_text", image=proc_path, engine=preferred)
+        kwargs = {}
+        if preferred == "gpt":
+            gpt_cfg = cfg.get("gpt", {})
+            kwargs.update(
+                model=gpt_cfg.get("model", "gpt-4"),
+                dry_run=gpt_cfg.get("dry_run", False),
+                prompt_dir=prompt_dir,
+            )
+        text, confidences = dispatch(
+            "image_to_text", image=proc_path, engine=preferred, **kwargs
+        )
         avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
         insert_candidate(
             cand_conn,
@@ -160,11 +183,13 @@ def process_image(
         if engine_version:
             event["engine_version"] = engine_version
 
+        gpt_cfg = cfg.get("gpt", {})
         dwc_data, field_conf = dispatch(
             "text_to_dwc",
             text=text,
-            model=cfg["gpt"]["model"],
-            dry_run=cfg["gpt"]["dry_run"],
+            model=gpt_cfg["model"],
+            dry_run=gpt_cfg["dry_run"],
+            prompt_dir=prompt_dir,
         )
         ident_history = dwc_data.pop("identificationHistory", [])
         event["dwc"] = dwc_data

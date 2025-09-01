@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="decimalLatitude" type="xs:string"/>
+  <xs:element name="decimalLongitude" type="xs:string"/>
+  <xs:element name="geodeticDatum" type="xs:string"/>
+  <xs:element name="coordinateUncertaintyInMeters" type="xs:string"/>
+  <xs:element name="habitat" type="xs:string"/>
+  <xs:element name="eventRemarks" type="xs:string"/>
+  <xs:element name="scientificName" type="xs:string"/>
+  <xs:element name="scientificNameAuthorship" type="xs:string"/>
+  <xs:element name="taxonRank" type="xs:string"/>
+  <xs:element name="family" type="xs:string"/>
+  <xs:element name="genus" type="xs:string"/>
+  <xs:element name="specificEpithet" type="xs:string"/>
+  <xs:element name="infraspecificEpithet" type="xs:string"/>
+  <xs:element name="identificationQualifier" type="xs:string"/>
+  <xs:element name="identifiedBy" type="xs:string"/>
+  <xs:element name="dateIdentified" type="xs:string"/>
+  <xs:element name="identificationRemarks" type="xs:string"/>
+  <xs:element name="identificationReferences" type="xs:string"/>
+  <xs:element name="identificationVerificationStatus" type="xs:string"/>
+  <xs:element name="associatedOccurrences" type="xs:string"/>
+  <xs:element name="occurrenceRemarks" type="xs:string"/>
+  <xs:element name="dynamicProperties" type="xs:string"/>
+</xs:schema>
