@@ -26,4 +26,12 @@ class TextToDwcEngine(Protocol):
         ...
 
 
-__all__ = ["ImageToTextEngine", "TextToDwcEngine"]
+class ImageToDwcEngine(Protocol):
+    """Callable mapping an image directly to Darwin Core terms."""
+
+    def __call__(self, image: Path, *args, **kwargs) -> Tuple[Dict[str, str], Dict[str, float]]:
+        """Return Darwin Core data and per-field confidences."""
+        ...
+
+
+__all__ = ["ImageToTextEngine", "TextToDwcEngine", "ImageToDwcEngine"]
