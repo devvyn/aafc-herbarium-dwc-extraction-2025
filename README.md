@@ -2,6 +2,8 @@
 
 A toolkit for extracting text from herbarium specimen images, mapping the results to the Darwin Core standard, and recording metadata and quality-control information.
 
+Current version: 0.1.0 (see [CHANGELOG.md](CHANGELOG.md)).
+
 ## Installation
 
 This project uses a modern pyproject.toml layout and works with uv, pip, or other PEP 621–compatible tools.
@@ -78,6 +80,13 @@ python cli.py resume  --input PATH/TO/images --output PATH/TO/output \
 - **QC** – duplicate detection (`phash_threshold`), low-confidence flagging, top-fifth scan flag
 - **Processing** – `retry_limit` for failed specimens
 
+### Configuration files and rules
+
+See the [configuration guide](docs/configuration.md) for a tour of the `config`
+directory. Mapping and normalisation helpers live in
+[`config/rules`](config/rules), which currently includes placeholders for
+Darwin Core mappings, institution codes, and vocabulary tables.
+
 ## Preprocessing pipeline
 
 Preprocessing steps are registered via `preprocess.register_preprocessor`. Configure them under `[preprocess]`:
@@ -107,3 +116,16 @@ register_task("image_to_text", "my_engine", __name__, "image_to_text")
 ```
 
 Fallback policies allow engines such as GPT to take over when confidence is low.
+
+## GPT usage and secrets
+
+The GPT engine calls the OpenAI API using prompts stored in
+[`engines/gpt/prompts`](engines/gpt/prompts). Configure model settings in the
+`[gpt]` section of your configuration file. Supply API credentials via the
+`OPENAI_API_KEY` environment variable or a local secrets manager—never commit
+keys to the repository. See [docs/gpt.md](docs/gpt.md) for details.
+
+## Development
+
+Consult [docs/development.md](docs/development.md) for open stubs and ideas for
+future contributions.
