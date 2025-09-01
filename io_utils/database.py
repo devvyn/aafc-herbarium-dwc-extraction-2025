@@ -2,235 +2,109 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
-import sqlite3
 from typing import Optional
 
-# TODO: Replace direct SQLite calls with an ORM such as SQLAlchemy for clearer
-# data models and easier migrations.
+from dataclasses import dataclass
 
-from pydantic import BaseModel
-
-from .candidates import init_db as init_candidate_db
+from sqlalchemy import Boolean, Float, Integer, String, Text, create_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
 
 
-class Specimen(BaseModel):
+class Base(DeclarativeBase):
+    pass
+
+
+@dataclass
+class Specimen(Base):
     """Represents a herbarium specimen and associated image."""
 
-    specimen_id: str
-    image: str
+    __tablename__ = "specimens"
+
+    specimen_id: Mapped[str] = mapped_column(String, primary_key=True)
+    image: Mapped[str] = mapped_column(String)
 
 
-class FinalValue(BaseModel):
+@dataclass
+class FinalValue(Base):
     """Represents the final selected value for a field."""
 
-    specimen_id: str
-    field: str
-    value: str
-    module: str
-    confidence: float
-    error: bool = False
-    decided_at: str | None = None
+    __tablename__ = "final_values"
+
+    specimen_id: Mapped[str] = mapped_column(String, primary_key=True)
+    field: Mapped[str] = mapped_column(String, primary_key=True)
+    value: Mapped[str] = mapped_column(Text)
+    module: Mapped[str] = mapped_column(String)
+    confidence: Mapped[float] = mapped_column(Float)
+    error: Mapped[bool] = mapped_column(Boolean, default=False)
+    decided_at: Mapped[str | None] = mapped_column(String, nullable=True)
 
 
-class ProcessingState(BaseModel):
+@dataclass
+class ProcessingState(Base):
     """Tracks module processing state for a specimen."""
 
-    specimen_id: str
-    module: str
-    status: str
-    confidence: float | None = None
-    error: bool = False
-    retries: int = 0
-    error_code: str | None = None
-    error_message: str | None = None
-    updated_at: str | None = None
+    __tablename__ = "processing_state"
+
+    specimen_id: Mapped[str] = mapped_column(String, primary_key=True)
+    module: Mapped[str] = mapped_column(String, primary_key=True)
+    status: Mapped[str] = mapped_column(String)
+    confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
+    error: Mapped[bool] = mapped_column(Boolean, default=False)
+    retries: Mapped[int] = mapped_column(Integer, default=0)
+    error_code: Mapped[str | None] = mapped_column(String, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    updated_at: Mapped[str | None] = mapped_column(String, nullable=True)
 
 
-def init_db(db_path: Path) -> sqlite3.Connection:
-    """Initialise the application database with all required tables."""
-    conn = init_candidate_db(db_path)
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS specimens (
-            specimen_id TEXT PRIMARY KEY,
-            image TEXT
-        )
-        """
-    )
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS final_values (
-            specimen_id TEXT,
-            field TEXT,
-            value TEXT,
-            module TEXT,
-            confidence REAL,
-            error INTEGER DEFAULT 0,
-            decided_at TEXT,
-            PRIMARY KEY (specimen_id, field)
-        )
-        """
-    )
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS processing_state (
-            specimen_id TEXT,
-            module TEXT,
-            status TEXT,
-            confidence REAL,
-            error INTEGER DEFAULT 0,
-            retries INTEGER DEFAULT 0,
-            error_code TEXT,
-            error_message TEXT,
-            updated_at TEXT,
-            PRIMARY KEY (specimen_id, module)
-        )
-        """
-    )
-    # migrations
-    for stmt in (
-        "ALTER TABLE processing_state ADD COLUMN retries INTEGER DEFAULT 0",
-        "ALTER TABLE processing_state ADD COLUMN error_code TEXT",
-        "ALTER TABLE processing_state ADD COLUMN error_message TEXT",
-    ):
-        try:
-            conn.execute(stmt)
-        except sqlite3.OperationalError:
-            pass
-    conn.commit()
-    return conn
+def init_db(db_path: Path) -> Session:
+    """Initialise the application database and return a session."""
+
+    engine = create_engine(f"sqlite:///{db_path}")
+    Base.metadata.create_all(engine)
+    return sessionmaker(bind=engine)()
 
 
-def insert_specimen(conn: sqlite3.Connection, specimen: Specimen) -> None:
-    """Insert or replace a specimen record."""
-    conn.execute(
-        "INSERT OR REPLACE INTO specimens (specimen_id, image) VALUES (?, ?)",
-        (specimen.specimen_id, specimen.image),
-    )
-    conn.commit()
+def insert_specimen(session: Session, specimen: Specimen) -> None:
+    session.merge(specimen)
+    session.commit()
 
 
-def fetch_specimen(conn: sqlite3.Connection, specimen_id: str) -> Optional[Specimen]:
-    """Fetch a specimen by identifier."""
-    row = conn.execute(
-        "SELECT specimen_id, image FROM specimens WHERE specimen_id = ?",
-        (specimen_id,),
-    ).fetchone()
-    if not row:
-        return None
-    return Specimen(specimen_id=row[0], image=row[1])
+def fetch_specimen(session: Session, specimen_id: str) -> Optional[Specimen]:
+    return session.get(Specimen, specimen_id)
 
 
-def insert_final_value(conn: sqlite3.Connection, final: FinalValue) -> FinalValue:
-    """Persist a final value selection and return the stored record."""
+def insert_final_value(session: Session, final: FinalValue) -> FinalValue:
     decided_at = datetime.now(timezone.utc).isoformat()
-    conn.execute(
-        """
-        INSERT OR REPLACE INTO final_values (specimen_id, field, value, module, confidence, error, decided_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            final.specimen_id,
-            final.field,
-            final.value,
-            final.module,
-            final.confidence,
-            int(final.error),
-            decided_at,
-        ),
-    )
-    conn.commit()
-    return final.model_copy(update={"decided_at": decided_at})
+    final.decided_at = decided_at
+    session.merge(final)
+    session.commit()
+    return final
 
 
-def fetch_final_value(
-    conn: sqlite3.Connection, specimen_id: str, field: str
-) -> Optional[FinalValue]:
-    """Retrieve a final value for the given specimen and field."""
-    row = conn.execute(
-        """
-        SELECT specimen_id, field, value, module, confidence, error, decided_at
-        FROM final_values
-        WHERE specimen_id = ? AND field = ?
-        """,
-        (specimen_id, field),
-    ).fetchone()
-    if not row:
-        return None
-    return FinalValue(
-        specimen_id=row[0],
-        field=row[1],
-        value=row[2],
-        module=row[3],
-        confidence=row[4],
-        error=bool(row[5]),
-        decided_at=row[6],
-    )
+def fetch_final_value(session: Session, specimen_id: str, field: str) -> Optional[FinalValue]:
+    return session.get(FinalValue, (specimen_id, field))
 
 
-def upsert_processing_state(
-    conn: sqlite3.Connection, state: ProcessingState
-) -> ProcessingState:
-    """Insert or update processing state for a module."""
+def upsert_processing_state(session: Session, state: ProcessingState) -> ProcessingState:
     updated_at = datetime.now(timezone.utc).isoformat()
-    conn.execute(
-        """
-        INSERT OR REPLACE INTO processing_state
-            (specimen_id, module, status, confidence, error, retries, error_code, error_message, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            state.specimen_id,
-            state.module,
-            state.status,
-            state.confidence,
-            int(state.error),
-            state.retries,
-            state.error_code,
-            state.error_message,
-            updated_at,
-        ),
-    )
-    conn.commit()
-    return state.model_copy(update={"updated_at": updated_at})
+    state.updated_at = updated_at
+    session.merge(state)
+    session.commit()
+    return state
 
 
-def fetch_processing_state(
-    conn: sqlite3.Connection, specimen_id: str, module: str
-) -> Optional[ProcessingState]:
-    """Fetch processing state for a specimen/module pair."""
-    row = conn.execute(
-        """
-        SELECT specimen_id, module, status, confidence, error, retries, error_code, error_message, updated_at
-        FROM processing_state
-        WHERE specimen_id = ? AND module = ?
-        """,
-        (specimen_id, module),
-    ).fetchone()
-    if not row:
-        return None
-    return ProcessingState(
-        specimen_id=row[0],
-        module=row[1],
-        status=row[2],
-        confidence=row[3],
-        error=bool(row[4]),
-        retries=row[5],
-        error_code=row[6],
-        error_message=row[7],
-        updated_at=row[8],
-    )
+def fetch_processing_state(session: Session, specimen_id: str, module: str) -> Optional[ProcessingState]:
+    return session.get(ProcessingState, (specimen_id, module))
 
 
 def record_failure(
-    conn: sqlite3.Connection,
+    session: Session,
     specimen_id: str,
     module: str,
     error_code: str,
     error_message: str,
 ) -> ProcessingState:
-    """Increment retry count and store failure details."""
-    existing = fetch_processing_state(conn, specimen_id, module)
+    existing = fetch_processing_state(session, specimen_id, module)
     retries = existing.retries + 1 if existing else 1
     state = ProcessingState(
         specimen_id=specimen_id,
@@ -241,13 +115,14 @@ def record_failure(
         error_code=error_code,
         error_message=error_message,
     )
-    return upsert_processing_state(conn, state)
+    return upsert_processing_state(session, state)
 
 
 def migrate(db_path: Path) -> None:
-    """Run database migrations ensuring all tables and columns exist."""
-    conn = init_db(db_path)
-    conn.close()
+    """Run database migrations ensuring all tables exist."""
+
+    session = init_db(db_path)
+    session.close()
 
 
 __all__ = [

@@ -4,7 +4,7 @@ from __future__ import annotations
 import base64
 from importlib import resources
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from ..errors import EngineError
 from ..protocols import ImageToTextEngine
@@ -15,11 +15,19 @@ except Exception:  # pragma: no cover
     OpenAI = None
 
 
-def _load_prompt(name: str) -> str:
-    return resources.files(__package__).joinpath("prompts", name).read_text(encoding="utf-8")
+def _load_prompt(name: str, prompt_dir: Optional[Path] = None) -> str:
+    if prompt_dir:
+        return (Path(prompt_dir) / name).read_text(encoding="utf-8")
+    return resources.files("config").joinpath("prompts", name).read_text(encoding="utf-8")
 
 
-def image_to_text(image: Path, *, model: str, dry_run: bool = False) -> Tuple[str, List[float]]:
+def image_to_text(
+    image: Path,
+    *,
+    model: str,
+    dry_run: bool = False,
+    prompt_dir: Optional[Path] = None,
+) -> Tuple[str, List[float]]:
     """Use a GPT model to extract text from an image.
 
     Parameters
@@ -32,7 +40,7 @@ def image_to_text(image: Path, *, model: str, dry_run: bool = False) -> Tuple[st
         When ``True`` or when the OpenAI SDK is unavailable, no network
         call is performed and an empty result is returned.
     """
-    prompt = _load_prompt("image_to_text.prompt")
+    prompt = _load_prompt("image_to_text.prompt", prompt_dir)
     if dry_run:
         return "", []
     if OpenAI is None:

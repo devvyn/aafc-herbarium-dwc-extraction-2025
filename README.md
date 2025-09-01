@@ -2,7 +2,7 @@
 
 A toolkit for extracting text from herbarium specimen images, mapping the results to the Darwin Core standard, and recording metadata and quality-control information.
 
-Current version: 0.1.0 (see [CHANGELOG.md](CHANGELOG.md)).
+Current version: 0.1.1 (see [CHANGELOG.md](CHANGELOG.md)).
 
 ## Installation
 
@@ -13,6 +13,9 @@ Quick start (with uv)
 ### Install base package + dev dependencies
 ```
 uv sync --dev
+
+# Copy and edit environment secrets
+cp .env.example .env
 
 # (Optional) add extras depending on the engine(s) you need:
 #   Tesseract OCR  -> brew install tesseract && uv add ".[tesseract]"
@@ -85,7 +88,9 @@ python cli.py resume  --input PATH/TO/images --output PATH/TO/output \
 See the [configuration guide](docs/configuration.md) for a tour of the `config`
 directory. Mapping and normalisation helpers live in
 [`config/rules`](config/rules), which currently includes placeholders for
-Darwin Core mappings, institution codes, and vocabulary tables.
+Darwin Core mappings, institution codes, and vocabulary tables. Schema files
+under [`config/schemas`](config/schemas) default to Darwin Core plus ABCD and
+may be overridden in custom configurations via `dwc.schema_files`.
 
 ## Preprocessing pipeline
 
@@ -120,10 +125,11 @@ Fallback policies allow engines such as GPT to take over when confidence is low.
 ## GPT usage and secrets
 
 The GPT engine calls the OpenAI API using prompts stored in
-[`engines/gpt/prompts`](engines/gpt/prompts). Configure model settings in the
-`[gpt]` section of your configuration file. Supply API credentials via the
-`OPENAI_API_KEY` environment variable or a local secrets manager—never commit
-keys to the repository. See [docs/gpt.md](docs/gpt.md) for details.
+[`config/prompts`](config/prompts). Configure model settings in the
+`[gpt]` section of your configuration file. Load API credentials from a
+`.env` file or another secrets manager via the `OPENAI_API_KEY` environment
+variable—never commit keys to the repository. See [docs/gpt.md](docs/gpt.md)
+for details.
 
 ## Development
 

@@ -17,6 +17,7 @@ confidence_threshold = 0.70
 fallback_threshold = 0.85
 dry_run = false
 model = "gpt-4.1-mini"
+prompt_dir = "prompts"
 
 [tesseract]
 oem = 1
@@ -32,6 +33,7 @@ max_dim_px = 4000
 [dwc]
 schema = "dwc-abcd"
 schema_uri = "http://rs.tdwg.org/dwc/terms/"
+schema_files = ["dwc.xsd", "abcd.xsd"]
 assume_country_if_missing = "Canada"
 strict_minimal_fields = ["catalogNumber","scientificName","eventDate","recordedBy","locality"]
 flag_if_missing_minimal = true
