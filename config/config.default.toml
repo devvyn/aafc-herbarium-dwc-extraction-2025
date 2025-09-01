@@ -30,6 +30,8 @@ binarize = "adaptive_sauvola"
 max_dim_px = 4000
 
 [dwc]
+schema = "dwc-abcd"
+schema_uri = "http://rs.tdwg.org/dwc/terms/"
 assume_country_if_missing = "Canada"
 strict_minimal_fields = ["catalogNumber","scientificName","eventDate","recordedBy","locality"]
 flag_if_missing_minimal = true
