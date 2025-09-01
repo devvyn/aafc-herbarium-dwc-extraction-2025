@@ -118,93 +118,103 @@ def process_image(
     pre_cfg = cfg.get("preprocess", {})
     pipeline = pre_cfg.get("pipeline", [])
     proc_path = preprocess_image(img_path, pre_cfg) if pipeline else img_path
-    ocr_cfg = cfg.get("ocr", {})
-    prompt_dir = resources.files("config").joinpath(
-        cfg.get("gpt", {}).get("prompt_dir", "prompts")
-    )
-    available = available_engines("image_to_text")
-    enabled = ocr_cfg.get("enabled_engines")
-    if enabled:
-        available = [e for e in available if e in enabled]
-    if not available:
-        raise RuntimeError("No OCR engines available")
-    preferred = ocr_cfg.get("preferred_engine", available[0])
-    if preferred not in available:
-        raise ValueError(
-            f"Preferred engine '{preferred}' unavailable. Available: {', '.join(available)}"
-        )
-    if (
-        preferred == "tesseract"
-        and sys.platform == "darwin"
-        and not ocr_cfg.get("allow_tesseract_on_macos", False)
-    ):
-        preferred = (
-            "gpt" if "gpt" in available and ocr_cfg.get("allow_gpt") else available[0]
-        )
-    if preferred == "gpt" and (not ocr_cfg.get("allow_gpt") or "gpt" not in available):
-        preferred = available[0]
-
+    pipeline_cfg = cfg.get("pipeline", {})
+    steps = pipeline_cfg.get("steps", ["image_to_text", "text_to_dwc"])
+    prompt_dir = resources.files("config").joinpath(cfg.get("gpt", {}).get("prompt_dir", "prompts"))
     ident_history_rows: List[Dict[str, Any]] = []
     try:
-        kwargs = {}
-        if preferred == "gpt":
-            gpt_cfg = cfg.get("gpt", {})
-            kwargs.update(
-                model=gpt_cfg.get("model", "gpt-4"),
-                dry_run=gpt_cfg.get("dry_run", False),
-                prompt_dir=prompt_dir,
-            )
-        text, confidences = dispatch(
-            "image_to_text", image=proc_path, engine=preferred, **kwargs
-        )
-        avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
-        insert_candidate(
-            cand_conn,
-            run_id,
-            img_path.name,
-            Candidate(value=text, engine=preferred, confidence=avg_conf),
-        )
-        policy = get_fallback_policy(preferred)
-        if policy:
-            text, confidences, final_engine, engine_version = policy(
-                proc_path, text, confidences, cfg
-            )
-            if final_engine != preferred:
+        text: str | None = None
+        dwc_data: Dict[str, Any] = {}
+        field_conf: Dict[str, Any] = {}
+        for step in steps:
+            section = "ocr" if step == "image_to_text" else step
+            step_cfg = cfg.get(section, {})
+            available = available_engines(step)
+            enabled = step_cfg.get("enabled_engines")
+            if enabled:
+                available = [e for e in available if e in enabled]
+            if not available:
+                raise RuntimeError(f"No {step} engines available")
+            preferred = step_cfg.get("preferred_engine", available[0])
+            if preferred not in available:
+                raise ValueError(
+                    f"Preferred engine '{preferred}' unavailable for {step}. Available: {', '.join(available)}"
+                )
+            if (
+                step == "image_to_text"
+                and preferred == "tesseract"
+                and sys.platform == "darwin"
+                and not step_cfg.get("allow_tesseract_on_macos", False)
+            ):
+                preferred = (
+                    "gpt" if "gpt" in available and step_cfg.get("allow_gpt") else available[0]
+                )
+            if (
+                step == "image_to_text"
+                and preferred == "gpt"
+                and (not step_cfg.get("allow_gpt") or "gpt" not in available)
+            ):
+                preferred = available[0]
+
+            if step == "image_to_text":
+                kwargs = {}
+                if preferred == "gpt":
+                    gpt_cfg = cfg.get("gpt", {})
+                    kwargs.update(
+                        model=gpt_cfg.get("model", "gpt-4"),
+                        dry_run=gpt_cfg.get("dry_run", False),
+                        prompt_dir=prompt_dir,
+                    )
+                text, confidences = dispatch(step, image=proc_path, engine=preferred, **kwargs)
                 avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
                 insert_candidate(
                     cand_conn,
                     run_id,
                     img_path.name,
-                    Candidate(value=text, engine=final_engine, confidence=avg_conf),
+                    Candidate(value=text, engine=preferred, confidence=avg_conf),
                 )
-        else:
-            final_engine, engine_version = preferred, None
-        event["engine"] = final_engine
-        if engine_version:
-            event["engine_version"] = engine_version
-
-        gpt_cfg = cfg.get("gpt", {})
-        dwc_data, field_conf = dispatch(
-            "text_to_dwc",
-            text=text,
-            model=gpt_cfg["model"],
-            dry_run=gpt_cfg["dry_run"],
-            prompt_dir=prompt_dir,
-        )
-        ident_history = dwc_data.pop("identificationHistory", [])
-        event["dwc"] = dwc_data
-        event["dwc_confidence"] = field_conf
-        if ident_history:
-            event["identification_history"] = ident_history
-            for ident in ident_history:
-                ident.setdefault("occurrenceID", dwc_data.get("occurrenceID", ""))
-                ident_history_rows.append(ident)
+                policy = get_fallback_policy(preferred)
+                if policy:
+                    text, confidences, final_engine, engine_version = policy(
+                        proc_path, text, confidences, cfg
+                    )
+                    if final_engine != preferred:
+                        avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
+                        insert_candidate(
+                            cand_conn,
+                            run_id,
+                            img_path.name,
+                            Candidate(value=text, engine=final_engine, confidence=avg_conf),
+                        )
+                else:
+                    final_engine, engine_version = preferred, None
+                event["engine"] = final_engine
+                if engine_version:
+                    event["engine_version"] = engine_version
+            elif step == "text_to_dwc":
+                gpt_cfg = cfg.get("gpt", {})
+                dwc_data, field_conf = dispatch(
+                    step,
+                    text=text or "",
+                    engine=preferred,
+                    model=gpt_cfg.get("model", "gpt-4"),
+                    dry_run=gpt_cfg.get("dry_run", False),
+                    prompt_dir=prompt_dir,
+                )
+                ident_history = dwc_data.pop("identificationHistory", [])
+                event["dwc"] = dwc_data
+                event["dwc_confidence"] = field_conf
+                if ident_history:
+                    event["identification_history"] = ident_history
+                    for ident in ident_history:
+                        ident.setdefault("occurrenceID", dwc_data.get("occurrenceID", ""))
+                        ident_history_rows.append(ident)
+            else:
+                dispatch(step, engine=preferred)
 
         qc_cfg = cfg.get("qc", {})
         flags = []
-        flags.extend(
-            qc.detect_duplicates(dupe_catalog, sha256, qc_cfg.get("phash_threshold", 0))
-        )
+        flags.extend(qc.detect_duplicates(dupe_catalog, sha256, qc_cfg.get("phash_threshold", 0)))
         if qc_cfg.get("low_confidence_flag"):
             confidence = event.get("dwc_confidence")
             if isinstance(confidence, (int, float)):
@@ -219,9 +229,7 @@ def process_image(
         if flags:
             event["flags"].extend(flags)
 
-        avg_field_conf = (
-            sum(field_conf.values()) / len(field_conf) if field_conf else None
-        )
+        avg_field_conf = sum(field_conf.values()) / len(field_conf) if field_conf else None
         upsert_processing_state(
             app_conn,
             ProcessingState(
@@ -232,6 +240,8 @@ def process_image(
             ),
         )
         return event, event["dwc"], ident_history_rows
+    except ValueError:
+        raise
     except EngineError as exc:
         event["errors"].append(str(exc))
         state = record_failure(app_conn, specimen_id, "process", exc.code, exc.message)
@@ -281,9 +291,7 @@ def process_cli(
 
     run_id = datetime.now(timezone.utc).isoformat()
     try:
-        git_commit = subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], text=True
-        ).strip()
+        git_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     except Exception:  # pragma: no cover - git may not be available
         git_commit = None
 
