@@ -1,6 +1,6 @@
 [project]
 name = "herbarium-dwc"
-version = "0.1.0"
+version = "0.1.1"
 description = "Herbarium OCR to Darwin Core extraction toolkit"
 authors = [{name = "AAFC"}]
 readme = "README.md"
@@ -10,6 +10,8 @@ dependencies = [
     "pydantic",
     "Pillow",
     "numpy",
+    "sqlalchemy",
+    "python-dotenv",
 ]
 
 [project.scripts]
@@ -31,8 +33,12 @@ packages = [
 py-modules = ["cli"]
 
 [tool.hatch.build.targets.wheel.package-data]
-config = ["config.default.toml", "rules/*.toml"]
-engines = ["gpt/prompts/*"]
+config = [
+    "config.default.toml",
+    "rules/*.toml",
+    "prompts/*.prompt",
+    "schemas/*.xsd",
+]
 
 [dependency-groups]
 dev = [

@@ -3,7 +3,8 @@ from __future__ import annotations
 
 import json
 from importlib import resources
-from typing import Dict, Tuple
+from pathlib import Path
+from typing import Dict, Tuple, Optional
 
 from ..errors import EngineError
 from ..protocols import TextToDwcEngine
@@ -14,18 +15,26 @@ except Exception:  # pragma: no cover
     OpenAI = None
 
 
-def _load_prompt(name: str) -> str:
-    return resources.files(__package__).joinpath("prompts", name).read_text(encoding="utf-8")
+def _load_prompt(name: str, prompt_dir: Optional[Path] = None) -> str:
+    if prompt_dir:
+        return (Path(prompt_dir) / name).read_text(encoding="utf-8")
+    return resources.files("config").joinpath("prompts", name).read_text(encoding="utf-8")
 
 
-def text_to_dwc(text: str, *, model: str, dry_run: bool = False) -> Tuple[Dict[str, str], Dict[str, float]]:
+def text_to_dwc(
+    text: str,
+    *,
+    model: str,
+    dry_run: bool = False,
+    prompt_dir: Optional[Path] = None,
+) -> Tuple[Dict[str, str], Dict[str, float]]:
     """Map unstructured text to Darwin Core terms using a GPT model.
 
     The model is expected to return JSON where each key is a Darwin Core
     term mapping to a dictionary containing ``value`` and ``confidence``
     entries.  Any parsing errors result in empty outputs.
     """
-    prompt = _load_prompt("text_to_dwc.prompt")
+    prompt = _load_prompt("text_to_dwc.prompt", prompt_dir)
     if dry_run:
         return {}, {}
     if OpenAI is None:
