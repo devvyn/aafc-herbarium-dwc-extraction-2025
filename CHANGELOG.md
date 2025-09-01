@@ -9,6 +9,9 @@
 ### Fixed
 - guard against non-dict GPT responses to avoid crashes
 
+### Changed
+- :recycle: load role-based GPT prompts and pass messages directly to the API
+
 ## [0.1.1] - 2025-09-02
 
 ### Added

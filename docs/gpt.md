@@ -10,7 +10,12 @@ embedding keys in scripts or configuration.
 
 Prompt templates live under [`../config/prompts`](../config/prompts). Modify
 these files or point the configuration to another directory via the
-`gpt.prompt_dir` setting to adjust system behaviour.
+`gpt.prompt_dir` setting to adjust system behaviour. Each task uses separate
+files for different roles:
+
+- `*.system.prompt` sets global behaviour and constraints.
+- `*.user.prompt` contains the request that is sent with runtime input.
+- `*.assistant.prompt` (optional) can seed an example reply.
 
 ## Configuration options
 
