@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, Iterable
 
-from .schema import DwcRecord, DWC_TERMS
+from .schema import DwcRecord, resolve_term
+from . import schema
 from .normalize import normalize_institution, normalize_vocab
 from .validators import validate
 
@@ -21,9 +22,10 @@ def map_ocr_to_dwc(ocr_output: Dict[str, Any], minimal_fields: Iterable[str] = (
     """
 
     data: Dict[str, Any] = {}
-    for term in DWC_TERMS:
-        if term in ocr_output:
-            data[term] = ocr_output.get(term)
+    for raw_key, value in ocr_output.items():
+        term = resolve_term(str(raw_key))
+        if term in schema.DWC_TERMS:
+            data[term] = value
 
     # Normalise institution codes
     for field in ("institutionCode", "ownerInstitutionCode"):

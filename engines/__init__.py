@@ -6,7 +6,7 @@ when imported, and additional engines can be discovered via the
 ``herbarium.engines`` entry-point group.
 """
 
-from importlib import import_module, metadata
+from importlib import import_module, metadata, resources
 from pathlib import Path
 from typing import Any, Dict, Tuple, Callable, List, Optional
 
@@ -137,12 +137,16 @@ def _register_default_fallbacks() -> None:
                     available = [e for e in available if e in enabled]
                 if "gpt" not in available:
                     return text, confidences, engine_name, None
+                prompt_dir = resources.files("config").joinpath(
+                    gpt_cfg.get("prompt_dir", "prompts")
+                )
                 text, conf = dispatch(
                     "image_to_text",
                     image=image,
                     engine="gpt",
                     model=gpt_cfg["model"],
                     dry_run=gpt_cfg["dry_run"],
+                    prompt_dir=prompt_dir,
                 )
                 return text, conf, "gpt", gpt_cfg["model"]
             return text, confidences, engine_name, None
