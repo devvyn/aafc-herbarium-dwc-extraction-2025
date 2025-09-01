@@ -6,6 +6,7 @@
 - support GPT image-to-Darwin Core extraction with default prompts
 - :gear: configurable task pipeline via `pipeline.steps`
 - :sparkles: interactive candidate review TUI using Textual
+- :sparkles: lightweight web review server for OCR candidate selection
 
 ### Fixed
 - guard against non-dict GPT responses to avoid crashes
