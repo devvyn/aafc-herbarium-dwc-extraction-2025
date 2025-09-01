@@ -12,6 +12,7 @@ dependencies = [
     "numpy",
     "sqlalchemy",
     "python-dotenv",
+    "textual",
 ]
 
 [project.scripts]
