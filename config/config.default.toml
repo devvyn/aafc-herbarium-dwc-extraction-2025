@@ -25,6 +25,9 @@ psm = 6
 langs = ["eng","fra","lat"]
 extra_args = []
 
+[pipeline]
+steps = ["image_to_text", "text_to_dwc"]
+
 [preprocess]
 pipeline = ["grayscale", "deskew", "binarize", "resize"]
 binarize = "adaptive_sauvola"
