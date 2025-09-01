@@ -209,8 +209,31 @@ def process_image(
                     for ident in ident_history:
                         ident.setdefault("occurrenceID", dwc_data.get("occurrenceID", ""))
                         ident_history_rows.append(ident)
+            elif step == "image_to_dwc":
+                gpt_cfg = cfg.get("gpt", {})
+                instructions = pipeline_cfg.get("image_to_dwc_instructions")
+                if instructions is None:
+                    raise ValueError(
+                        "Missing pipeline.image_to_dwc_instructions for image_to_dwc step"
+                    )
+                dwc_data, field_conf = dispatch(
+                    step,
+                    image=proc_path,
+                    instructions=instructions,
+                    engine=preferred,
+                    model=gpt_cfg.get("model", "gpt-4"),
+                    dry_run=gpt_cfg.get("dry_run", False),
+                )
+                ident_history = dwc_data.pop("identificationHistory", [])
+                event["dwc"] = dwc_data
+                event["dwc_confidence"] = field_conf
+                if ident_history:
+                    event["identification_history"] = ident_history
+                    for ident in ident_history:
+                        ident.setdefault("occurrenceID", dwc_data.get("occurrenceID", ""))
+                        ident_history_rows.append(ident)
             else:
-                dispatch(step, engine=preferred)
+                raise ValueError(f"Unsupported pipeline step: {step}")
 
         qc_cfg = cfg.get("qc", {})
         flags = []
