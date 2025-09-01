@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- support GPT image-to-Darwin Core extraction with default prompts
+
+### Fixed
+- guard against non-dict GPT responses to avoid crashes
+
 ## [0.1.1] - 2025-09-02
 
 ### Added
