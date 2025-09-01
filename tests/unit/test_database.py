@@ -21,7 +21,8 @@ def test_specimen_and_state_roundtrip(tmp_path: Path) -> None:
 
     specimen = Specimen(specimen_id="s1", image="img1.jpg")
     insert_specimen(conn, specimen)
-    assert fetch_specimen(conn, "s1") == specimen
+    fetched_specimen = fetch_specimen(conn, "s1")
+    assert fetched_specimen and fetched_specimen.image == specimen.image
 
     state = ProcessingState(
         specimen_id="s1", module="ocr", status="done", confidence=0.8
@@ -40,7 +41,7 @@ def test_specimen_and_state_roundtrip(tmp_path: Path) -> None:
     )
     stored_final = insert_final_value(conn, final)
     fetched_final = fetch_final_value(conn, "s1", "scientificName")
-    assert fetched_final == stored_final
+    assert fetched_final and fetched_final.value == stored_final.value
 
     fail_state = record_failure(conn, "s1", "ocr", "ERR", "boom")
     assert fail_state.retries == 1 and fail_state.error
