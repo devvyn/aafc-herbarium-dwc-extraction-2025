@@ -51,6 +51,8 @@ def image_to_dwc(
     content = getattr(resp, "output_text", "{}")
     try:
         data = json.loads(content)
+        if not isinstance(data, dict):
+            raise EngineError("PARSE_ERROR", "Response is not a JSON object")
     except Exception as exc:
         raise EngineError("PARSE_ERROR", str(exc)) from exc
 

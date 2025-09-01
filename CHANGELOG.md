@@ -5,6 +5,9 @@
 ### Added
 - support GPT image-to-Darwin Core extraction with default prompts
 
+### Fixed
+- guard against non-dict GPT responses to avoid crashes
+
 ## 0.1.0 - 2025-09-01
 
 - document configuration files and GPT usage
