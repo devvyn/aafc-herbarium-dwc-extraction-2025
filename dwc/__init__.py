@@ -1,4 +1,4 @@
-from .schema import DwcRecord, DWC_TERMS
+from .schema import DwcRecord, DWC_TERMS, configure_terms, resolve_term
 from .mapper import map_ocr_to_dwc
 from .normalize import normalize_institution, normalize_vocab
 from .validators import (
@@ -11,6 +11,8 @@ from .archive import build_meta_xml, create_archive
 __all__ = [
     "DwcRecord",
     "DWC_TERMS",
+    "configure_terms",
+    "resolve_term",
     "map_ocr_to_dwc",
     "normalize_institution",
     "normalize_vocab",

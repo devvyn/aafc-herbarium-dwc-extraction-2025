@@ -1,62 +1,16 @@
 from __future__ import annotations
 
-from typing import Dict, Optional
+from importlib import resources
+from pathlib import Path
+from typing import Dict, Iterable, List, Optional
+from xml.etree import ElementTree as ET
+
 from pydantic import BaseModel, ConfigDict
 
-# Default namespace for Darwin Core terms.  Alternative schemas may override
-# this via configuration.
 DEFAULT_SCHEMA_URI = "http://rs.tdwg.org/dwc/terms/"
 
-# Darwin Core terms supported by this project.  These mirror the column order
-# used when writing CSV output.  The list is based on the AAFC-SRDC example
-# dataset and extended with a few project-specific fields at the end.
-# TODO: Load term definitions from the configured schema instead of hard-coding
-# this list.
-DWC_TERMS = [
-    "occurrenceID",
-    "catalogNumber",
-    "otherCatalogNumbers",
-    "institutionCode",
-    "collectionCode",
-    "ownerInstitutionCode",
-    "basisOfRecord",
-    "preparations",
-    "hasFragmentPacket",
-    "disposition",
-    "recordedBy",
-    "recordedByID",
-    "recordNumber",
-    "eventDate",
-    "eventTime",
-    "country",
-    "stateProvince",
-    "county",
-    "municipality",
-    "locality",
-    "verbatimLocality",
-    "decimalLatitude",
-    "decimalLongitude",
-    "geodeticDatum",
-    "coordinateUncertaintyInMeters",
-    "habitat",
-    "eventRemarks",
-    "scientificName",
-    "scientificNameAuthorship",
-    "taxonRank",
-    "family",
-    "genus",
-    "specificEpithet",
-    "infraspecificEpithet",
-    "identificationQualifier",
-    "identifiedBy",
-    "dateIdentified",
-    "identificationRemarks",
-    "identificationReferences",
-    "identificationVerificationStatus",
-    "associatedOccurrences",
-    "occurrenceRemarks",
-    "dynamicProperties",
-    # Project-specific extensions
+# Project-specific terms appended after schema loading
+PROJECT_TERMS = [
     "scientificName_verbatim",
     "verbatimEventDate",
     "eventDateUncertaintyInDays",
@@ -64,6 +18,55 @@ DWC_TERMS = [
     "verbatimLabel",
     "flags",
 ]
+
+
+def resolve_term(term: str) -> str:
+    """Return the local Darwin Core term from a URI or prefixed name."""
+
+    if term.startswith("http://") or term.startswith("https://"):
+        term = term.rstrip("/").split("/")[-1]
+    if ":" in term:
+        term = term.split(":", 1)[1]
+    return term
+
+
+def _parse_schema(path: Path) -> List[str]:
+    terms: List[str] = []
+    try:
+        tree = ET.parse(path)
+    except Exception:  # pragma: no cover - malformed schemas
+        return terms
+    ns = {"xs": "http://www.w3.org/2001/XMLSchema"}
+    for elem in tree.findall(".//xs:element", ns):
+        name = elem.get("name")
+        if name:
+            terms.append(name)
+    return terms
+
+
+def load_schema_terms(schema_files: Optional[Iterable[Path]] = None) -> List[str]:
+    """Load Darwin Core/ABCD terms from the given schema files."""
+
+    if not schema_files:
+        base = resources.files("config").joinpath("schemas")
+        schema_files = [base / "dwc.xsd", base / "abcd.xsd"]
+    terms: List[str] = []
+    for path in schema_files:
+        if path.exists():
+            terms.extend(_parse_schema(path))
+    return terms + PROJECT_TERMS
+
+# Darwin Core terms supported by this project.  These mirror the column order
+# used when writing CSV output.  The list is based on the AAFC-SRDC example
+# dataset and extended with a few project-specific fields at the end.
+DWC_TERMS = load_schema_terms()
+
+
+def configure_terms(schema_files: Iterable[Path]) -> None:
+    """Override ``DWC_TERMS`` using alternative schema files."""
+
+    global DWC_TERMS
+    DWC_TERMS = load_schema_terms(schema_files)
 
 
 class DwcRecord(BaseModel):

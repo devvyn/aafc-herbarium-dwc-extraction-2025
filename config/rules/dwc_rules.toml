@@ -1,1 +1,2 @@
-# Placeholder for Darwin Core mapping rules
+# Mapping rules from raw OCR output to Darwin Core terms.
+# Use this file to declare regex or lookup substitutions.
