@@ -35,8 +35,18 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Review OCR candidates")
     parser.add_argument("db", type=Path, help="Path to candidates database")
     parser.add_argument("image", help="Image filename to review")
+    parser.add_argument(
+        "--tui",
+        action="store_true",
+        help="Use Textual interface for candidate review",
+    )
     args = parser.parse_args()
-    review_candidates(args.db, args.image)
+    if args.tui:
+        from review_tui import review_candidates_tui
+
+        review_candidates_tui(args.db, args.image)
+    else:
+        review_candidates(args.db, args.image)
 
 
 if __name__ == "__main__":
