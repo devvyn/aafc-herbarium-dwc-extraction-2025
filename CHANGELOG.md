@@ -11,6 +11,7 @@
 
 ### Fixed
 - guard against non-dict GPT responses to avoid crashes
+- handle multiple reviewer decisions per image when importing review bundles
 
 ### Changed
 - :recycle: load role-based GPT prompts and pass messages directly to the API
