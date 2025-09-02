@@ -135,3 +135,19 @@ for details.
 
 Consult [docs/development.md](docs/development.md) for open stubs and ideas for
 future contributions.
+
+### Commit messages
+
+Start each commit message with a gitmoji (see [gitmoji.dev](https://gitmoji.dev)) followed by a brief summary. This repository provides a `.gitmessage` template:
+
+```
+:sparkles: Brief summary
+
+More detailed description...
+```
+
+Configure it locally so `git commit` pre-fills the template:
+
+```
+git config commit.template .gitmessage
+```
