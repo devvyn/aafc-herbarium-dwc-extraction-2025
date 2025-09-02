@@ -34,6 +34,11 @@
 - Use GitHub-style links for issues, commits, and pull requests (e.g. `[PR #42](https://github.com/your-org/your-repo/pull/42)`).
 - Open pull requests only after all linting/tests pass.
 
+## Release Guidelines
+- Publish a release only for **substantial** changes that add features, fix user-facing bugs, or alter data structures.
+- Every release must synchronize version numbers and update both `CHANGELOG.md` and `README.md`.
+- Skip releases for minor internal tweaks, refactors, or other changes with no external impact.
+
 ## Documentation & TODO
 - Review and update `TODO.md` whenever tasks are completed or new work emerges.
 - Pull requests touching areas with open TODOs must reconcile or reference the relevant entries.
