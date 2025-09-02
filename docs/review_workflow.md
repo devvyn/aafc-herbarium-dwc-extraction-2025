@@ -55,9 +55,8 @@ from pathlib import Path
 import sqlite3
 from io_utils.spreadsheets import export_candidates_to_spreadsheet
 
-conn = sqlite3.connect("output/candidates.db")
-export_candidates_to_spreadsheet(conn, "1.2.0", Path("output/review.xlsx"))
-conn.close()
+with sqlite3.connect("output/candidates.db") as conn:
+    export_candidates_to_spreadsheet(conn, "1.2.0", Path("output/review.xlsx"))
 ```
 
 After reviewers mark the `selected` column, import the decisions:
@@ -68,11 +67,10 @@ import sqlite3
 from io_utils.candidates import Candidate, record_decision
 from io_utils.spreadsheets import import_review_selections
 
-conn = sqlite3.connect("output/candidates.db")
-for d in import_review_selections(Path("output/review.xlsx"), "1.2.0"):
-    cand = Candidate(value=d["value"], engine=d["engine"], confidence=0.0)
-    record_decision(conn, d["image"], cand)
-conn.close()
+with sqlite3.connect("output/candidates.db") as conn:
+    for d in import_review_selections(Path("output/review.xlsx"), "1.2.0"):
+        cand = Candidate(value=d["value"], engine=d["engine"], confidence=0.0)
+        record_decision(conn, d["image"], cand)
 ```
 
 ## Import decisions
