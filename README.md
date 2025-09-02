@@ -73,6 +73,16 @@ python cli.py resume  --input PATH/TO/images --output PATH/TO/output \
 | `candidates.db`            | Raw OCR candidates                        |
 | `app.db`                   | Specimen metadata and processing state    |
 
+## Review interfaces
+
+Review exported candidates using the text-based UI, a browser, or spreadsheets. Each option operates on a review bundle rather than the main database.
+
+- Text UI: `python review_tui.py output/candidates.db IMAGE.JPG`
+- Web UI: `python review_web.py --db output/candidates.db --images output`
+- Spreadsheet flow: see [`io_utils/spreadsheets.py`](io_utils/spreadsheets.py)
+
+See [docs/review_workflow.md](docs/review_workflow.md) for OS-specific commands and import steps. For a minimal CLI that handles a single image, run [`review.py`](review.py).
+
 ## Configuration highlights (`config/config.default.toml`)
 
 - **OCR** – `preferred_engine`, `enabled_engines`, `allow_gpt`, `allow_tesseract_on_macos`, `confidence_threshold`
