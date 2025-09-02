@@ -20,7 +20,6 @@
 ## Coding Style & Tooling
 - Use **Ruff** for both linting and formatting.
   - Auto-fix: `ruff check . --fix`
-  - Lint without fixing: `ruff .`
 - Follow standard Python idioms (PEP 8, type hints where helpful).
 
 ## Testing
