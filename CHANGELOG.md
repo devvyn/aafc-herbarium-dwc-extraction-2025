@@ -19,6 +19,7 @@
 
 ### Docs
 - 📝 outline review workflow for TUI, web, and spreadsheet interfaces
+- 📝 clarify TUI entry point in README
 
 ## [0.1.1] - 2025-09-02 (0.1.1)
 
