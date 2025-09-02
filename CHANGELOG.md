@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [Unreleased] (0.1.1)
 
 ### Added
 - support GPT image-to-Darwin Core extraction with default prompts
@@ -20,7 +20,7 @@
 ### Docs
 - 📝 outline review workflow for TUI, web, and spreadsheet interfaces
 
-## [0.1.1] - 2025-09-02
+## [0.1.1] - 2025-09-02 (0.1.1)
 
 ### Added
 - :recycle: Load Darwin Core fields from configurable schema files and parse URIs
@@ -34,13 +34,23 @@
 ### Removed
 - :fire: Legacy hard-coded prompt paths
 
-## [0.1.0] - 2025-09-01
+## [0.1.0] - 2025-09-01 (0.1.0)
 
-- document configuration files and GPT usage
-- outline development stubs and placeholders
-- add schema selection options in configuration
-- record default Darwin Core namespace and note dynamic loading
-- bump project version to 0.1.0
+### Added
+- :construction: project skeleton with CLI and configurable settings
+- :package: wheel packaging with importlib-based config loading
+- :sparkles: DWC schema mapper and GPT-based extraction modules
+- :crystal_ball: Vision Swift and Tesseract OCR engines with pluggable registry
+- :hammer_and_wrench: preprocessing pipeline, QC utilities, and GBIF verification stubs
+- :card_file_box: SQLite database with resume support and candidate review CLI
+- :memo: developer documentation, sample Darwin Core Archive, and comprehensive tests
+
+### Changed
+- :loud_sound: replace print statements with logging
+
+### Fixed
+- :bug: handle missing git commit metadata
+- :bug: correct mapper schema override
 
 [Unreleased]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.1.1...HEAD
 [0.1.1]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.1.0...v0.1.1
