@@ -1,6 +1,8 @@
 from pathlib import Path
 import sqlite3
 
+import pytest
+
 from io_utils.candidates import (
     Candidate,
     init_db,
@@ -9,6 +11,7 @@ from io_utils.candidates import (
     best_candidate,
     record_decision,
     fetch_decision,
+    import_decisions,
 )
 
 
@@ -54,3 +57,45 @@ def test_record_and_fetch_decision(tmp_path: Path) -> None:
     assert fetched == decision
     assert fetched.run_id == "run1"
     conn.close()
+
+
+def test_import_decisions_deduplicates(tmp_path: Path) -> None:
+    src_db = tmp_path / "src.db"
+    dest_db = tmp_path / "dest.db"
+    src = init_db(src_db)
+    dest = init_db(dest_db)
+    earlier = "2024-01-01T00:00:00+00:00"
+    later = "2024-01-02T00:00:00+00:00"
+    src.execute(
+        "INSERT INTO decisions (run_id, image, value, engine, decided_at) VALUES (?, ?, ?, ?, ?)",
+        (None, "img1.jpg", "old", "e1", earlier),
+    )
+    src.execute(
+        "INSERT INTO decisions (run_id, image, value, engine, decided_at) VALUES (?, ?, ?, ?, ?)",
+        (None, "img1.jpg", "new", "e2", later),
+    )
+    import_decisions(dest, src)
+    row = dest.execute(
+        "SELECT value, engine, decided_at FROM decisions WHERE image = ?",
+        ("img1.jpg",),
+    ).fetchone()
+    assert row == ("new", "e2", later)
+
+
+def test_import_decisions_conflict(tmp_path: Path) -> None:
+    src_db = tmp_path / "src.db"
+    dest_db = tmp_path / "dest.db"
+    src = init_db(src_db)
+    dest = init_db(dest_db)
+    decided_at = "2024-01-01T00:00:00+00:00"
+    src.execute(
+        "INSERT INTO decisions (run_id, image, value, engine, decided_at) VALUES (?, ?, ?, ?, ?)",
+        (None, "img1.jpg", "val", "e1", decided_at),
+    )
+    dest.execute(
+        "INSERT INTO decisions (run_id, image, value, engine, decided_at) VALUES (?, ?, ?, ?, ?)",
+        (None, "img1.jpg", "dest", "e2", decided_at),
+    )
+    dest.commit()
+    with pytest.raises(ValueError):
+        import_decisions(dest, src)
