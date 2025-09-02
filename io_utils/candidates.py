@@ -137,9 +137,15 @@ def import_decisions(
 ) -> None:
     """Merge decisions from ``src`` into ``dest`` with duplicate checks."""
     rows = src.execute(
-        "SELECT run_id, image, value, engine, decided_at FROM decisions"
+        "SELECT run_id, image, value, engine, decided_at FROM decisions",
     ).fetchall()
+    latest: dict[str, tuple[str | None, str, str, str, str]] = {}
     for run_id, image, value, engine, decided_at in rows:
+        current = latest.get(image)
+        if not current or decided_at > current[4]:
+            latest[image] = (run_id, image, value, engine, decided_at)
+
+    for run_id, image, value, engine, decided_at in latest.values():
         exists = dest.execute(
             "SELECT 1 FROM decisions WHERE image = ?",
             (image,),
