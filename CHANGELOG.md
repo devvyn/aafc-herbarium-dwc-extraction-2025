@@ -8,6 +8,7 @@
 - :sparkles: interactive candidate review TUI using Textual
 - :sparkles: lightweight web review server for OCR candidate selection
 - :sparkles: export/import review bundles with manifest and semantic versioning
+- :sparkles: spreadsheet utilities for Excel and Google Sheets review
 
 ### Fixed
 - guard against non-dict GPT responses to avoid crashes
