@@ -35,3 +35,7 @@
 - add schema selection options in configuration
 - record default Darwin Core namespace and note dynamic loading
 - bump project version to 0.1.0
+
+[Unreleased]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/releases/tag/v0.1.0
