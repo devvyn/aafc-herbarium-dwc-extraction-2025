@@ -34,6 +34,10 @@
 - Use GitHub-style links for issues, commits, and pull requests (e.g. `[PR #42](https://github.com/your-org/your-repo/pull/42)`).
 - Open pull requests only after all linting/tests pass.
 
+## Documentation & TODO
+- Review and update `TODO.md` whenever tasks are completed or new work emerges.
+- Pull requests touching areas with open TODOs must reconcile or reference the relevant entries.
+
 ## Miscellaneous
 - No sensitive data is handled in this repository.
 - Default image format is JPEG unless otherwise specified.
