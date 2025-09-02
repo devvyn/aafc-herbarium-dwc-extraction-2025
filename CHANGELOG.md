@@ -17,6 +17,9 @@
 ### Changed
 - :recycle: load role-based GPT prompts and pass messages directly to the API
 
+### Docs
+- 📝 outline review workflow for TUI, web, and spreadsheet interfaces
+
 ## [0.1.1] - 2025-09-02 (0.1.1)
 
 ### Added
