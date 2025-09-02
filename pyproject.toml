@@ -13,6 +13,9 @@ dependencies = [
     "sqlalchemy",
     "python-dotenv",
     "textual",
+    "pyexcel",
+    "pyexcel-xlsx",
+    "pygsheets",
 ]
 
 [project.scripts]
