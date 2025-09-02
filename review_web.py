@@ -98,8 +98,9 @@ class ReviewHandler(BaseHTTPRequestHandler):
         self.wfile.write(self._render_template(form))
 
     def _serve_image(self, name: str) -> None:
-        img_path = self.server.ctx["images"] / name
-        if not img_path.exists():
+        images_root = self.server.ctx["images"].resolve()
+        img_path = (images_root / name).resolve()
+        if not img_path.is_file() or not img_path.is_relative_to(images_root):
             self._send_headers(404)
             return
         data = img_path.read_bytes()
@@ -154,7 +155,7 @@ def main() -> None:
     )
     parser.add_argument("--port", type=int, default=8000, help="Port to bind the web server")
     args = parser.parse_args()
-    conn = sqlite3.connect(args.db)
+    conn = sqlite3.connect(args.db, check_same_thread=False)
     commit_hash = get_commit_hash()
     export_version = get_export_version(args.db)
     metadata = {"commit": commit_hash, "export": export_version}
