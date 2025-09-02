@@ -132,6 +132,27 @@ def fetch_decision(conn: sqlite3.Connection, image: str) -> Optional[Decision]:
     return Decision(value=row[0], engine=row[1], run_id=row[2], decided_at=row[3])
 
 
+def import_decisions(
+    dest: sqlite3.Connection, src: sqlite3.Connection
+) -> None:
+    """Merge decisions from ``src`` into ``dest`` with duplicate checks."""
+    rows = src.execute(
+        "SELECT run_id, image, value, engine, decided_at FROM decisions"
+    ).fetchall()
+    for run_id, image, value, engine, decided_at in rows:
+        exists = dest.execute(
+            "SELECT 1 FROM decisions WHERE image = ?",
+            (image,),
+        ).fetchone()
+        if exists:
+            raise ValueError(f"Decision for {image} already exists")
+        dest.execute(
+            "INSERT INTO decisions (run_id, image, value, engine, decided_at) VALUES (?, ?, ?, ?, ?)",
+            (run_id, image, value, engine, decided_at),
+        )
+    dest.commit()
+
+
 __all__ = [
     "Candidate",
     "init_db",
@@ -140,5 +161,6 @@ __all__ = [
     "best_candidate",
     "record_decision",
     "fetch_decision",
+    "import_decisions",
     "Decision",
 ]
