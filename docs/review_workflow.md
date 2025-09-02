@@ -7,23 +7,23 @@ Export candidates to a self-contained bundle, review selections outside the main
 Use [export_review.py](../export_review.py) to package `candidates.db`, images, and a manifest into `output/review_vX.Y.Z.zip`.
 
 ```
-python export_review.py --output output/review_v1.2.0.zip
+python export_review.py output/candidates.db input/images --schema-version 1.2.0
 ```
 
 ## TUI review
 
-The [review_tui.py](../review_tui.py) script provides a text-based interface using the exported SQLite database. Selections are written back to the same database, keeping review separate from the central store.
+Launch the text-based interface via [review.py](../review.py):
 
 - **Windows**
 
   ```
-  py review_tui.py output/candidates.db image.jpg
+  py review.py output/candidates.db image.jpg --tui
   ```
 
 - **macOS/Linux**
 
   ```
-  python3 review_tui.py output/candidates.db image.jpg
+  python3 review.py output/candidates.db image.jpg --tui
   ```
 
 ## Web UI review
@@ -33,13 +33,13 @@ Run [review_web.py](../review_web.py) to review candidates in a browser. Decisio
 - **Windows**
 
   ```
-  py review_web.py --db output/candidates.db --images output
+  py review_web.py --db output/candidates.db --images input/images
   ```
 
 - **macOS/Linux**
 
   ```
-  python3 review_web.py --db output/candidates.db --images output
+  python3 review_web.py --db output/candidates.db --images input/images
   ```
 
 Visit `http://localhost:8000` to start reviewing.
@@ -50,37 +50,39 @@ Use [io_utils/spreadsheets.py](../io_utils/spreadsheets.py) for teams that prefe
 
 Export candidates:
 
-- **Windows**
+```
+python - <<'PY'
+import sqlite3
+from pathlib import Path
+from io_utils.spreadsheets import export_candidates_to_spreadsheet
 
-  ```
-  py -m io_utils.spreadsheets export output/candidates.db output/review.xlsx
-  ```
-
-- **macOS/Linux**
-
-  ```
-  python3 -m io_utils.spreadsheets export output/candidates.db output/review.xlsx
-  ```
+conn = sqlite3.connect("output/candidates.db")
+export_candidates_to_spreadsheet(conn, "1.2.0", Path("output/review.xlsx"))
+conn.close()
+PY
+```
 
 After reviewers mark the `selected` column, import the decisions:
 
-- **Windows**
+```
+python - <<'PY'
+import sqlite3
+from pathlib import Path
+from io_utils.spreadsheets import import_review_selections
+from io_utils.candidates import Candidate, record_decision
 
-  ```
-  py -m io_utils.spreadsheets import output/review.xlsx output/candidates.db
-  ```
-
-- **macOS/Linux**
-
-  ```
-  python3 -m io_utils.spreadsheets import output/review.xlsx output/candidates.db
-  ```
+conn = sqlite3.connect("output/candidates.db")
+for d in import_review_selections(Path("output/review.xlsx"), "1.2.0"):
+    cand = Candidate(value=d["value"], engine=d["engine"], confidence=1.0)
+    record_decision(conn, d["image"], cand)
+conn.close()
+PY
+```
 
 ## Import decisions
 
 Merge reviewed selections back into your working database with [import_review.py](../import_review.py):
 
 ```
-python import_review.py output/review_v1.2.0.zip
+python import_review.py output/review_v1.2.0.zip output/candidates.db --schema-version 1.2.0
 ```
-
