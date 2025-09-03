@@ -77,7 +77,7 @@ python cli.py resume  --input PATH/TO/images --output PATH/TO/output \
 
 Review exported candidates using the text-based UI, a browser, or spreadsheets. Each option operates on a review bundle rather than the main database.
 
-- Text UI: `python review_tui.py output/candidates.db IMAGE.JPG`
+- Text UI: `python review.py output/candidates.db IMAGE.JPG --tui`
 - Web UI: `python review_web.py --db output/candidates.db --images output`
 - Spreadsheet flow: see [`io_utils/spreadsheets.py`](io_utils/spreadsheets.py)
 
