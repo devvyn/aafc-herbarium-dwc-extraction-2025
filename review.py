@@ -2,10 +2,21 @@ from __future__ import annotations
 
 import argparse
 import sqlite3
+import subprocess
+import sys
+import webbrowser
 from pathlib import Path
 from typing import List
 
 from io_utils.candidates import Candidate, Decision, fetch_candidates, record_decision
+
+
+def _open_image(image: str) -> None:
+    """Open an image in the default viewer."""
+    if sys.platform.startswith("win"):
+        subprocess.run(["start", image], check=False, shell=True)
+    else:
+        webbrowser.open(Path(image).resolve().as_uri())
 
 
 def review_candidates(db_path: Path, image: str) -> Decision | None:
@@ -40,7 +51,14 @@ def main() -> None:
         action="store_true",
         help="Use Textual interface for candidate review",
     )
+    parser.add_argument(
+        "--no-open",
+        action="store_true",
+        help="Do not open the image in a browser or viewer",
+    )
     args = parser.parse_args()
+    if not args.no_open:
+        _open_image(args.image)
     if args.tui:
         from review_tui import review_candidates_tui
 
