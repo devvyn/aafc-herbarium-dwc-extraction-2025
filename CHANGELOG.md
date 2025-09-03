@@ -9,6 +9,7 @@
 - :sparkles: lightweight web review server for OCR candidate selection
 - :sparkles: export/import review bundles with manifest and semantic versioning
 - :sparkles: spreadsheet utilities for Excel and Google Sheets review
+- :sparkles: automatically open image files when reviews start with optional `--no-open` flag
 
 ### Fixed
 - guard against non-dict GPT responses to avoid crashes
