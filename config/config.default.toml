@@ -32,6 +32,7 @@ steps = ["image_to_text", "text_to_dwc"]
 pipeline = ["grayscale", "deskew", "binarize", "resize"]
 binarize = "adaptive_sauvola"
 max_dim_px = 4000
+contrast_factor = 1.5  # used when "contrast" is in the pipeline
 
 [dwc]
 schema = "dwc-abcd"
