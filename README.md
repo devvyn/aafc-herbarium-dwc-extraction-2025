@@ -2,7 +2,7 @@
 
 A toolkit for extracting text from herbarium specimen images, mapping the results to the Darwin Core standard, and recording metadata and quality-control information.
 
-Current version: 0.1.1 (see [CHANGELOG.md](CHANGELOG.md)).
+Current version: 0.1.2 (see [CHANGELOG.md](CHANGELOG.md)).
 
 ## Installation
 
