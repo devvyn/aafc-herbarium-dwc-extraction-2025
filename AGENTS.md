@@ -42,6 +42,7 @@
 ## Documentation & TODO
 - Review and update `TODO.md` whenever tasks are completed or new work emerges.
 - Pull requests touching areas with open TODOs must reconcile or reference the relevant entries.
+- Keep `docs/roadmap.md` current; update it whenever project scope or priorities change.
 
 ## Miscellaneous
 - No sensitive data is handled in this repository.
