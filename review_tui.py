@@ -69,3 +69,7 @@ class ReviewApp(App[Decision | None]):
 def review_candidates_tui(db_path: Path, image: str) -> Decision | None:
     """Launch the Textual UI for candidate review."""
     return ReviewApp(db_path, image).run()
+
+
+if __name__ == "__main__":
+    raise SystemExit("Use 'python review.py --tui' to launch the text interface.")
