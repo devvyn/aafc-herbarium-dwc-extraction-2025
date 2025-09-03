@@ -12,7 +12,7 @@ python export_review.py output/candidates.db input --schema-version 1.2.0
 
 ## TUI review
 
-Launch the text-based interface via the `--tui` option in [review.py](../review.py). Selections are written back to the same database, keeping review separate from the central store.
+Launch the text-based interface with `python review.py output/candidates.db image.jpg --tui`. Selections are written back to the same database, keeping review separate from the central store.
 
 - **Windows**
 
