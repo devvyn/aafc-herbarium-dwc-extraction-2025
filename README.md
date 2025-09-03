@@ -88,7 +88,7 @@ See [docs/review_workflow.md](docs/review_workflow.md) for OS-specific commands 
 - **OCR** – `preferred_engine`, `enabled_engines`, `allow_gpt`, `allow_tesseract_on_macos`, `confidence_threshold`
 - **GPT** – `model`, `dry_run`, `fallback_threshold`
 - **Tesseract** – `oem`, `psm`, `langs`, `extra_args`
-- **Preprocess** – `pipeline = ["grayscale","deskew","binarize","resize"]`, `max_dim_px`, `contrast_factor`
+- **Preprocess** – `pipeline = ["grayscale","deskew","binarize","resize"]`, `max_dim_px`, optional `contrast_factor` (used when `"contrast"` is in the pipeline)
 - **DWc mapping** – `assume_country_if_missing`, `strict_minimal_fields`, normalization toggles
 - **QC** – duplicate detection (`phash_threshold`), low-confidence flagging, top-fifth scan flag
 - **Processing** – `retry_limit` for failed specimens
@@ -110,6 +110,7 @@ Preprocessing steps are registered via `preprocess.register_preprocessor`. Confi
 [preprocess]
 pipeline   = ["grayscale", "deskew", "binarize", "resize"]
 max_dim_px = 4000
+contrast_factor = 1.5  # used when "contrast" is in the pipeline
 ```
 
 Prototype flows for each engine are documented in `docs/preprocessing_flows.md`.

@@ -15,7 +15,7 @@ Apple's Vision framework handles color balance and skew internally, so additiona
 | Step        | Purpose                                         | Recommended range |
 |-------------|-------------------------------------------------|-------------------|
 | `grayscale` | Remove color information                        | — |
-| `contrast`  | Enhance text/background separation              | `contrast_factor` 1.3–1.7 |
+| `contrast`  | Enhance text/background separation              | `contrast_factor` 1.3–1.7 (default 1.5) |
 | `deskew`    | Correct rotation based on principal components  | — |
 | `binarize`  | Otsu threshold to isolate foreground            | — |
 | `resize`    | Improve OCR accuracy at higher resolution       | `max_dim_px` 3000–4000 |
@@ -27,7 +27,7 @@ This sequence yields high-quality input for Tesseract by maximizing contrast and
 | Step        | Purpose                                   | Recommended range |
 |-------------|-------------------------------------------|-------------------|
 | `grayscale` | Simplify image while retaining detail      | — |
-| `contrast`  | Light enhancement to aid tokenization     | `contrast_factor` 1.2–1.5 |
+| `contrast`  | Light enhancement to aid tokenization     | `contrast_factor` 1.2–1.5 (default 1.3) |
 | `resize`    | Control token count in prompts            | `max_dim_px` 1500–2500 (default 2048) |
 
 GPT-based OCR operates on lower resolutions; moderate preprocessing keeps images concise while remaining legible.
