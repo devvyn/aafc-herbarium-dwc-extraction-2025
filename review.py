@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import argparse
 import sqlite3
-import subprocess
 import sys
 import webbrowser
+import os
 from pathlib import Path
 from typing import List
 
@@ -14,7 +14,7 @@ from io_utils.candidates import Candidate, Decision, fetch_candidates, record_de
 def _open_image(image: str) -> None:
     """Open an image in the default viewer."""
     if sys.platform.startswith("win"):
-        subprocess.run(["start", image], check=False, shell=True)
+        os.startfile(image)  # type: ignore[attr-defined]
     else:
         webbrowser.open(Path(image).resolve().as_uri())
 
