@@ -134,7 +134,8 @@ for details.
 ## Development
 
 Consult [docs/development.md](docs/development.md) for open stubs and ideas for
-future contributions.
+future contributions. The project [roadmap](docs/roadmap.md) outlines upcoming
+features, priorities, and timelines.
 
 ### Commit messages
 
