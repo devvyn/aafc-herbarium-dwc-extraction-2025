@@ -1,6 +1,11 @@
 # Changelog
 
-## [Unreleased] (0.1.3)
+## [Unreleased] (0.1.4)
+
+## [0.1.3] - 2025-09-08 (0.1.3)
+
+### Docs
+- 📝 mark developer documentation milestone; refine roadmap and TODO priorities (non-breaking, optional upgrade)
 
 ## [0.1.2] - 2025-09-03 (0.1.2)
 
@@ -55,7 +60,8 @@
 - :bug: handle missing git commit metadata
 - :bug: correct mapper schema override
 
-[Unreleased]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/releases/tag/v0.1.0
