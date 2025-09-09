@@ -16,6 +16,7 @@ APPLE_VISION: Dict[str, Any] = {
 TESSERACT: Dict[str, Any] = {
     # Tesseract benefits from aggressive normalization and binarization.
     "pipeline": ["grayscale", "contrast", "deskew", "binarize", "resize"],
+    "binarize_method": "adaptive",
     # Contrast factor of 1.3–1.7 sharpens faint text without clipping.
     "contrast_factor": 1.5,
     # Resize so the longest edge is around 3000–4000 pixels.

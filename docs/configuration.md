@@ -16,6 +16,20 @@ to Darwin Core terms:
 steps = ["image_to_text", "text_to_dwc"]
 ```
 
+## Preprocessing settings
+
+Image cleanup steps live in the `[preprocess]` section. Use `pipeline` to list
+preprocessors and `binarize_method` to switch between global Otsu and adaptive
+Sauvola thresholding:
+
+```toml
+[preprocess]
+pipeline = ["grayscale", "deskew", "binarize", "resize"]
+binarize_method = "adaptive"  # or "otsu"
+max_dim_px = 4000
+contrast_factor = 1.5  # used when "contrast" is in the pipeline
+```
+
 ## Rules directory
 
 Mapping and normalisation rules live under [`../config/rules`](../config/rules).
