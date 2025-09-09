@@ -8,6 +8,5 @@
 6. Support GPU-accelerated inference for Tesseract – _medium_.
 7. Transition pipeline storage to an ORM – _medium_.
 8. Add audit trail for import steps with explicit user sign-off – _medium_.
-9. Version DwC-A export bundles with embedded manifest – _high_.
-10. Generate spreadsheet pivot table exports for data summaries – _low_.
-11. Implement locality cross-checks using Gazetteer API – _low_.
+9. Generate spreadsheet pivot table exports for data summaries – _low_.
+10. Implement locality cross-checks using Gazetteer API – _low_.

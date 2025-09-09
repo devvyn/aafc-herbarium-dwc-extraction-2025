@@ -73,6 +73,13 @@ python cli.py resume  --input PATH/TO/images --output PATH/TO/output \
 | `candidates.db`            | Raw OCR candidates                        |
 | `app.db`                   | Specimen metadata and processing state    |
 
+### Versioned exports
+
+Use the archive helper to bundle Darwin Core outputs with a manifest. When
+compressing exports, supply a semantic version so the ZIP file is written as
+`dwca_v<version>.zip` under `output/`. The accompanying `manifest.json` captures
+the timestamp, commit hash and any filter criteria for reproducibility.
+
 ## Review interfaces
 
 Review exported candidates using the text-based UI, a browser, or spreadsheets. Each option operates on a review bundle rather than the main database.

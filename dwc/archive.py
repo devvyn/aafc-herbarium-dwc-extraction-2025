@@ -13,10 +13,13 @@ from pathlib import Path
 from xml.etree.ElementTree import Element, SubElement, tostring
 from xml.dom import minidom
 from zipfile import ZipFile, ZIP_DEFLATED
-from typing import Dict
+from typing import Any, Dict
+from datetime import datetime, timezone
+import subprocess
+import re
 
 from .schema import DWC_TERMS
-from io_utils.write import IDENT_HISTORY_COLUMNS
+from io_utils.write import IDENT_HISTORY_COLUMNS, write_manifest
 
 
 def _dwc_term(term: str) -> str:
@@ -41,6 +44,26 @@ IDENT_HISTORY_URIS: Dict[str, str] = {
     ),
     "isCurrent": "http://rs.gbif.org/terms/1.0/isCurrent",
 }
+
+
+SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
+
+
+def build_manifest(filters: Dict[str, Any] | None = None) -> Dict[str, Any]:
+    """Return run metadata for archive exports."""
+    commit = "unknown"
+    try:
+        commit = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], text=True
+        ).strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+    timestamp = datetime.now(timezone.utc).isoformat()
+    return {
+        "timestamp": timestamp,
+        "commit": commit,
+        "filters": filters or {},
+    }
 
 
 def build_meta_xml(output_dir: Path) -> Path:
@@ -103,7 +126,13 @@ def build_meta_xml(output_dir: Path) -> Path:
     return meta_path
 
 
-def create_archive(output_dir: Path, *, compress: bool = False) -> Path:
+def create_archive(
+    output_dir: Path,
+    *,
+    compress: bool = False,
+    version: str | None = None,
+    filters: Dict[str, Any] | None = None,
+) -> Path:
     """Ensure DwC-A sidecar files exist and optionally create a ZIP archive.
 
     Parameters
@@ -111,8 +140,12 @@ def create_archive(output_dir: Path, *, compress: bool = False) -> Path:
     output_dir:
         Directory containing DwC CSV exports.
     compress:
-        If ``True``, a ``dwca.zip`` file will be created in ``output_dir``
-        containing the CSV files and ``meta.xml``.
+        If ``True``, a versioned ``dwca`` bundle will be created in ``output_dir``
+        containing the CSV files, ``meta.xml`` and ``manifest.json``.
+    version:
+        Semantic version string for the bundle when ``compress`` is ``True``.
+    filters:
+        Criteria used for the export; recorded in the manifest.
 
     Returns
     -------
@@ -120,13 +153,23 @@ def create_archive(output_dir: Path, *, compress: bool = False) -> Path:
     created ZIP file.
     """
 
+    manifest = build_manifest(filters)
+    write_manifest(output_dir, manifest)
     meta_path = build_meta_xml(output_dir)
     if not compress:
         return meta_path
 
-    archive_path = output_dir / "dwca.zip"
+    if version is None or not SEMVER_RE.match(version):
+        raise ValueError("version must be provided and follow semantic versioning")
+
+    archive_path = output_dir / f"dwca_v{version}.zip"
     with ZipFile(archive_path, "w", ZIP_DEFLATED) as zf:
-        for name in ["occurrence.csv", "identification_history.csv", "meta.xml"]:
+        for name in [
+            "occurrence.csv",
+            "identification_history.csv",
+            "meta.xml",
+            "manifest.json",
+        ]:
             file_path = output_dir / name
             if file_path.exists():
                 zf.write(file_path, arcname=name)
