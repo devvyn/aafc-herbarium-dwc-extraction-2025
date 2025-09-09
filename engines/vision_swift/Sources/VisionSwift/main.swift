@@ -13,12 +13,27 @@ func loadCGImage(from url: URL) -> CGImage? {
     return CGImageSourceCreateImageAtIndex(src, 0, nil)
 }
 
+func filterLanguages(
+    _ languages: [String],
+    level: VNRequestTextRecognitionLevel,
+    revision: Int
+) -> [String] {
+    let mapped = languages.compactMap { Locale.Language(identifier: $0).languageCode?.identifier }
+    guard let supported = try? VNRecognizeTextRequest.supportedRecognitionLanguages(for: level, revision: revision) else {
+        return mapped
+    }
+    return mapped.filter { supported.contains($0) }
+}
+
 func recognizeText(in image: CGImage, languages: [String]) throws -> [RecognitionResult] {
     let request = VNRecognizeTextRequest()
     request.recognitionLevel = .accurate
     request.usesLanguageCorrection = false
     if !languages.isEmpty {
-        request.recognitionLanguages = languages
+        let filtered = filterLanguages(languages, level: request.recognitionLevel, revision: request.revision)
+        if !filtered.isEmpty {
+            request.recognitionLanguages = filtered
+        }
     }
 
     let handler = VNImageRequestHandler(cgImage: image, options: [:])
