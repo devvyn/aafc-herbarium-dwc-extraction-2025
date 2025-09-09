@@ -6,12 +6,11 @@
 
 ## Medium priority
 
-1. Integrate GBIF taxonomy and locality verification into the QC pipeline (context: `qc/gbif.py`) – _medium_.
-2. Support full schema parsing from official Darwin Core and ABCD XSDs – _medium_.
-3. Add evaluation harness for GPT prompt template coverage – _medium_.
-4. Support GPU-accelerated inference for Tesseract – _medium_.
-5. Transition pipeline storage to an ORM – _medium_.
-6. Add audit trail for import steps with explicit user sign-off – _medium_.
+1. Support full schema parsing from official Darwin Core and ABCD XSDs – _medium_.
+2. Add evaluation harness for GPT prompt template coverage – _medium_.
+3. Support GPU-accelerated inference for Tesseract – _medium_.
+4. Transition pipeline storage to an ORM – _medium_.
+5. Add audit trail for import steps with explicit user sign-off – _medium_.
 
 ## Low priority
 

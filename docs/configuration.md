@@ -71,10 +71,11 @@ experiment with other vocabularies.
 
 ## GBIF endpoints
 
-Quality-control tasks can query GBIF for taxonomy and locality validation. Override the default API endpoints by setting the `[qc.gbif]` section:
+Quality-control tasks can query GBIF for taxonomy and locality validation. Enable the lookups and override the default API endpoints in the `[qc.gbif]` section:
 
 ```toml
 [qc.gbif]
+enabled = true
 species_match_endpoint = "https://api.gbif.org/v1/species/match"
 reverse_geocode_endpoint = "https://api.gbif.org/v1/geocode/reverse"
 ```
