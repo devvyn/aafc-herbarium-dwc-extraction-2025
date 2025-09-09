@@ -3,7 +3,7 @@
 1. Implement GBIF taxonomy and locality verification for QC (context: `qc/gbif.py`) – _medium_.
 2. Move GBIF API endpoints into configuration files – _easy_.
 3. Support full schema parsing from official Darwin Core and ABCD XSDs – _medium_.
-4. Add tests covering configurable GPT prompt templates – _easy_.
+4. Add evaluation harness for GPT prompt template coverage – _medium_.
 5. Integrate multilingual OCR models – _high_.
 6. Support GPU-accelerated inference for Tesseract – _medium_.
 7. Transition pipeline storage to an ORM – _medium_.
