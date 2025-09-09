@@ -2,7 +2,7 @@ from __future__ import annotations
 
 
 from pathlib import Path
-from typing import List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from .. import register_task
 from ..errors import EngineError
@@ -10,7 +10,12 @@ from ..protocols import ImageToTextEngine
 
 
 def image_to_text(
-    image: Path, oem: int, psm: int, langs: List[str], extra_args: List[str]
+    image: Path,
+    oem: int,
+    psm: int,
+    langs: List[str],
+    extra_args: List[str],
+    model_paths: Optional[Dict[str, str]] = None,
 ) -> Tuple[str, List[float]]:
     """Run Tesseract OCR on an image and return text and token confidences."""
     try:
@@ -21,6 +26,10 @@ def image_to_text(
         raise EngineError("MISSING_DEPENDENCY", "pytesseract not available") from exc
 
     config_parts = [f"--oem {oem}", f"--psm {psm}"]
+    if model_paths:
+        dirs = {str(Path(p).parent) for p in model_paths.values()}
+        if dirs:
+            config_parts.append(f"--tessdata-dir {next(iter(dirs))}")
     if extra_args:
         config_parts.extend(extra_args)
     config = " ".join(config_parts)

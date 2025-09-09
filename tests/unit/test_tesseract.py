@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import sys
 import types
 from pathlib import Path
@@ -16,19 +14,23 @@ def test_load_config_tesseract_overrides(tmp_path: Path) -> None:
         """
 [ocr]
 preferred_engine = "tesseract"
+langs = ["eng","spa"]
 [tesseract]
 oem = 2
 psm = 7
 langs = ["eng","spa"]
+model_paths = {eng = "/models/eng.traineddata", spa = "/models/spa.traineddata"}
 extra_args = ["--foo","bar"]
-"""
+""",
     )
     cfg = load_config(cfg_path)
     t_cfg = cfg["tesseract"]
     assert cfg["ocr"]["preferred_engine"] == "tesseract"
+    assert cfg["ocr"]["langs"] == ["eng", "spa"]
     assert t_cfg["oem"] == 2
     assert t_cfg["psm"] == 7
     assert t_cfg["langs"] == ["eng", "spa"]
+    assert t_cfg["model_paths"]["eng"].endswith("eng.traineddata")
     assert t_cfg["extra_args"] == ["--foo", "bar"]
 
 
@@ -37,7 +39,7 @@ def test_image_to_text_parses_output(monkeypatch, tmp_path: Path) -> None:
 
     def fake_image_to_data(image, lang, config, output_type):
         assert lang == "eng+spa"
-        assert config == "--oem 2 --psm 7 --foo bar"
+        assert config == "--oem 2 --psm 7 --tessdata-dir /models --foo bar"
         return {
             "text": ["hello", "", "world"],
             "conf": ["90", "-1", "80"],
@@ -49,7 +51,10 @@ def test_image_to_text_parses_output(monkeypatch, tmp_path: Path) -> None:
 
     from engines.tesseract import image_to_text
 
-    text, conf = image_to_text(tmp_path / "img.png", 2, 7, ["eng", "spa"], ["--foo", "bar"])
+    model_paths = {"eng": "/models/eng.traineddata", "spa": "/models/spa.traineddata"}
+    text, conf = image_to_text(
+        tmp_path / "img.png", 2, 7, ["eng", "spa"], ["--foo", "bar"], model_paths
+    )
     assert text == "hello world"
     assert conf == [0.9, 0.8]
 
@@ -60,12 +65,14 @@ def test_dispatch_uses_tesseract_engine(monkeypatch, tmp_path: Path) -> None:
         """
 [ocr]
 preferred_engine = "tesseract"
+langs = ["eng","spa"]
 [tesseract]
 oem = 2
 psm = 7
 langs = ["eng","spa"]
+model_paths = {eng = "/models/eng.traineddata", spa = "/models/spa.traineddata"}
 extra_args = ["--foo","bar"]
-"""
+""",
     )
     cfg = load_config(cfg_path)
 
@@ -73,8 +80,8 @@ extra_args = ["--foo","bar"]
 
     called = {}
 
-    def fake_image_to_text(image, oem, psm, langs, extra_args):
-        called["args"] = (image, oem, psm, langs, extra_args)
+    def fake_image_to_text(image, oem, psm, langs, extra_args, model_paths):
+        called["args"] = (image, oem, psm, langs, extra_args, model_paths)
         return "hi", [0.9]
 
     monkeypatch.setattr(tesseract, "image_to_text", fake_image_to_text)
@@ -87,10 +94,12 @@ extra_args = ["--foo","bar"]
         psm=cfg["tesseract"]["psm"],
         langs=cfg["tesseract"]["langs"],
         extra_args=cfg["tesseract"]["extra_args"],
+        model_paths=cfg["tesseract"]["model_paths"],
     )
 
-    assert called["args"] == (
-        Path("img.png"), 2, 7, ["eng", "spa"], ["--foo", "bar"]
-    )
+    args = called["args"]
+    assert args[0] == Path("img.png")
+    assert args[1:5] == (2, 7, ["eng", "spa"], ["--foo", "bar"])
+    assert args[5]["eng"].endswith("eng.traineddata")
     assert text == "hi"
     assert conf == [0.9]

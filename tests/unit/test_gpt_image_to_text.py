@@ -51,3 +51,31 @@ def test_api_error(monkeypatch, tmp_path: Path) -> None:
         gpt_image_to_text.image_to_text(img, model="gpt-4")
 
     assert excinfo.value.code == "API_ERROR"
+
+
+def test_includes_language_hints(monkeypatch, tmp_path: Path) -> None:
+    img = tmp_path / "img.jpg"
+    img.write_bytes(b"data")
+
+    captured = {}
+    resp = SimpleNamespace(output_text="hola", confidence=0.8)
+
+    def fake_create(**kwargs):
+        captured["messages"] = kwargs.get("input")
+        return resp
+
+    fake_client = SimpleNamespace(responses=SimpleNamespace(create=fake_create))
+    monkeypatch.setattr(gpt_image_to_text, "OpenAI", lambda: fake_client)
+    monkeypatch.setattr(
+        gpt_image_to_text,
+        "load_messages",
+        lambda task, prompt_dir=None: [{"role": "user", "content": "prompt"}],
+    )
+
+    text, confidences = gpt_image_to_text.image_to_text(
+        img, model="gpt-4", langs=["eng", "spa"]
+    )
+
+    assert captured["messages"][0]["content"].endswith("eng, spa")
+    assert text == "hola"
+    assert confidences == [0.8]

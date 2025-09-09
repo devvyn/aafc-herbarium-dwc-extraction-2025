@@ -31,7 +31,7 @@ def test_run_parses_output(monkeypatch):
 
 
 def test_image_to_text_concatenates_tokens(monkeypatch):
-    def fake_run(image_path: str):
+    def fake_run(image_path: str, langs=None):
         return ["hello", "world"], [], [0.5, 0.7]
 
     monkeypatch.setattr(vision_swift, "run", fake_run)
