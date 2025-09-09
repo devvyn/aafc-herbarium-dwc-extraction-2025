@@ -117,9 +117,7 @@ class GbifLookup:
         if "acceptedUsageKey" in data:
             data["acceptedTaxonKey"] = data["acceptedUsageKey"]
 
-        for field in TAXONOMY_FIELDS:
-            if field in data:
-                updated[field] = data[field]
+        updated.update({field: data[field] for field in TAXONOMY_FIELDS if field in data})
 
         return updated
 
@@ -161,9 +159,7 @@ class GbifLookup:
         elif not isinstance(data, dict):
             return updated
 
-        for field in LOCALITY_FIELDS:
-            if field in data:
-                updated[field] = data[field]
+        updated.update({field: data[field] for field in LOCALITY_FIELDS if field in data})
 
         return updated
 

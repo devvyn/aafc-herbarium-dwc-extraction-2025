@@ -54,6 +54,20 @@ def test_verify_taxonomy_error(monkeypatch):
     assert result is not record
 
 
+def test_verify_taxonomy_missing_fields(monkeypatch):
+    gbif = GbifLookup()
+    record: dict = {}
+
+    def raise_if_called(url):  # pragma: no cover - executed via monkeypatch
+        raise AssertionError("urlopen should not be called")
+
+    monkeypatch.setattr(gbif_module, "urlopen", raise_if_called)
+    result = gbif.verify_taxonomy(record)
+
+    assert result == record
+    assert result is not record
+
+
 def test_verify_locality_success(monkeypatch):
     gbif = GbifLookup()
     record = {"decimalLatitude": 45.0, "decimalLongitude": -75.0}
@@ -76,6 +90,31 @@ def test_verify_locality_error(monkeypatch):
 
     monkeypatch.setattr(gbif_module, "urlopen", raise_error)
     result = gbif.verify_locality(record)
+    assert result == record
+    assert result is not record
+
+
+def test_verify_locality_missing_coords(monkeypatch):
+    gbif = GbifLookup()
+    record: dict = {}
+
+    def raise_if_called(url):  # pragma: no cover - executed via monkeypatch
+        raise AssertionError("urlopen should not be called")
+
+    monkeypatch.setattr(gbif_module, "urlopen", raise_if_called)
+    result = gbif.verify_locality(record)
+
+    assert result == record
+    assert result is not record
+
+
+def test_verify_locality_empty_response(monkeypatch):
+    gbif = GbifLookup()
+    record = {"decimalLatitude": 45.0, "decimalLongitude": -75.0}
+
+    monkeypatch.setattr(gbif_module, "urlopen", lambda url: _mock_response([]))
+    result = gbif.verify_locality(record)
+
     assert result == record
     assert result is not record
 
