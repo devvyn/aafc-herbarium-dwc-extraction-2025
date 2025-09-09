@@ -2,10 +2,18 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
-import sqlite3
 from typing import List, Optional
 
 from pydantic import BaseModel
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from .candidate_models import (
+    Candidate as CandidateModel,
+    Decision as DecisionModel,
+    init_db as models_init_db,
+    migrate as models_migrate,
+)
 
 
 class Candidate(BaseModel):
@@ -26,93 +34,91 @@ class Decision(BaseModel):
     decided_at: str
 
 
-def init_db(db_path: Path) -> sqlite3.Connection:
-    """Initialise the candidate SQLite database."""
-    conn = sqlite3.connect(db_path)
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS candidates (
-            run_id TEXT,
-            image TEXT,
-            value TEXT,
-            engine TEXT,
-            confidence REAL,
-            error INTEGER DEFAULT 0
-        )
-        """
-    )
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS decisions (
-            run_id TEXT,
-            image TEXT,
-            value TEXT,
-            engine TEXT,
-            decided_at TEXT
-        )
-        """
-    )
-    try:
-        conn.execute("ALTER TABLE candidates ADD COLUMN error INTEGER DEFAULT 0")
-    except sqlite3.OperationalError:
-        pass
-    return conn
+def init_db(db_path: Path) -> Session:
+    """Initialise the candidate database and return a session."""
+
+    return models_init_db(db_path)
+
+
+def migrate(db_path: Path) -> None:
+    """Upgrade an existing candidate database."""
+
+    models_migrate(db_path)
 
 
 def insert_candidate(
-    conn: sqlite3.Connection,
+    session: Session,
     run_id: str,
     image: str,
     candidate: Candidate,
 ) -> None:
     """Persist a candidate record to the database."""
-    conn.execute(
-        "INSERT INTO candidates (run_id, image, value, engine, confidence, error) VALUES (?, ?, ?, ?, ?, ?)",
-        (
-            run_id,
-            image,
-            candidate.value,
-            candidate.engine,
-            candidate.confidence,
-            int(candidate.error),
-        ),
+
+    model = CandidateModel(
+        run_id=run_id,
+        image=image,
+        value=candidate.value,
+        engine=candidate.engine,
+        confidence=candidate.confidence,
+        error=candidate.error,
     )
-    conn.commit()
+    session.add(model)
+    session.commit()
 
 
-def fetch_candidates(conn: sqlite3.Connection, image: str) -> List[Candidate]:
+def fetch_candidates(session: Session, image: str) -> List[Candidate]:
     """Retrieve all candidate values for an image sorted by confidence."""
-    rows = conn.execute(
-        "SELECT value, engine, confidence, error FROM candidates WHERE image = ? ORDER BY confidence DESC",
-        (image,),
-    ).fetchall()
+
+    stmt = (
+        select(CandidateModel)
+        .where(CandidateModel.image == image)
+        .order_by(CandidateModel.confidence.desc())
+    )
+    rows = session.execute(stmt).scalars().all()
     return [
-        Candidate(value=row[0], engine=row[1], confidence=row[2], error=bool(row[3]))
+        Candidate(
+            value=row.value,
+            engine=row.engine,
+            confidence=row.confidence,
+            error=row.error,
+        )
         for row in rows
     ]
 
 
-def best_candidate(conn: sqlite3.Connection, image: str) -> Optional[Candidate]:
+def best_candidate(session: Session, image: str) -> Optional[Candidate]:
     """Return the highest-confidence candidate for an image if available."""
-    rows = fetch_candidates(conn, image)
+
+    rows = fetch_candidates(session, image)
     return rows[0] if rows else None
 
 
 def record_decision(
-    conn: sqlite3.Connection, image: str, candidate: Candidate
+    session: Session, image: str, candidate: Candidate
 ) -> Decision:
     """Persist a reviewer decision and return the stored record."""
-    run_row = conn.execute(
-        "SELECT run_id FROM candidates WHERE image = ? AND value = ? AND engine = ? ORDER BY confidence DESC LIMIT 1",
-        (image, candidate.value, candidate.engine),
-    ).fetchone()
+
+    stmt = (
+        select(CandidateModel.run_id)
+        .where(
+            (CandidateModel.image == image)
+            & (CandidateModel.value == candidate.value)
+            & (CandidateModel.engine == candidate.engine)
+        )
+        .order_by(CandidateModel.confidence.desc())
+    )
+    run_row = session.execute(stmt).first()
     run_id = run_row[0] if run_row else None
     decided_at = datetime.now(timezone.utc).isoformat()
-    conn.execute(
-        "INSERT INTO decisions (run_id, image, value, engine, decided_at) VALUES (?, ?, ?, ?, ?)",
-        (run_id, image, candidate.value, candidate.engine, decided_at),
+    model = DecisionModel(
+        image=image,
+        value=candidate.value,
+        engine=candidate.engine,
+        run_id=run_id,
+        decided_at=decided_at,
     )
-    conn.commit()
+    session.add(model)
+    session.commit()
     return Decision(
         value=candidate.value,
         engine=candidate.engine,
@@ -121,52 +127,62 @@ def record_decision(
     )
 
 
-def fetch_decision(conn: sqlite3.Connection, image: str) -> Optional[Decision]:
+def fetch_decision(session: Session, image: str) -> Optional[Decision]:
     """Retrieve the stored decision for an image if present."""
-    row = conn.execute(
-        "SELECT value, engine, run_id, decided_at FROM decisions WHERE image = ? ORDER BY decided_at DESC LIMIT 1",
-        (image,),
-    ).fetchone()
+
+    stmt = (
+        select(DecisionModel)
+        .where(DecisionModel.image == image)
+        .order_by(DecisionModel.decided_at.desc())
+    )
+    row = session.execute(stmt).scalars().first()
     if not row:
         return None
-    return Decision(value=row[0], engine=row[1], run_id=row[2], decided_at=row[3])
+    return Decision(
+        value=row.value,
+        engine=row.engine,
+        run_id=row.run_id,
+        decided_at=row.decided_at,
+    )
 
 
-def import_decisions(
-    dest: sqlite3.Connection, src: sqlite3.Connection
-) -> None:
+def import_decisions(dest: Session, src: Session) -> None:
     """Merge decisions from ``src`` into ``dest`` with duplicate checks."""
-    rows = src.execute(
-        "SELECT run_id, image, value, engine, decided_at FROM decisions",
-    ).fetchall()
-    latest: dict[str, tuple[str | None, str, str, str, str]] = {}
-    for run_id, image, value, engine, decided_at in rows:
-        current = latest.get(image)
-        if not current or decided_at > current[4]:
-            latest[image] = (run_id, image, value, engine, decided_at)
 
-    for run_id, image, value, engine, decided_at in latest.values():
+    rows = src.execute(select(DecisionModel)).scalars().all()
+    latest: dict[str, DecisionModel] = {}
+    for row in rows:
+        current = latest.get(row.image)
+        if not current or row.decided_at > current.decided_at:
+            latest[row.image] = row
+
+    for row in latest.values():
         exists = dest.execute(
-            "SELECT 1 FROM decisions WHERE image = ?",
-            (image,),
-        ).fetchone()
+            select(DecisionModel).where(DecisionModel.image == row.image)
+        ).first()
         if exists:
-            raise ValueError(f"Decision for {image} already exists")
-        dest.execute(
-            "INSERT INTO decisions (run_id, image, value, engine, decided_at) VALUES (?, ?, ?, ?, ?)",
-            (run_id, image, value, engine, decided_at),
+            raise ValueError(f"Decision for {row.image} already exists")
+        dest.add(
+            DecisionModel(
+                run_id=row.run_id,
+                image=row.image,
+                value=row.value,
+                engine=row.engine,
+                decided_at=row.decided_at,
+            )
         )
     dest.commit()
 
 
 __all__ = [
     "Candidate",
+    "Decision",
     "init_db",
+    "migrate",
     "insert_candidate",
     "fetch_candidates",
     "best_candidate",
     "record_decision",
     "fetch_decision",
     "import_decisions",
-    "Decision",
 ]
