@@ -69,7 +69,7 @@ def test_includes_language_hints(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(
         gpt_image_to_text,
         "load_messages",
-        lambda task, prompt_dir=None: [{"role": "user", "content": "prompt"}],
+        lambda task, prompt_dir=None: [{"role": "user", "content": "Respond in %LANG%"}],
     )
 
     text, confidences = gpt_image_to_text.image_to_text(
@@ -77,5 +77,6 @@ def test_includes_language_hints(monkeypatch, tmp_path: Path) -> None:
     )
 
     assert captured["messages"][0]["content"].endswith("eng, spa")
+    assert captured["messages"][1]["content"][0]["text"] == "Respond in eng, spa"
     assert text == "hola"
     assert confidences == [0.8]
