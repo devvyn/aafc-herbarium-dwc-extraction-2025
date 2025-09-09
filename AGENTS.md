@@ -18,12 +18,12 @@
 - Store exported artifacts under `./output/` with semantic version tags.
 
 ## Coding Style & Tooling
-- Use **Ruff** for both linting and formatting.
-  - Auto-fix: `ruff check . --fix`
+- Use **uv** for linting and formatting.
+  - Auto-fix: `uv format .`
 - Follow standard Python idioms (PEP 8, type hints where helpful).
 
 ## Testing
-- Run tests before committing (e.g., `pytest`).
+- Run tests before committing via `uv run pytest`.
 - Optionally run any DWCA validator scripts if they exist.
 
 ## Commit & PR Guidelines

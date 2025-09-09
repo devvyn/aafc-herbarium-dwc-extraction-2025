@@ -10,4 +10,4 @@
 - Reviewers should verify these documentation updates during PR review.
 
 ## Testing
-- Run `ruff .` and `pytest` from the repository root before committing documentation changes.
+- Run `uv format .` and `uv run pytest` from the repository root before committing documentation changes.
