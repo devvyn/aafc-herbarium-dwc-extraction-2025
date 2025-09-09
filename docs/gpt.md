@@ -23,6 +23,12 @@ The `[gpt]` section of [`../config/config.default.toml`](../config/config.defaul
 controls the model, fallback behaviour, prompt directory, and dry-run mode for
 offline testing.
 
+### Language hints
+
+Specify supported languages in `[ocr].langs`. These values are forwarded to GPT
+as a system message to steer recognition. Omit the setting to allow automatic
+language detection.
+
 ## Testing
 
 Unit tests in [../tests/unit/test_gpt_prompts.py](../tests/unit/test_gpt_prompts.py) load fixture templates from [../tests/resources/gpt_prompts](../tests/resources/gpt_prompts) to ensure custom prompt directories and legacy `*.prompt` files are honoured. Run `pytest` to validate these behaviours whenever prompts change.

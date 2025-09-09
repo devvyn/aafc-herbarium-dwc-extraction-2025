@@ -5,16 +5,19 @@ from __future__ import annotations
 import json
 import subprocess
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 
-def run(image_path: str) -> Tuple[List[str], List[List[float]], List[float]]:
+def run(image_path: str, langs: Optional[List[str]] = None) -> Tuple[List[str], List[List[float]], List[float]]:
     """Run the Swift Vision text recognizer.
 
     Parameters
     ----------
     image_path: str
         Path to the image file to process.
+    langs: list[str] | None
+        Language hints passed to ``VNRecognizeTextRequest``. When ``None`` the
+        framework attempts automatic language detection.
 
     Returns
     -------
@@ -31,6 +34,8 @@ def run(image_path: str) -> Tuple[List[str], List[List[float]], List[float]]:
         "vision_swift",
         image_path,
     ]
+    if langs:
+        cmd.extend(langs)
 
     proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
     results = json.loads(proc.stdout)
