@@ -41,6 +41,19 @@ Mapping and normalisation rules live under [`../config/rules`](../config/rules).
 These files support the mapping phase and are independent from preprocessing and OCR
 artifacts stored in the pipeline database.
 
+## Custom term mappings
+
+Define project-specific field aliases with `[dwc.custom]` in the configuration.
+Keys are raw field names and values are Darwin Core terms:
+
+```toml
+[dwc.custom]
+sheetNumber = "catalogNumber"
+```
+
+Custom mappings override entries in
+[`dwc_rules.toml`](../config/rules/dwc_rules.toml).
+
 ## GPT prompts and secrets
 
 Prompt templates for the GPT engine reside in

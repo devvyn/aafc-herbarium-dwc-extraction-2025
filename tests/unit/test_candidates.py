@@ -13,6 +13,7 @@ from io_utils.candidates import (
     fetch_decision,
     import_decisions,
 )
+from dwc import configure_mappings, map_ocr_to_dwc
 
 
 def test_candidate_roundtrip(tmp_path: Path) -> None:
@@ -99,3 +100,10 @@ def test_import_decisions_conflict(tmp_path: Path) -> None:
     dest.commit()
     with pytest.raises(ValueError):
         import_decisions(dest, src)
+
+
+def test_map_ocr_with_custom_mapping() -> None:
+    configure_mappings({"sheet": "catalogNumber"})
+    record = map_ocr_to_dwc({"sheet": "99"})
+    assert record.catalogNumber == "99"
+    configure_mappings({})
