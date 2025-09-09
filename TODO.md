@@ -3,7 +3,9 @@
 1. Implement GBIF taxonomy and locality verification for QC (context: `qc/gbif.py`) – _medium_.
 2. Move GBIF API endpoints into configuration files – _easy_.
 3. Expand vocabulary normalisation entries in `config/rules/vocab.toml` – _easy_.
+   - Basis of record and sex mappings have initial coverage.
 4. Populate mapping rules in `config/rules/dwc_rules.toml` – _medium_.
+   - Collector and collection date aliases added; extend for other fields.
 5. Support full schema parsing from official Darwin Core and ABCD XSDs – _medium_.
 6. Add tests covering configurable GPT prompt templates – _easy_.
 7. Integrate multilingual OCR models – _high_.

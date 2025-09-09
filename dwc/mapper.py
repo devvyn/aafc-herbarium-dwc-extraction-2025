@@ -4,7 +4,7 @@ from typing import Any, Dict, Iterable
 
 from .schema import DwcRecord, resolve_term
 from . import schema
-from .normalize import normalize_institution, normalize_vocab
+from .normalize import normalize_field_name, normalize_institution, normalize_vocab
 from .validators import validate
 
 
@@ -23,7 +23,8 @@ def map_ocr_to_dwc(ocr_output: Dict[str, Any], minimal_fields: Iterable[str] = (
 
     data: Dict[str, Any] = {}
     for raw_key, value in ocr_output.items():
-        term = resolve_term(str(raw_key))
+        field = normalize_field_name(str(raw_key))
+        term = resolve_term(field)
         if term in schema.DWC_TERMS:
             data[term] = value
 

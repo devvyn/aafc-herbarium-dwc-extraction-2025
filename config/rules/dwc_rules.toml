@@ -1,2 +1,8 @@
 # Mapping rules from raw OCR output to Darwin Core terms.
 # Use this file to declare regex or lookup substitutions.
+
+# Representative field aliases. Values point to Darwin Core terms
+# as catalogued by GBIF's Darwin Core Quick Reference Guide.
+# https://dwc.tdwg.org/terms/
+collector = "recordedBy"  # https://rs.gbif.org/terms/1.0/recordedBy
+"collection date" = "eventDate"  # https://rs.gbif.org/terms/1.0/eventDate

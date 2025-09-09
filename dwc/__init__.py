@@ -1,6 +1,6 @@
 from .schema import DwcRecord, DWC_TERMS, configure_terms, resolve_term
 from .mapper import map_ocr_to_dwc
-from .normalize import normalize_institution, normalize_vocab
+from .normalize import normalize_institution, normalize_vocab, normalize_field_name
 from .validators import (
     validate,
     validate_minimal_fields,
@@ -16,6 +16,7 @@ __all__ = [
     "map_ocr_to_dwc",
     "normalize_institution",
     "normalize_vocab",
+    "normalize_field_name",
     "validate",
     "validate_minimal_fields",
     "validate_event_date",

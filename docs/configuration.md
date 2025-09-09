@@ -34,9 +34,11 @@ contrast_factor = 1.5  # used when "contrast" is in the pipeline
 
 Mapping and normalisation rules live under [`../config/rules`](../config/rules).
 
-- [`dwc_rules.toml`](../config/rules/dwc_rules.toml) – transformation rules for raw OCR fields.
+- [`dwc_rules.toml`](../config/rules/dwc_rules.toml) – transformation rules for raw OCR fields
+  such as `collector` → `recordedBy` and `collection date` → `eventDate`.
 - [`institutions.toml`](../config/rules/institutions.toml) – maps legacy institution codes to canonical values.
-- [`vocab.toml`](../config/rules/vocab.toml) – vocabulary normalisation tables.
+- [`vocab.toml`](../config/rules/vocab.toml) – vocabulary normalisation tables including
+  `basisOfRecord` and `sex` mappings based on GBIF vocabularies.
 
 These files support the mapping phase and are independent from preprocessing and OCR
 artifacts stored in the pipeline database.

@@ -25,6 +25,9 @@ Secondary tasks cover medium and low priority items detailed below.
 | Populate mapping rules in `config/rules/dwc_rules.toml` and `config/rules/vocab.toml` | Medium | Q2 2025 |
 | Auto-generate Darwin Core term mappings from external XSD | Low | Q4 2025 |
 
+Initial rules now cover common aliases such as `collector` and `collection date`
+and normalise `basisOfRecord` values according to GBIF vocabularies.
+
 ## Quality control
 
 | Feature | Priority | Timeline |

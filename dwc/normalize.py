@@ -41,6 +41,21 @@ def normalize_institution(value: str) -> str:
     return mapping.get(value.lower(), value)
 
 
+def normalize_field_name(name: str) -> str:
+    """Return the canonical Darwin Core field name for ``name``.
+
+    Mappings are defined in ``config/rules/dwc_rules.toml`` where keys
+    correspond to raw OCR field names. Values reference Darwin Core
+    terms from the GBIF vocabulary.
+    """
+
+    if not name:
+        return name
+    rules = _load_rules("dwc_rules")
+    mapping = {k.lower(): v for k, v in rules.items()}
+    return mapping.get(name.lower(), name)
+
+
 def normalize_vocab(value: str, vocab: str) -> str:
     """Normalise ``value`` based on the vocabulary ``vocab``.
 

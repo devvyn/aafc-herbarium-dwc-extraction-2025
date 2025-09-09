@@ -1,2 +1,14 @@
 # Vocabulary normalisation tables.
 # Populate with mappings such as "Herbarium sheet" = "preservedSpecimen".
+
+[basisOfRecord]
+# GBIF Basis of Record vocabulary
+# https://rs.gbif.org/vocabulary/dwc/basis_of_record.xml
+"herbarium sheet" = "PreservedSpecimen"
+photo = "StillImage"
+
+[sex]
+# GBIF Sex vocabulary
+# https://rs.gbif.org/vocabulary/gbif/sex.xml
+m = "male"
+f = "female"
