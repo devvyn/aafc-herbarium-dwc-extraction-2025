@@ -22,3 +22,7 @@ files for different roles:
 The `[gpt]` section of [`../config/config.default.toml`](../config/config.default.toml)
 controls the model, fallback behaviour, prompt directory, and dry-run mode for
 offline testing.
+
+## Testing
+
+Unit tests in [../tests/unit/test_gpt_prompts.py](../tests/unit/test_gpt_prompts.py) load fixture templates from [../tests/resources/gpt_prompts](../tests/resources/gpt_prompts) to ensure custom prompt directories and legacy `*.prompt` files are honoured. Run `pytest` to validate these behaviours whenever prompts change.
