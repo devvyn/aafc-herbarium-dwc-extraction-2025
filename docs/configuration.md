@@ -55,3 +55,13 @@ credentials securely—never hard-code API keys.
 The `[dwc]` section defaults to the Darwin Core plus ABCD data structure. Use
 `schema_files` to reference alternative XSDs or adjust the `schema_uri` to
 experiment with other vocabularies.
+
+## GBIF endpoints
+
+Quality-control tasks can query GBIF for taxonomy and locality validation. Override the default API endpoints by setting the `[qc.gbif]` section:
+
+```toml
+[qc.gbif]
+species_match_endpoint = "https://api.gbif.org/v1/species/match"
+reverse_geocode_endpoint = "https://api.gbif.org/v1/geocode/reverse"
+```
