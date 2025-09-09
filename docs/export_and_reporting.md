@@ -42,10 +42,11 @@ Exports operate on the pipeline's SQLite database and never touch the main DwC+A
 
 Use [import_review.py](../import_review.py) to merge reviewed decisions into the
 working database. The command records an audit entry with the user ID, bundle
-hash and timestamp. Provide the user via `--user`:
+hash and timestamp. Audits are written to `app.db` next to the candidates file
+unless an explicit path is provided via `--app-db`.
 
 ```bash
-python import_review.py output/review_v1.2.0.zip output/candidates.db --schema-version 1.2.0 --user alice
+python import_review.py output/review_v1.2.0.zip output/candidates.db --schema-version 1.2.0 --user alice --app-db output/app.db
 ```
 
 Audit records are accessible with `fetch_import_audit` in
