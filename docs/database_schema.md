@@ -1,9 +1,9 @@
-# Database Schema
+# Database schema
 
 The application uses a lightweight SQLite database to track extraction
 progress and review outcomes. The schema consists of four core tables.
 
-## specimens
+## Specimens
 Stores basic information about each specimen.
 
 | column       | type | notes                  |
@@ -11,7 +11,7 @@ Stores basic information about each specimen.
 | specimen_id  | TEXT | primary identifier     |
 | image        | TEXT | path to specimen image |
 
-## candidates
+## Candidates
 Holds raw values produced by OCR engines. Includes an `error` flag for
 modules that fail to produce a reliable value.
 
@@ -24,7 +24,7 @@ modules that fail to produce a reliable value.
 | confidence | REAL   | engine confidence score        |
 | error      | INTEGER| 1 if engine flagged an error   |
 
-## final_values
+## Final values
 Represents the final selected value for each metadata field.
 
 | column      | type   | notes                                  |
@@ -37,7 +37,7 @@ Represents the final selected value for each metadata field.
 | error       | INTEGER| 1 if reviewers flagged an error        |
 | decided_at  | TEXT   | ISO timestamp of selection             |
 
-## processing_state
+## Processing state
 Tracks per-module processing state for each specimen.
 
 | column      | type   | notes                                  |
