@@ -2,8 +2,8 @@
 
 ## Open stubs and placeholders
 
-- [`qc/gbif.py`](../qc/gbif.py) defines endpoints and field maps but the
-  `verify_taxonomy` and `verify_locality` methods raise `NotImplementedError`.
+- [`qc/gbif.py`](../qc/gbif.py) provides taxonomy and locality lookups, but the
+  QC pipeline does not yet call them.
 - [`dwc/schema.py`](../dwc/schema.py) hard-codes Darwin Core terms. Loading terms
   from a configured schema or XSD remains a future task.
 - [`io_utils/database.py`](../io_utils/database.py) and
