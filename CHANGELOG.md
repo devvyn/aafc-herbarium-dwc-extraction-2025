@@ -4,9 +4,11 @@
 
 ### Added
 - ✨ adaptive threshold preprocessor with selectable Otsu or Sauvola binarization
+- ✨ configurable GBIF endpoints via `[qc.gbif]` config section
 
 ### Docs
 - 📝 document adaptive thresholding options in preprocessing and configuration guides
+- 📝 document GBIF endpoint overrides in QC and configuration guides
 
 ## [0.1.3] - 2025-09-08 (0.1.3)
 
