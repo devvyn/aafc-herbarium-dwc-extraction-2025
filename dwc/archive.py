@@ -51,10 +51,13 @@ SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
 
 def build_manifest(filters: Dict[str, Any] | None = None) -> Dict[str, Any]:
     """Return run metadata for archive exports."""
-
-    commit = (
-        subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-    )
+    commit = "unknown"
+    try:
+        commit = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], text=True
+        ).strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
     timestamp = datetime.now(timezone.utc).isoformat()
     return {
         "timestamp": timestamp,
