@@ -1,5 +1,17 @@
 # Quality control review
 
+QC verifies extracted candidates before they enter the main DwC+ABCD store. Review work occurs on an exported database so decisions remain isolated from production.
+
+## Review cycle
+
+1. **Export** candidates to a standalone bundle with `export_review.py`.
+2. **Review** the bundle outside the main store using interactive or spreadsheet workflows. See [review workflow](./review_workflow.md) for details.
+3. **Import** approved selections back into the working database with `import_review.py` before ingesting them into the central store.
+
+Keep the review database separate from the primary DwC+ABCD database at all times.
+
+## Interactive review
+
 During the QC phase, confirm OCR candidates alongside the source image.
 
 ```bash
