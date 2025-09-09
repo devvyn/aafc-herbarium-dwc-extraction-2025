@@ -5,10 +5,12 @@ from io_utils.database import (
     ProcessingState,
     Specimen,
     fetch_final_value,
+    fetch_import_audit,
     fetch_processing_state,
     fetch_specimen,
     init_db,
     insert_final_value,
+    insert_import_audit,
     insert_specimen,
     upsert_processing_state,
     record_failure,
@@ -49,4 +51,15 @@ def test_specimen_and_state_roundtrip(tmp_path: Path) -> None:
     assert fail_state.retries == 2
     fetched_fail = fetch_processing_state(conn, "s1", "ocr")
     assert fetched_fail and fetched_fail.retries == 2
+    conn.close()
+
+
+def test_import_audit_roundtrip(tmp_path: Path) -> None:
+    db_path = tmp_path / "app.db"
+    conn = init_db(db_path)
+
+    stored = insert_import_audit(conn, "alice", "hash123")
+    fetched = fetch_import_audit(conn, "hash123")
+    assert fetched and fetched.user_id == "alice"
+    assert fetched.imported_at == stored.imported_at
     conn.close()

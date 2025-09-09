@@ -7,7 +7,9 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-from io_utils.candidates import import_decisions, init_db
+from io_utils.candidates import import_decisions, init_db as init_candidate_db
+from io_utils.database import insert_import_audit, init_db as init_app_db
+from io_utils.read import compute_sha256
 
 
 def verify_manifest(manifest: dict, expected_version: str) -> None:
@@ -20,17 +22,23 @@ def verify_manifest(manifest: dict, expected_version: str) -> None:
         raise RuntimeError("schema version mismatch")
 
 
-def import_bundle(bundle: Path, db_path: Path, schema_version: str) -> None:
+def import_bundle(
+    bundle: Path, db_path: Path, schema_version: str, user: str
+) -> None:
+    bundle_hash = compute_sha256(bundle)
     with zipfile.ZipFile(bundle) as zf:
         manifest = json.loads(zf.read("manifest.json"))
         verify_manifest(manifest, schema_version)
         with tempfile.TemporaryDirectory() as tmpdir:
             zf.extract("candidates.db", tmpdir)
-            src_session = init_db(Path(tmpdir) / "candidates.db")
-            dest_session = init_db(db_path)
+            src_session = init_candidate_db(Path(tmpdir) / "candidates.db")
+            dest_session = init_candidate_db(db_path)
             import_decisions(dest_session, src_session)
             src_session.close()
             dest_session.close()
+    audit_session = init_app_db(db_path)
+    insert_import_audit(audit_session, user, bundle_hash)
+    audit_session.close()
 
 
 def main() -> None:
@@ -40,8 +48,9 @@ def main() -> None:
     parser.add_argument(
         "--schema-version", required=True, help="Expected schema version"
     )
+    parser.add_argument("--user", required=True, help="User ID for auditing")
     args = parser.parse_args()
-    import_bundle(args.bundle, args.db, args.schema_version)
+    import_bundle(args.bundle, args.db, args.schema_version, args.user)
 
 
 if __name__ == "__main__":
