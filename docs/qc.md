@@ -22,10 +22,15 @@ Use the arrow keys to highlight a candidate and press Enter to confirm. The chos
 
 ## GBIF lookups
 
-Taxonomy and locality checks can call the GBIF API. The endpoints are configurable through the `[qc.gbif]` section of `config.toml` so deployments can target mirrors or staging servers:
+When enabled, the pipeline verifies taxonomy and locality with the GBIF API after mapping OCR output to Darwin Core. Any fields added by GBIF are recorded in the event log and written to the CSV output. Mismatches update the `flags` column so reviewers can spot corrections.
+
+Toggle these checks and override API endpoints in the `[qc.gbif]` section of `config.toml`:
 
 ```toml
 [qc.gbif]
+enabled = true
 species_match_endpoint = "https://api.gbif.org/v1/species/match"
 reverse_geocode_endpoint = "https://api.gbif.org/v1/geocode/reverse"
 ```
+
+See the [configuration](./configuration.md#gbif-endpoints) guide for details on these settings.

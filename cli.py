@@ -115,6 +115,7 @@ def process_image(
         "engine_version": None,
         "dwc": {},
         "flags": [],
+        "added_fields": [],
         "errors": [],
     }
     pre_cfg = cfg.get("preprocess", {})
@@ -254,6 +255,30 @@ def process_image(
                         ident_history_rows.append(ident)
             else:
                 raise ValueError(f"Unsupported pipeline step: {step}")
+
+        gbif_cfg = cfg.get("qc", {}).get("gbif", {})
+        if gbif_cfg.get("enabled") and event.get("dwc"):
+            gbif = qc.GbifLookup.from_config(cfg)
+            original = event["dwc"].copy()
+            try:
+                updated = gbif.verify_taxonomy(event["dwc"])
+                updated = gbif.verify_locality(updated)
+            except Exception as exc:  # pragma: no cover - network issues
+                event["errors"].append(str(exc))
+            else:
+                added = [k for k in updated if k not in original]
+                changed = [k for k in original if updated.get(k) != original.get(k)]
+                if added:
+                    event["added_fields"].extend(added)
+                if changed:
+                    gbif_flags = [f"gbif:{f}" for f in changed]
+                    event["flags"].extend(gbif_flags)
+                    existing = updated.get("flags") or original.get("flags")
+                    gbif_flag_str = ";".join(gbif_flags)
+                    updated["flags"] = (
+                        f"{existing};{gbif_flag_str}" if existing else gbif_flag_str
+                    )
+                event["dwc"] = updated
 
         qc_cfg = cfg.get("qc", {})
         flags = []
