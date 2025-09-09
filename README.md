@@ -7,6 +7,7 @@ Current version: 0.1.3 – developer documentation milestone (non-breaking, opti
 ## Installation
 
 This project uses a modern pyproject.toml layout and works with uv, pip, or other PEP 621–compatible tools.
+Requires Python 3.11 or later (see [pyproject.toml](pyproject.toml) or [python.org](https://www.python.org/downloads/)).
 
 Quick start (with uv)
 
