@@ -137,7 +137,10 @@ def main() -> None:
         print(f"Created issue for '{task.description}': {url}")
 
     new_text = replace_issue_links(text, replacements)
-    roadmap_path.write_text(new_text, encoding="utf-8")
+    if args.dry_run:
+        print("Dry run; roadmap not modified")
+    else:
+        roadmap_path.write_text(new_text, encoding="utf-8")
 
 
 if __name__ == "__main__":
