@@ -1,2 +1,17 @@
 # Vocabulary normalisation tables.
-# Populate with mappings such as "Herbarium sheet" = "preservedSpecimen".
+# Populate with mappings such as "Herbarium sheet" = "PreservedSpecimen".
+
+[basisOfRecord]
+# Map common phrases to Darwin Core controlled terms
+"herbarium sheet" = "PreservedSpecimen"
+"preserved specimen" = "PreservedSpecimen"
+"fossil" = "FossilSpecimen"
+"observation" = "HumanObservation"
+
+[typeStatus]
+# Normalise type citations
+Holotype = "holotype"
+Isotype = "isotype"
+Paratype = "paratype"
+Lectotype = "lectotype"
+Neotype = "neotype"

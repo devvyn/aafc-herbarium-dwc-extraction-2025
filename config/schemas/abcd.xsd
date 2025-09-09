@@ -19,6 +19,7 @@
   <xs:element name="identificationRemarks" type="xs:string"/>
   <xs:element name="identificationReferences" type="xs:string"/>
   <xs:element name="identificationVerificationStatus" type="xs:string"/>
+  <xs:element name="typeStatus" type="xs:string"/>
   <xs:element name="associatedOccurrences" type="xs:string"/>
   <xs:element name="occurrenceRemarks" type="xs:string"/>
   <xs:element name="dynamicProperties" type="xs:string"/>

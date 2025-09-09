@@ -10,6 +10,7 @@ from qc.gbif import (
     DEFAULT_SPECIES_MATCH_ENDPOINT,
     GbifLookup,
 )
+from dwc.mapper import map_ocr_to_dwc
 
 
 def test_detect_duplicates_hash_collision():
@@ -58,3 +59,20 @@ reverse_geocode_endpoint = "https://example.org/reverse"
     gbif = GbifLookup.from_config(cfg)
     assert gbif.species_match_endpoint == "https://example.org/species"
     assert gbif.reverse_geocode_endpoint == "https://example.org/reverse"
+
+
+def test_map_ocr_to_dwc_rules() -> None:
+    record = map_ocr_to_dwc(
+        {
+            "collector": "Jane Doe",
+            "date collected": "2025-09-01",
+            "barcode": "ABC123",
+            "basisOfRecord": "herbarium sheet",
+            "typeStatus": "Holotype",
+        }
+    )
+    assert record.recordedBy == "Jane Doe"
+    assert record.eventDate == "2025-09-01"
+    assert record.catalogNumber == "ABC123"
+    assert record.basisOfRecord == "PreservedSpecimen"
+    assert record.typeStatus == "holotype"
