@@ -32,4 +32,12 @@ CHATGPT: Dict[str, Any] = {
     "max_dim_px": 2048,
 }
 
-__all__ = ["APPLE_VISION", "TESSERACT", "CHATGPT"]
+PADDLEOCR: Dict[str, Any] = {
+    # PaddleOCR benefits from clean binaries at moderate resolution.
+    "pipeline": ["grayscale", "binarize", "resize"],
+    "binarize_method": "adaptive",
+    # Resize so the longest edge is around 3000–4000 pixels.
+    "max_dim_px": 4000,
+}
+
+__all__ = ["APPLE_VISION", "TESSERACT", "CHATGPT", "PADDLEOCR"]

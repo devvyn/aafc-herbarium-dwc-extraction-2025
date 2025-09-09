@@ -5,6 +5,7 @@ This document summarizes recommended preprocessing steps for each supported OCR 
 ## Multilingual setup
 
 List the languages your project needs under `[ocr].langs` in the configuration. Tesseract models can be mapped explicitly via `[tesseract].model_paths`, allowing custom `.traineddata` locations. When no languages are provided, engines attempt automatic detection.
+PaddleOCR uses a single language code configured under `[paddleocr].lang`.
 
 ## Apple Vision
 
@@ -25,6 +26,16 @@ Apple's Vision framework handles color balance and skew internally, so additiona
 | `resize`    | Improve OCR accuracy at higher resolution       | `max_dim_px` 3000–4000 |
 
 This sequence yields high-quality input for Tesseract by maximizing contrast and text sharpness before recognition.
+
+## PaddleOCR
+
+| Step        | Purpose                                 | Recommended range |
+|-------------|-----------------------------------------|-------------------|
+| `grayscale` | Remove color information                | — |
+| `binarize`  | Adaptive thresholding for clearer text  | `binarize_method` "adaptive" |
+| `resize`    | Improve recognition at higher resolution | `max_dim_px` 3000–4000 |
+
+PaddleOCR handles mild skew but benefits from binarized input.
 
 ## GPT (ChatGPT)
 
