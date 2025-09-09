@@ -21,6 +21,7 @@ cp .env.example .env
 # (Optional) add extras depending on the engine(s) you need:
 #   Tesseract OCR  -> brew install tesseract && uv add ".[tesseract]"
 #   Apple Vision   -> macOS only: uv add ".[apple-vision]"
+#   PaddleOCR      -> uv add ".[paddleocr]"
 #   GPT models     -> uv add ".[gpt]"
 ```
 
@@ -36,6 +37,7 @@ pip install -e .[dev]
 # Install extras manually if needed:
 #   Tesseract OCR  -> brew install tesseract && pip install pytesseract
 #   Apple Vision   -> macOS only: pip install pyobjc
+#   PaddleOCR      -> pip install paddleocr
 #   GPT models     -> pip install openai
 
 pytest -q
@@ -96,6 +98,7 @@ See [docs/review_workflow.md](docs/review_workflow.md) for OS-specific commands 
 - **OCR** – `preferred_engine`, `enabled_engines`, `allow_gpt`, `allow_tesseract_on_macos`, `confidence_threshold`
 - **GPT** – `model`, `dry_run`, `fallback_threshold`
 - **Tesseract** – `oem`, `psm`, `langs`, `extra_args`
+- **PaddleOCR** – `lang`
 - **Preprocess** – `pipeline = ["grayscale","deskew","binarize","resize"]`, `binarize_method`, `max_dim_px`, optional `contrast_factor` (used when `"contrast"` is in the pipeline)
 - **DWc mapping** – `assume_country_if_missing`, `strict_minimal_fields`, normalization toggles
 - **QC** – duplicate detection (`phash_threshold`), low-confidence flagging, top-fifth scan flag
@@ -126,7 +129,7 @@ Prototype flows for each engine are documented in `docs/preprocessing_flows.md`.
 
 ## Engine plugins
 
-Built‑in engines (`vision`, `tesseract`, `gpt`) register themselves when their dependencies are available. Additional engines can be added with Python entry points:
+Built‑in engines (`vision`, `tesseract`, `paddleocr`, `gpt`) register themselves when their dependencies are available. Additional engines can be added with Python entry points:
 
 ```toml
 [project.entry-points."herbarium.engines"]
