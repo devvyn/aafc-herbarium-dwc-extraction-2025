@@ -69,8 +69,50 @@ def _otsu_threshold(gray: np.ndarray) -> int:
     return threshold
 
 
-def binarize(image: Image.Image, method: str | bool = "otsu") -> Image.Image:
-    """Binarize an image using Otsu's threshold."""
+def _sauvola_threshold(gray: np.ndarray, window_size: int = 25, k: float = 0.2, r: int = 128) -> np.ndarray:
+    """Compute Sauvola threshold surface for ``gray`` image."""
+    pad = window_size // 2
+    padded = np.pad(gray, pad, mode="reflect")
+    integral = np.cumsum(np.cumsum(padded, axis=0), axis=1)
+    integral = np.pad(integral, ((1, 0), (1, 0)), mode="constant")
+    integral_sq = np.cumsum(np.cumsum(padded ** 2, axis=0), axis=1)
+    integral_sq = np.pad(integral_sq, ((1, 0), (1, 0)), mode="constant")
+    w = window_size
+    sum_ = (
+        integral[w:, w:] - integral[:-w, w:] - integral[w:, :-w] + integral[:-w, :-w]
+    )
+    sum_sq = (
+        integral_sq[w:, w:] - integral_sq[:-w, w:] - integral_sq[w:, :-w] + integral_sq[:-w, :-w]
+    )
+    area = w * w
+    mean = sum_ / area
+    variance = sum_sq / area - mean ** 2
+    std = np.sqrt(np.maximum(variance, 0))
+    return mean * (1 + k * (std / r - 1))
+
+
+def adaptive_threshold(image: Image.Image, window_size: int = 25, k: float = 0.2) -> Image.Image:
+    """Binarize an image using Sauvola's adaptive threshold."""
+    gray = np.array(image.convert("L"), dtype=float)
+    h, w = gray.shape
+    window_size = min(window_size, h, w)
+    if window_size % 2 == 0:
+        window_size -= 1
+    window_size = max(window_size, 3)
+    thresh = _sauvola_threshold(gray, window_size=window_size, k=k)
+    binary = (gray > thresh).astype(np.uint8) * 255
+    return Image.fromarray(binary)
+
+
+def binarize(image: Image.Image, method: str | bool = "otsu", **kwargs) -> Image.Image:
+    """Binarize ``image`` using the chosen ``method``."""
+    method_str = str(method).lower() if not isinstance(method, bool) else "otsu"
+    if method_str == "adaptive":
+        raw_window = kwargs.get("window_size")
+        raw_k = kwargs.get("k")
+        window = int(raw_window) if raw_window is not None else 25
+        k = float(raw_k) if raw_k is not None else 0.2
+        return adaptive_threshold(image, window, k)
     gray = np.array(image.convert("L"))
     thresh = _otsu_threshold(gray)
     binary = (gray > thresh).astype(np.uint8) * 255
@@ -109,7 +151,23 @@ def preprocess_image(path: Path, cfg: Dict[str, Any]) -> Path:
 
 register_preprocessor("grayscale", lambda img, cfg: grayscale(img))
 register_preprocessor("deskew", lambda img, cfg: deskew(img))
-register_preprocessor("binarize", lambda img, cfg: binarize(img))
+register_preprocessor(
+    "binarize",
+    lambda img, cfg: binarize(
+        img,
+        cfg.get("binarize_method", "otsu"),
+        window_size=cfg.get("adaptive_window_size"),
+        k=cfg.get("adaptive_k"),
+    ),
+)
+register_preprocessor(
+    "adaptive_threshold",
+    lambda img, cfg: adaptive_threshold(
+        img,
+        int(cfg.get("adaptive_window_size", 25)),
+        float(cfg.get("adaptive_k", 0.2)),
+    ),
+)
 
 
 def _contrast_step(img: Image.Image, cfg: Dict[str, Any]) -> Image.Image:
@@ -136,6 +194,7 @@ __all__ = [
     "grayscale",
     "deskew",
     "binarize",
+    "adaptive_threshold",
     "contrast",
     "resize",
     "preprocess_image",

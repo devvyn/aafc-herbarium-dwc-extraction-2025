@@ -2,6 +2,12 @@
 
 ## [Unreleased] (0.1.4)
 
+### Added
+- ✨ adaptive threshold preprocessor with selectable Otsu or Sauvola binarization
+
+### Docs
+- 📝 document adaptive thresholding options in preprocessing and configuration guides
+
 ## [0.1.3] - 2025-09-08 (0.1.3)
 
 ### Docs
