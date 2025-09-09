@@ -213,6 +213,7 @@ def process_image(
                     event["engine_version"] = engine_version
             elif step == "text_to_dwc":
                 gpt_cfg = cfg.get("gpt", {})
+                dwc_cfg = cfg.get("dwc", {})
                 dwc_data, field_conf = dispatch(
                     step,
                     text=text or "",
@@ -220,6 +221,7 @@ def process_image(
                     model=gpt_cfg.get("model", "gpt-4"),
                     dry_run=gpt_cfg.get("dry_run", False),
                     prompt_dir=prompt_dir,
+                    fields=dwc_cfg.get("strict_minimal_fields"),
                 )
                 ident_history = dwc_data.pop("identificationHistory", [])
                 event["dwc"] = dwc_data

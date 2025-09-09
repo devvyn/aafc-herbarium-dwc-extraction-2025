@@ -60,9 +60,12 @@ def image_to_text(
         model infers the language automatically.
     """
     messages = load_messages("image_to_text", prompt_dir)
-    if langs:
-        lang_hint = ", ".join(langs)
+    lang_hint = ", ".join(langs) if langs else None
+    if lang_hint:
         messages.insert(0, {"role": "system", "content": f"Languages: {lang_hint}"})
+    replace_lang = lang_hint or "the source language"
+    for msg in messages:
+        msg["content"] = msg["content"].replace("%LANG%", replace_lang)
     if dry_run:
         return "", []
     if OpenAI is None:
