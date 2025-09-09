@@ -10,10 +10,23 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
-# GBIF API endpoints used for validation
-# TODO: Move API endpoints into configuration.
+# GBIF API endpoints used for validation. Defaults match the public API but can
+# be overridden via configuration.
 GBIF_SPECIES_MATCH_ENDPOINT = "https://api.gbif.org/v1/species/match"
 GBIF_REVERSE_GEOCODE_ENDPOINT = "https://api.gbif.org/v1/geocode/reverse"
+
+
+def configure(cfg: Dict[str, Any]) -> None:
+    """Configure GBIF endpoints from the application configuration."""
+
+    gbif_cfg = cfg.get("gbif", {})
+    global GBIF_SPECIES_MATCH_ENDPOINT, GBIF_REVERSE_GEOCODE_ENDPOINT
+    GBIF_SPECIES_MATCH_ENDPOINT = gbif_cfg.get(
+        "species_match_endpoint", GBIF_SPECIES_MATCH_ENDPOINT
+    )
+    GBIF_REVERSE_GEOCODE_ENDPOINT = gbif_cfg.get(
+        "reverse_geocode_endpoint", GBIF_REVERSE_GEOCODE_ENDPOINT
+    )
 
 # Mapping of local record fields to GBIF query parameters
 TAXONOMY_QUERY_MAP: Dict[str, str] = {
@@ -106,4 +119,5 @@ __all__ = [
     "LOCALITY_QUERY_MAP",
     "TAXONOMY_FIELDS",
     "LOCALITY_FIELDS",
+    "configure",
 ]

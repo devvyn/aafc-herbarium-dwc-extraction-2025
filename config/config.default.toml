@@ -45,6 +45,10 @@ parse_scientific_names = true
 normalize_spelling = true
 do_not_update_nomenclature = true
 
+[gbif]
+species_match_endpoint = "https://api.gbif.org/v1/species/match"
+reverse_geocode_endpoint = "https://api.gbif.org/v1/geocode/reverse"
+
 [qc]
 dupes = ["catalog","sha256","phash"]
 phash_threshold = 10

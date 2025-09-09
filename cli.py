@@ -8,6 +8,7 @@ from typing import Optional, Dict, Any, List
 import sys
 from importlib import resources
 from engines import dispatch, available_engines, get_fallback_policy
+from qc import gbif as gbif_module
 
 if sys.version_info >= (3, 11):
     import tomllib as tomli
@@ -81,6 +82,9 @@ def setup_run(
     if enabled_engines is not None:
         cfg.setdefault("ocr", {})["enabled_engines"] = list(enabled_engines)
     qc.TOP_FIFTH_PCT = cfg.get("qc", {}).get("top_fifth_scan_pct", qc.TOP_FIFTH_PCT)
+    gbif_module.configure(cfg)
+    qc.GBIF_SPECIES_MATCH_ENDPOINT = gbif_module.GBIF_SPECIES_MATCH_ENDPOINT
+    qc.GBIF_REVERSE_GEOCODE_ENDPOINT = gbif_module.GBIF_REVERSE_GEOCODE_ENDPOINT
     return cfg
 
 
