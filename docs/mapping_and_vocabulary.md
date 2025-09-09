@@ -8,3 +8,37 @@ values such as `basisOfRecord` and `typeStatus` are defined in
 
 See the [configuration README](../config/README.md) for an overview of all
 available rule files.
+
+## Field mapping example
+
+Create a custom alias for `barcode` by adding a `[dwc.custom]` section to the
+configuration:
+
+```toml
+[dwc.custom]
+barcode = "catalogNumber"
+```
+
+With this configuration, the mapping function converts OCR output:
+
+```python
+from dwc import configure_mappings, map_ocr_to_dwc
+
+configure_mappings({"barcode": "catalogNumber"})
+record = map_ocr_to_dwc({"barcode": "ABC123"})
+```
+
+The resulting `record.catalogNumber` is `"ABC123"`.
+
+## Vocabulary normalisation example
+
+Controlled terms such as `basisOfRecord` are harmonised via
+[`vocab.toml`](../config/rules/vocab.toml):
+
+```python
+from dwc import normalize_vocab
+
+normalize_vocab("herbarium sheet", "basisOfRecord")
+```
+
+This call returns `"PreservedSpecimen"`.

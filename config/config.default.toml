@@ -45,6 +45,9 @@ parse_scientific_names = true
 normalize_spelling = true
 do_not_update_nomenclature = true
 
+[dwc.custom]
+# example = "catalogNumber"  # raw_field = "dwc_term"
+
 [qc]
 dupes = ["catalog","sha256","phash"]
 phash_threshold = 10

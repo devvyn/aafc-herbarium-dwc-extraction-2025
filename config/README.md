@@ -10,3 +10,13 @@ application.
   lists.
 - `rules/` – mapping and normalisation tables applied during data cleaning.
   See [mapping and vocabulary](../docs/mapping_and_vocabulary.md) for details.
+
+## Custom term mappings
+
+Override built-in field aliases by adding a `[dwc.custom]` section to your
+configuration. Each key maps a raw field name to a Darwin Core term:
+
+```toml
+[dwc.custom]
+barcode = "catalogNumber"
+```
