@@ -7,6 +7,7 @@
 - ✨ configurable GBIF endpoints via `[qc.gbif]` config section
 - ✨ core Darwin Core field mappings and controlled vocabularies
 - ✨ load custom Darwin Core term mappings via `[dwc.custom]` config section
+- ✨ manifest metadata and versioned DwC-A exports
 
 ### Fixed
 - 🐛 normalize `typeStatus` citations to lowercase using vocabulary rules
@@ -15,6 +16,7 @@
 - 📝 document adaptive thresholding options in preprocessing and configuration guides
 - 📝 document GBIF endpoint overrides in QC and configuration guides
 - 📝 document custom term mappings and vocabulary examples
+- 📝 describe export versioning and manifest scheme
 
 ## [0.1.3] - 2025-09-08 (0.1.3)
 
