@@ -2,7 +2,7 @@
 
 A toolkit for extracting text from herbarium specimen images, mapping the results to the Darwin Core standard, and recording metadata and quality-control information.
 
-Current version: 0.1.3 – developer documentation milestone (non-breaking, optional upgrade; see [CHANGELOG.md](CHANGELOG.md)).
+Current version: 0.1.4 – adds adaptive thresholding, GBIF verification, Darwin Core field mappings, versioned exports, and audit tracking (see [CHANGELOG.md](CHANGELOG.md)).
 
 ## Installation
 
