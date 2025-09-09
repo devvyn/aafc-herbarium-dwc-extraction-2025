@@ -23,12 +23,21 @@ def test_verify_taxonomy_success(monkeypatch):
     gbif = GbifLookup()
     record = {"scientificName": "Puma concolor"}
 
-    data = {field: f"value_{field}" for field in TAXONOMY_FIELDS}
+    data = {
+        field: f"value_{field}"
+        for field in TAXONOMY_FIELDS
+        if field not in {"taxonKey", "acceptedTaxonKey"}
+    }
+    data["usageKey"] = "value_taxonKey"
+    data["acceptedUsageKey"] = "value_acceptedTaxonKey"
 
     monkeypatch.setattr(gbif_module, "urlopen", lambda url: _mock_response(data))
 
     result = gbif.verify_taxonomy(record)
-    for field in TAXONOMY_FIELDS:
+
+    assert result["taxonKey"] == "value_taxonKey"
+    assert result["acceptedTaxonKey"] == "value_acceptedTaxonKey"
+    for field in set(TAXONOMY_FIELDS) - {"taxonKey", "acceptedTaxonKey"}:
         assert result[field] == data[field]
 
 
