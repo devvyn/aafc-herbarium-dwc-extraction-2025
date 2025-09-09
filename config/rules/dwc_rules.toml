@@ -13,4 +13,11 @@ collector = "recordedBy"
 country = "country"
 province = "stateProvince"
 locality = "locality"
+
+# Geographic precision
+"coordinate precision" = "coordinatePrecision"
+
+# Ecological context
+habitat = "habitat"
+
 "scientific name" = "scientificName"

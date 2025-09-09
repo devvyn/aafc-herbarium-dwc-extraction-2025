@@ -15,3 +15,15 @@ Isotype = "isotype"
 Paratype = "paratype"
 Lectotype = "lectotype"
 Neotype = "neotype"
+
+[habitat]
+# Normalise habitat descriptions
+bog = "bog"
+forest = "forest"
+wetland = "wetland"
+
+[coordinatePrecision]
+# Convert precision units to decimal degrees
+"1 m" = "0.00001"
+"10 m" = "0.0001"
+"100 m" = "0.001"
