@@ -108,8 +108,10 @@ def binarize(image: Image.Image, method: str | bool = "otsu", **kwargs) -> Image
     """Binarize ``image`` using the chosen ``method``."""
     method_str = str(method).lower() if not isinstance(method, bool) else "otsu"
     if method_str == "adaptive":
-        window = int(kwargs.get("window_size", 25))
-        k = float(kwargs.get("k", 0.2))
+        raw_window = kwargs.get("window_size")
+        raw_k = kwargs.get("k")
+        window = int(raw_window) if raw_window is not None else 25
+        k = float(raw_k) if raw_k is not None else 0.2
         return adaptive_threshold(image, window, k)
     gray = np.array(image.convert("L"))
     thresh = _otsu_threshold(gray)
