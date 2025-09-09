@@ -61,6 +61,7 @@ low_confidence_flag = true
 top_fifth_scan_pct = 20
 
 [qc.gbif]
+enabled = false
 species_match_endpoint = "https://api.gbif.org/v1/species/match"
 reverse_geocode_endpoint = "https://api.gbif.org/v1/geocode/reverse"
 
