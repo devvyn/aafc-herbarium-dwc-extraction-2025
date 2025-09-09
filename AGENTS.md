@@ -39,11 +39,10 @@
 - Every release must synchronize version numbers and update both `CHANGELOG.md` and `README.md`.
 - Skip releases for minor internal tweaks, refactors, or other changes with no external impact.
 
-## Documentation & TODO
-- Review and update `TODO.md` whenever tasks are completed or new work emerges.
-- Pull requests touching areas with open TODOs must reconcile or reference the relevant entries.
+## Documentation & roadmap
 - Keep `docs/roadmap.md` current; update it whenever project scope or priorities change.
-- Default to tasks in `TODO.md` when no explicit direction is given and create minimal stubs or scaffolding for them.
+- Pull requests touching areas with open tasks must reconcile or reference the relevant entries in `docs/roadmap.md`.
+- Default to tasks in `docs/roadmap.md` when no explicit direction is given and create minimal stubs or scaffolding for them.
 - Pair each stubbed task with brief documentation so future iterations have clear context.
 
 ## Human-in-the-loop Generative Development
