@@ -10,10 +10,10 @@
   [`io_utils/candidates.py`](../io_utils/candidates.py) use raw SQLite. An ORM
   such as SQLAlchemy could clarify data models and migrations.
 - [`config/rules/dwc_rules.toml`](../config/rules/dwc_rules.toml) and
-  [`config/rules/vocab.toml`](../config/rules/vocab.toml) now ship with starter
-  mappings for common field aliases and controlled terms, but many Darwin Core
-  fields—such as *habitat* or coordinate precision—and additional vocabulary
-  values remain unmapped.
+  [`config/rules/vocab.toml`](../config/rules/vocab.toml) include aliases for
+  fields such as *habitat* and coordinate precision along with starter
+  vocabularies for habitat descriptions and precision units. Additional Darwin
+  Core terms and value mappings can be added as new sources emerge.
 
 ## Potential improvements
 
