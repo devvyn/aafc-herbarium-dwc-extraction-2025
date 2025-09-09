@@ -10,10 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
-# GBIF API endpoints used for validation
-# TODO: Move API endpoints into configuration.
-GBIF_SPECIES_MATCH_ENDPOINT = "https://api.gbif.org/v1/species/match"
-GBIF_REVERSE_GEOCODE_ENDPOINT = "https://api.gbif.org/v1/geocode/reverse"
+DEFAULT_SPECIES_MATCH_ENDPOINT = "https://api.gbif.org/v1/species/match"
+DEFAULT_REVERSE_GEOCODE_ENDPOINT = "https://api.gbif.org/v1/geocode/reverse"
 
 # Mapping of local record fields to GBIF query parameters
 TAXONOMY_QUERY_MAP: Dict[str, str] = {
@@ -61,6 +59,22 @@ LOCALITY_FIELDS: List[str] = [
 class GbifLookup:
     """Stub for GBIF lookup operations."""
 
+    species_match_endpoint: str = DEFAULT_SPECIES_MATCH_ENDPOINT
+    reverse_geocode_endpoint: str = DEFAULT_REVERSE_GEOCODE_ENDPOINT
+
+    @classmethod
+    def from_config(cls, cfg: Dict[str, Any]) -> "GbifLookup":
+        """Create a lookup instance from configuration settings."""
+        gbif_cfg = cfg.get("qc", {}).get("gbif", {})
+        return cls(
+            species_match_endpoint=gbif_cfg.get(
+                "species_match_endpoint", DEFAULT_SPECIES_MATCH_ENDPOINT
+            ),
+            reverse_geocode_endpoint=gbif_cfg.get(
+                "reverse_geocode_endpoint", DEFAULT_REVERSE_GEOCODE_ENDPOINT
+            ),
+        )
+
     def verify_taxonomy(self, record: Dict[str, Any]) -> Dict[str, Any]:
         """Return a copy of ``record`` with taxonomy fields updated.
 
@@ -100,8 +114,8 @@ class GbifLookup:
 
 __all__ = [
     "GbifLookup",
-    "GBIF_SPECIES_MATCH_ENDPOINT",
-    "GBIF_REVERSE_GEOCODE_ENDPOINT",
+    "DEFAULT_SPECIES_MATCH_ENDPOINT",
+    "DEFAULT_REVERSE_GEOCODE_ENDPOINT",
     "TAXONOMY_QUERY_MAP",
     "LOCALITY_QUERY_MAP",
     "TAXONOMY_FIELDS",
