@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sqlite3
 import subprocess
 import tempfile
 import zipfile
@@ -27,11 +26,11 @@ def import_bundle(bundle: Path, db_path: Path, schema_version: str) -> None:
         verify_manifest(manifest, schema_version)
         with tempfile.TemporaryDirectory() as tmpdir:
             zf.extract("candidates.db", tmpdir)
-            src_conn = sqlite3.connect(Path(tmpdir) / "candidates.db")
-            dest_conn = init_db(db_path)
-            import_decisions(dest_conn, src_conn)
-            src_conn.close()
-            dest_conn.close()
+            src_session = init_db(Path(tmpdir) / "candidates.db")
+            dest_session = init_db(db_path)
+            import_decisions(dest_session, src_session)
+            src_session.close()
+            dest_session.close()
 
 
 def main() -> None:

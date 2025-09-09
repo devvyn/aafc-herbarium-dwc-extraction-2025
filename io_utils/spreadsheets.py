@@ -2,11 +2,14 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
-import sqlite3
 import subprocess
 from typing import List, Dict, Any
 
 import pyexcel
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from .candidate_models import Candidate as CandidateModel
 
 
 def build_manifest(schema_version: str) -> Dict[str, str]:
@@ -17,7 +20,7 @@ def build_manifest(schema_version: str) -> Dict[str, str]:
 
 
 def export_candidates_to_spreadsheet(
-    conn: sqlite3.Connection,
+    session: Session,
     schema_version: str,
     output_path: Path,
     gsheet_title: str | None = None,
@@ -28,9 +31,16 @@ def export_candidates_to_spreadsheet(
 
     If ``gsheet_title`` and ``creds_path`` are provided, also upload to Google Sheets.
     """
-    rows = conn.execute(
-        "SELECT run_id, image, value, engine, confidence, error FROM candidates"
-    ).fetchall()
+    rows = session.execute(
+        select(
+            CandidateModel.run_id,
+            CandidateModel.image,
+            CandidateModel.value,
+            CandidateModel.engine,
+            CandidateModel.confidence,
+            CandidateModel.error,
+        )
+    ).all()
     header = ["run_id", "image", "value", "engine", "confidence", "error", "selected"]
     sheet = [header]
     for row in rows:
