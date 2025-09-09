@@ -9,3 +9,4 @@ application.
 - `schemas/` – Darwin Core and ABCD schema definitions used to populate field
   lists.
 - `rules/` – mapping and normalisation tables applied during data cleaning.
+  See [mapping and vocabulary](../docs/mapping_and_vocabulary.md) for details.
