@@ -12,6 +12,7 @@ enabled_engines = ["vision", "tesseract", "gpt"]
 allow_tesseract_on_macos = true
 allow_gpt = true
 confidence_threshold = 0.70
+langs = ["eng", "fra", "lat"]
 
 [gpt]
 fallback_threshold = 0.85
@@ -23,6 +24,7 @@ prompt_dir = "prompts"
 oem = 1
 psm = 6
 langs = ["eng","fra","lat"]
+model_paths = { eng = "/usr/share/tesseract-ocr/4.00/tessdata/eng.traineddata", fra = "/usr/share/tesseract-ocr/4.00/tessdata/fra.traineddata", lat = "/usr/share/tesseract-ocr/4.00/tessdata/lat.traineddata" }
 extra_args = []
 
 [pipeline]
