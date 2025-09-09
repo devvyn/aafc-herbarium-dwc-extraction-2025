@@ -7,6 +7,9 @@
 - ✨ configurable GBIF endpoints via `[qc.gbif]` config section
 - ✨ core Darwin Core field mappings and controlled vocabularies
 
+### Fixed
+- 🐛 normalize `typeStatus` citations to lowercase using vocabulary rules
+
 ### Docs
 - 📝 document adaptive thresholding options in preprocessing and configuration guides
 - 📝 document GBIF endpoint overrides in QC and configuration guides
