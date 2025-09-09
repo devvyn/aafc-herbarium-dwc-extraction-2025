@@ -42,6 +42,7 @@ def image_to_text(
     model: str,
     dry_run: bool = False,
     prompt_dir: Optional[Path] = None,
+    langs: Optional[List[str]] = None,
 ) -> Tuple[str, List[float]]:
     """Use a GPT model to extract text from an image.
 
@@ -54,8 +55,14 @@ def image_to_text(
     dry_run:
         When ``True`` or when the OpenAI SDK is unavailable, no network
         call is performed and an empty result is returned.
+    langs:
+        Optional language hints appended as a system message. When omitted the
+        model infers the language automatically.
     """
     messages = load_messages("image_to_text", prompt_dir)
+    if langs:
+        lang_hint = ", ".join(langs)
+        messages.insert(0, {"role": "system", "content": f"Languages: {lang_hint}"})
     if dry_run:
         return "", []
     if OpenAI is None:

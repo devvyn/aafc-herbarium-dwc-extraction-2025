@@ -158,7 +158,11 @@ def process_image(
                 preferred = available[0]
 
             if step == "image_to_text":
-                kwargs = {}
+                kwargs: Dict[str, Any] = {}
+                ocr_cfg = cfg.get("ocr", {})
+                langs = ocr_cfg.get("langs")
+                if langs:
+                    kwargs["langs"] = langs
                 if preferred == "gpt":
                     gpt_cfg = cfg.get("gpt", {})
                     kwargs.update(
@@ -166,7 +170,18 @@ def process_image(
                         dry_run=gpt_cfg.get("dry_run", False),
                         prompt_dir=prompt_dir,
                     )
-                text, confidences = dispatch(step, image=proc_path, engine=preferred, **kwargs)
+                elif preferred == "tesseract":
+                    t_cfg = cfg.get("tesseract", {})
+                    kwargs.update(
+                        oem=t_cfg.get("oem", 1),
+                        psm=t_cfg.get("psm", 3),
+                        extra_args=t_cfg.get("extra_args", []),
+                    )
+                    if t_cfg.get("model_paths"):
+                        kwargs["model_paths"] = t_cfg["model_paths"]
+                text, confidences = dispatch(
+                    step, image=proc_path, engine=preferred, **kwargs
+                )
                 avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
                 insert_candidate(
                     cand_conn,

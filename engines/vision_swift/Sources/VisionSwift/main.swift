@@ -13,10 +13,28 @@ func loadCGImage(from url: URL) -> CGImage? {
     return CGImageSourceCreateImageAtIndex(src, 0, nil)
 }
 
-func recognizeText(in image: CGImage) throws -> [RecognitionResult] {
+func filterLanguages(
+    _ languages: [String],
+    level: VNRequestTextRecognitionLevel,
+    revision: Int
+) -> [String] {
+    let mapped = languages.compactMap { Locale.Language(identifier: $0).languageCode?.identifier }
+    guard let supported = try? VNRecognizeTextRequest.supportedRecognitionLanguages(for: level, revision: revision) else {
+        return mapped
+    }
+    return mapped.filter { supported.contains($0) }
+}
+
+func recognizeText(in image: CGImage, languages: [String]) throws -> [RecognitionResult] {
     let request = VNRecognizeTextRequest()
     request.recognitionLevel = .accurate
     request.usesLanguageCorrection = false
+    if !languages.isEmpty {
+        let filtered = filterLanguages(languages, level: request.recognitionLevel, revision: request.revision)
+        if !filtered.isEmpty {
+            request.recognitionLanguages = filtered
+        }
+    }
 
     let handler = VNImageRequestHandler(cgImage: image, options: [:])
     try handler.perform([request])
@@ -39,11 +57,12 @@ func main() throws {
     }
 
     let imageURL = URL(fileURLWithPath: CommandLine.arguments[1])
+    let languages = Array(CommandLine.arguments.dropFirst(2))
     guard let image = loadCGImage(from: imageURL) else {
         throw NSError(domain: "VisionSwift", code: 2, userInfo: [NSLocalizedDescriptionKey: "Unable to load image"])
     }
 
-    let results = try recognizeText(in: image)
+    let results = try recognizeText(in: image, languages: languages)
     let encoder = JSONEncoder()
     encoder.outputFormatting = .prettyPrinted
     let data = try encoder.encode(results)

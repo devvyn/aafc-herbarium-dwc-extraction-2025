@@ -2,6 +2,10 @@
 
 This document summarizes recommended preprocessing steps for each supported OCR engine. The steps correspond to functions in `preprocess` and can be composed via the `pipeline` list in the configuration file's `[preprocess]` section.
 
+## Multilingual setup
+
+List the languages your project needs under `[ocr].langs` in the configuration. Tesseract models can be mapped explicitly via `[tesseract].model_paths`, allowing custom `.traineddata` locations. When no languages are provided, engines attempt automatic detection.
+
 ## Apple Vision
 
 | Step     | Purpose                                   | Recommended range |

@@ -2,20 +2,23 @@ from __future__ import annotations
 
 
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from .run import run
 from .. import register_task
 from ..protocols import ImageToTextEngine
 
 
-def image_to_text(image: Path) -> Tuple[str, List[float]]:
+def image_to_text(image: Path, langs: Optional[List[str]] = None) -> Tuple[str, List[float]]:
     """Extract text from an image using Apple's Vision framework.
 
     Parameters
     ----------
     image:
         Path to the image file.
+    langs: list[str] | None
+        Language hints. When ``None`` the framework performs automatic
+        detection.
 
     Returns
     -------
@@ -24,7 +27,7 @@ def image_to_text(image: Path) -> Tuple[str, List[float]]:
         confidences.
     """
 
-    tokens, _boxes, confidences = run(str(image))
+    tokens, _boxes, confidences = run(str(image), langs)
     text = " ".join(tokens)
     return text, confidences
 
