@@ -1,6 +1,8 @@
 # Changelog
 
-## [Unreleased] (0.1.4)
+## [Unreleased]
+
+## [0.1.4] - 2025-09-10 (0.1.4)
 
 ### Added
 - ✨ adaptive threshold preprocessor with selectable Otsu or Sauvola binarization
@@ -79,7 +81,8 @@
 - :bug: handle missing git commit metadata
 - :bug: correct mapper schema override
 
-[Unreleased]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.1.0...v0.1.1
