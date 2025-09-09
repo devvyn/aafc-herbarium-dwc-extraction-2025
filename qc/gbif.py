@@ -112,6 +112,11 @@ class GbifLookup:
         except (URLError, json.JSONDecodeError):
             return updated
 
+        if "usageKey" in data:
+            data["taxonKey"] = data["usageKey"]
+        if "acceptedUsageKey" in data:
+            data["acceptedTaxonKey"] = data["acceptedUsageKey"]
+
         for field in TAXONOMY_FIELDS:
             if field in data:
                 updated[field] = data[field]
