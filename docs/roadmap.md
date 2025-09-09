@@ -4,6 +4,7 @@ Upcoming features and priorities for the herbarium OCR to Darwin Core toolkit.
 
 **Critical features**
 - Integrate multilingual OCR models for non-English labels
+- Integrate GBIF taxonomy and locality verification into the QC pipeline
 - Configurable mapping from custom schemas via the [`[dwc]` section](configuration.md)
 - Versioned DwC-A export bundles with embedded manifest
 - Populate mapping rules in `config/rules/dwc_rules.toml` and `config/rules/vocab.toml`
@@ -24,13 +25,14 @@ Secondary tasks cover medium and low priority items detailed below.
 | --- | --- | --- |
 | Configurable mapping from custom schemas via the [`[dwc]` section](configuration.md) | High | Q2 2025 |
 | Populate mapping rules in `config/rules/dwc_rules.toml` and `config/rules/vocab.toml` | High | Q2 2025 |
+| Support full schema parsing from official Darwin Core and ABCD XSDs | Medium | Q3 2025 |
 | Auto-generate Darwin Core term mappings from external XSD | Low | Q4 2025 |
 
 ## Quality control
 
 | Feature | Priority | Timeline |
 | --- | --- | --- |
-| Hook into [qc/gbif.py](../qc/gbif.py) for taxonomy validation | High | Q3 2025 |
+| Integrate GBIF taxonomy and locality verification into the QC pipeline | Medium | Q3 2025 |
 | Move GBIF API endpoints into configuration files | Low | Q2 2025 |
 | Implement locality cross-checks using Gazetteer API | Low | Q4 2025 |
 
