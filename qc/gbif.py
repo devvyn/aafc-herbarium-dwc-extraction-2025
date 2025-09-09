@@ -8,7 +8,11 @@ contains only type stubs and placeholders for future implementation.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 from typing import Any, Dict, List
+from urllib.error import URLError
+from urllib.parse import urlencode
+from urllib.request import urlopen
 
 DEFAULT_SPECIES_MATCH_ENDPOINT = "https://api.gbif.org/v1/species/match"
 DEFAULT_REVERSE_GEOCODE_ENDPOINT = "https://api.gbif.org/v1/geocode/reverse"
@@ -91,7 +95,28 @@ class GbifLookup:
             :data:`TAXONOMY_FIELDS`.
         """
 
-        raise NotImplementedError("Taxonomy verification not yet implemented.")
+        params = {
+            query: record[field]
+            for field, query in TAXONOMY_QUERY_MAP.items()
+            if record.get(field)
+        }
+
+        updated = record.copy()
+        if not params:
+            return updated
+
+        try:
+            url = f"{self.species_match_endpoint}?{urlencode(params)}"
+            with urlopen(url) as resp:
+                data = json.load(resp)
+        except (URLError, json.JSONDecodeError):
+            return updated
+
+        for field in TAXONOMY_FIELDS:
+            if field in data:
+                updated[field] = data[field]
+
+        return updated
 
     def verify_locality(self, record: Dict[str, Any]) -> Dict[str, Any]:
         """Return a copy of ``record`` with locality fields updated.
@@ -109,7 +134,33 @@ class GbifLookup:
             :data:`LOCALITY_FIELDS`.
         """
 
-        raise NotImplementedError("Locality verification not yet implemented.")
+        params = {
+            query: record[field]
+            for field, query in LOCALITY_QUERY_MAP.items()
+            if record.get(field) is not None
+        }
+
+        updated = record.copy()
+        if not params:
+            return updated
+
+        try:
+            url = f"{self.reverse_geocode_endpoint}?{urlencode(params)}"
+            with urlopen(url) as resp:
+                data = json.load(resp)
+        except (URLError, json.JSONDecodeError):
+            return updated
+
+        if isinstance(data, list) and data:
+            data = data[0]
+        elif not isinstance(data, dict):
+            return updated
+
+        for field in LOCALITY_FIELDS:
+            if field in data:
+                updated[field] = data[field]
+
+        return updated
 
 
 __all__ = [
