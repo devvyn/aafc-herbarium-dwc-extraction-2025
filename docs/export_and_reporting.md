@@ -38,6 +38,19 @@ Exports operate on the pipeline's SQLite database and never touch the main DwC+A
 2. The spreadsheet and a `manifest.json` appear under `output/` for review
    without modifying the central database.
 
+## Import audits
+
+Use [import_review.py](../import_review.py) to merge reviewed decisions into the
+working database. The command records an audit entry with the user ID, bundle
+hash and timestamp. Provide the user via `--user`:
+
+```bash
+python import_review.py output/review_v1.2.0.zip output/candidates.db --schema-version 1.2.0 --user alice
+```
+
+Audit records are accessible with `fetch_import_audit` in
+[`io_utils/database.py`](../io_utils/database.py).
+
 ## Darwin Core archive exports
 
 Use the archive helpers to build Darwin Core files and bundle them with a

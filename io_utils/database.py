@@ -56,6 +56,17 @@ class ProcessingState(Base):
     updated_at: Mapped[str | None] = mapped_column(String, nullable=True)
 
 
+@dataclass
+class ImportAudit(Base):
+    """Audit record for review bundle imports."""
+
+    __tablename__ = "import_audit"
+
+    bundle_hash: Mapped[str] = mapped_column(String, primary_key=True)
+    user_id: Mapped[str] = mapped_column(String)
+    imported_at: Mapped[str] = mapped_column(String)
+
+
 def init_db(db_path: Path) -> Session:
     """Initialise the application database and return a session."""
 
@@ -118,6 +129,26 @@ def record_failure(
     return upsert_processing_state(session, state)
 
 
+def insert_import_audit(
+    session: Session, user_id: str, bundle_hash: str
+) -> ImportAudit:
+    """Store an import audit entry and return the stored record."""
+
+    imported_at = datetime.now(timezone.utc).isoformat()
+    audit = ImportAudit(
+        bundle_hash=bundle_hash, user_id=user_id, imported_at=imported_at
+    )
+    session.add(audit)
+    session.commit()
+    return audit
+
+
+def fetch_import_audit(session: Session, bundle_hash: str) -> Optional[ImportAudit]:
+    """Retrieve an audit entry by bundle hash if present."""
+
+    return session.get(ImportAudit, bundle_hash)
+
+
 def migrate(db_path: Path) -> None:
     """Run database migrations ensuring all tables exist."""
 
@@ -129,6 +160,7 @@ __all__ = [
     "Specimen",
     "FinalValue",
     "ProcessingState",
+    "ImportAudit",
     "init_db",
     "insert_specimen",
     "fetch_specimen",
@@ -137,5 +169,7 @@ __all__ = [
     "upsert_processing_state",
     "fetch_processing_state",
     "record_failure",
+    "insert_import_audit",
+    "fetch_import_audit",
     "migrate",
 ]
