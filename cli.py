@@ -161,7 +161,7 @@ def process_image(
                 kwargs: Dict[str, Any] = {}
                 ocr_cfg = cfg.get("ocr", {})
                 langs = ocr_cfg.get("langs")
-                if langs:
+                if langs and preferred != "paddleocr":
                     kwargs["langs"] = langs
                 if preferred == "gpt":
                     gpt_cfg = cfg.get("gpt", {})
@@ -179,6 +179,9 @@ def process_image(
                     )
                     if t_cfg.get("model_paths"):
                         kwargs["model_paths"] = t_cfg["model_paths"]
+                elif preferred == "paddleocr":
+                    p_cfg = cfg.get("paddleocr", {})
+                    kwargs.update(lang=p_cfg.get("lang", "en"))
                 text, confidences = dispatch(
                     step, image=proc_path, engine=preferred, **kwargs
                 )
