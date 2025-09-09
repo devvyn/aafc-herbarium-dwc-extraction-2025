@@ -11,7 +11,7 @@ from qc.gbif import (
     DEFAULT_SPECIES_MATCH_ENDPOINT,
     GbifLookup,
 )
-from dwc.mapper import map_ocr_to_dwc
+from dwc import map_ocr_to_dwc, normalize_vocab
 from PIL import Image
 
 
@@ -76,6 +76,7 @@ def test_map_ocr_to_dwc_rules() -> None:
     record = map_ocr_to_dwc(
         {
             "collector": "Jane Doe",
+            "collector number": "42",
             "date collected": "2025-09-01",
             "barcode": "ABC123",
             "basisOfRecord": "herbarium sheet",
@@ -85,8 +86,13 @@ def test_map_ocr_to_dwc_rules() -> None:
     assert record.recordedBy == "Jane Doe"
     assert record.eventDate == "2025-09-01"
     assert record.catalogNumber == "ABC123"
+    assert record.recordNumber == "42"
     assert record.basisOfRecord == "PreservedSpecimen"
     assert record.typeStatus == "holotype"
+
+
+def test_normalize_vocab_field_note() -> None:
+    assert normalize_vocab("field note", "basisOfRecord") == "HumanObservation"
 
 
 def test_process_image_gbif_success(monkeypatch, tmp_path):
