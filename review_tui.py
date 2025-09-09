@@ -71,5 +71,41 @@ def review_candidates_tui(db_path: Path, image: str) -> Decision | None:
     return ReviewApp(db_path, image).run()
 
 
+def _check_prompts() -> int:
+    """Validate that GPT prompt templates contain required placeholders."""
+    from engines.gpt.image_to_text import load_messages
+
+    required = {
+        "image_to_text": ["%LANG%"],
+        "text_to_dwc": ["%FIELD%"],
+        "image_to_dwc": ["%FIELD%"],
+    }
+    missing: list[str] = []
+    for task, placeholders in required.items():
+        messages = load_messages(task)
+        content = "\n".join(m["content"] for m in messages)
+        for token in placeholders:
+            if token not in content:
+                missing.append(f"{task}: {token}")
+    if missing:
+        for m in missing:
+            print(f"missing placeholder {m}")
+        return 1
+    print("all prompts contain required placeholders")
+    return 0
+
+
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--check-prompts",
+        action="store_true",
+        help="validate GPT prompt templates",
+    )
+    args = parser.parse_args()
+    if args.check_prompts:
+        raise SystemExit(_check_prompts())
     raise SystemExit("Use 'python review.py --tui' to launch the text interface.")
+
