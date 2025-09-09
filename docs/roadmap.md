@@ -6,6 +6,7 @@ Upcoming features and priorities for the herbarium OCR to Darwin Core toolkit.
 - Integrate multilingual OCR models for non-English labels
 - Configurable mapping from custom schemas via the [`[dwc]` section](configuration.md)
 - Versioned DwC-A export bundles with embedded manifest
+- Populate mapping rules in `config/rules/dwc_rules.toml` and `config/rules/vocab.toml`
 
 Secondary tasks cover medium and low priority items detailed below.
 
@@ -22,7 +23,7 @@ Secondary tasks cover medium and low priority items detailed below.
 | Feature | Priority | Timeline |
 | --- | --- | --- |
 | Configurable mapping from custom schemas via the [`[dwc]` section](configuration.md) | High | Q2 2025 |
-| Populate mapping rules in `config/rules/dwc_rules.toml` and `config/rules/vocab.toml` | Medium | Q2 2025 |
+| Populate mapping rules in `config/rules/dwc_rules.toml` and `config/rules/vocab.toml` | High | Q2 2025 |
 | Auto-generate Darwin Core term mappings from external XSD | Low | Q4 2025 |
 
 ## Quality control
