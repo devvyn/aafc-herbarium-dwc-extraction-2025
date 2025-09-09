@@ -10,5 +10,4 @@
 8. Add audit trail for import steps with explicit user sign-off – _medium_.
 9. Version DwC-A export bundles with embedded manifest – _high_.
 10. Generate spreadsheet pivot table exports for data summaries – _low_.
-11. Expand procedural examples across docs – _low_.
-12. Implement locality cross-checks using Gazetteer API – _low_.
+11. Implement locality cross-checks using Gazetteer API – _low_.

@@ -8,6 +8,16 @@ from .normalize import normalize_institution, normalize_vocab, _load_rules
 from .validators import validate
 
 
+_CUSTOM_MAPPINGS: Dict[str, str] = {}
+
+
+def configure_mappings(mapping: Dict[str, str]) -> None:
+    """Register custom field mappings from the configuration."""
+    _CUSTOM_MAPPINGS.clear()
+    for raw, term in mapping.items():
+        _CUSTOM_MAPPINGS[raw.lower()] = term
+
+
 def map_ocr_to_dwc(ocr_output: Dict[str, Any], minimal_fields: Iterable[str] = ()) -> DwcRecord:
     """Translate OCR output into a :class:`DwcRecord`.
 
@@ -23,6 +33,7 @@ def map_ocr_to_dwc(ocr_output: Dict[str, Any], minimal_fields: Iterable[str] = (
 
     data: Dict[str, Any] = {}
     rules = {k.lower(): v for k, v in _load_rules("dwc_rules").get("fields", {}).items()}
+    rules.update(_CUSTOM_MAPPINGS)
     for raw_key, value in ocr_output.items():
         term = resolve_term(str(raw_key))
         if term in schema.DWC_TERMS:

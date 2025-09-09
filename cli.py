@@ -36,7 +36,7 @@ from io_utils.database import (
     record_failure,
     upsert_processing_state,
 )
-from dwc import configure_terms
+from dwc import configure_terms, configure_mappings
 from engines.errors import EngineError
 from preprocess import preprocess_image
 
@@ -78,6 +78,7 @@ def setup_run(
         schema_files.append(path)
     if schema_files:
         configure_terms(schema_files)
+    configure_mappings(dwc_cfg.get("custom", {}))
     if enabled_engines is not None:
         cfg.setdefault("ocr", {})["enabled_engines"] = list(enabled_engines)
     qc.TOP_FIFTH_PCT = cfg.get("qc", {}).get("top_fifth_scan_pct", qc.TOP_FIFTH_PCT)
