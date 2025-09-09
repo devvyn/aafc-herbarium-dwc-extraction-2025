@@ -1,7 +1,7 @@
 import numpy as np
 from PIL import Image, ImageDraw
 
-from preprocess import grayscale, deskew, binarize, resize
+from preprocess import adaptive_threshold, grayscale, deskew, binarize, resize
 
 
 def test_grayscale_converts_to_l_mode():
@@ -14,6 +14,22 @@ def test_binarize_produces_binary_image():
     arr = np.tile(np.linspace(0, 255, 10, dtype=np.uint8), (10, 1))
     img = Image.fromarray(arr)
     binary = binarize(img)
+    uniq = np.unique(np.array(binary))
+    assert set(uniq).issubset({0, 255})
+
+
+def test_adaptive_threshold_produces_binary_image():
+    arr = np.tile(np.linspace(0, 255, 10, dtype=np.uint8), (10, 1))
+    img = Image.fromarray(arr)
+    binary = adaptive_threshold(img)
+    uniq = np.unique(np.array(binary))
+    assert set(uniq).issubset({0, 255})
+
+
+def test_binarize_adaptive_method():
+    arr = np.tile(np.linspace(0, 255, 10, dtype=np.uint8), (10, 1))
+    img = Image.fromarray(arr)
+    binary = binarize(img, method="adaptive")
     uniq = np.unique(np.array(binary))
     assert set(uniq).issubset({0, 255})
 

@@ -1,4 +1,4 @@
-# OCR Engine Preprocessing Flows
+# OCR engine preprocessing flows
 
 This document summarizes recommended preprocessing steps for each supported OCR engine. The steps correspond to functions in `preprocess` and can be composed via the `pipeline` list in the configuration file's `[preprocess]` section.
 
@@ -17,7 +17,7 @@ Apple's Vision framework handles color balance and skew internally, so additiona
 | `grayscale` | Remove color information                        | — |
 | `contrast`  | Enhance text/background separation              | `contrast_factor` 1.3–1.7 (default 1.5) |
 | `deskew`    | Correct rotation based on principal components  | — |
-| `binarize`  | Otsu threshold to isolate foreground            | — |
+| `binarize`  | Otsu or adaptive (Sauvola) threshold            | `binarize_method` "otsu" or "adaptive" |
 | `resize`    | Improve OCR accuracy at higher resolution       | `max_dim_px` 3000–4000 |
 
 This sequence yields high-quality input for Tesseract by maximizing contrast and text sharpness before recognition.

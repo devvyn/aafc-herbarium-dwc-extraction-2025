@@ -13,7 +13,6 @@ Secondary tasks cover medium and low priority items detailed below.
 
 | Feature | Priority | Timeline |
 | --- | --- | --- |
-| Add adaptive thresholding step in the [preprocessing flows](preprocessing_flows.md) | Medium | Q2 2025 |
 | Batch resize large images to accelerate OCR | Low | Q3 2025 |
 | Integrate multilingual OCR models for non-English labels | High | Q2 2025 |
 | Support GPU-accelerated inference for Tesseract | Medium | Q3 2025 |
