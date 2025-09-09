@@ -11,7 +11,14 @@ Requires Python 3.11 or later (see [pyproject.toml](pyproject.toml) or [python.o
 
 Quick start (with uv)
 
-### Install base package + dev dependencies
+### Bootstrap script
+Installs `uv` if it's missing, syncs dependencies, and copies `.env.example`.
+
+```bash
+./bootstrap.sh
+```
+
+### Manual install
 ```
 uv sync --dev
 
