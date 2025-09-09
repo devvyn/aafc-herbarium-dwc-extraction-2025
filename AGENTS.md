@@ -43,6 +43,13 @@
 - Review and update `TODO.md` whenever tasks are completed or new work emerges.
 - Pull requests touching areas with open TODOs must reconcile or reference the relevant entries.
 - Keep `docs/roadmap.md` current; update it whenever project scope or priorities change.
+- Default to tasks in `TODO.md` when no explicit direction is given and create minimal stubs or scaffolding for them.
+- Pair each stubbed task with brief documentation so future iterations have clear context.
+
+## Human-in-the-loop Generative Development
+- Break work into small, reviewable steps and solicit feedback early.
+- Record assumptions, open questions, and decisions in code comments or documentation.
+- Iterate with human reviewers to refine generative outputs and documentation.
 
 ## Miscellaneous
 - No sensitive data is handled in this repository.
