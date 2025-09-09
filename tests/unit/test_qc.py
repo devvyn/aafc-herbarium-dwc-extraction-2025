@@ -68,9 +68,11 @@ def test_map_ocr_to_dwc_rules() -> None:
             "date collected": "2025-09-01",
             "barcode": "ABC123",
             "basisOfRecord": "herbarium sheet",
+            "typeStatus": "Holotype",
         }
     )
     assert record.recordedBy == "Jane Doe"
     assert record.eventDate == "2025-09-01"
     assert record.catalogNumber == "ABC123"
     assert record.basisOfRecord == "PreservedSpecimen"
+    assert record.typeStatus == "holotype"

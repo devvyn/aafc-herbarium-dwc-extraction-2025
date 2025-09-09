@@ -38,7 +38,7 @@ def map_ocr_to_dwc(ocr_output: Dict[str, Any], minimal_fields: Iterable[str] = (
             data[field] = normalize_institution(str(data[field]))
 
     # Normalise vocabulary-based terms
-    vocab_terms = ["basisOfRecord"]
+    vocab_terms = ["basisOfRecord", "typeStatus"]
     for field in vocab_terms:
         if field in data and data[field]:
             data[field] = normalize_vocab(str(data[field]), field)
