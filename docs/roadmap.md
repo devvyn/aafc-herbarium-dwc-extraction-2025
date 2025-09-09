@@ -51,5 +51,5 @@ Secondary tasks cover medium and low priority items detailed below.
 
 | Feature | Priority | Timeline |
 | --- | --- | --- |
-| Add tests covering configurable GPT prompt templates | Medium | Q2 2025 |
+| Add evaluation harness for GPT prompt template coverage | Medium | Q2 2025 |
 | Expand procedural examples across docs | Low | Q3 2025 |
