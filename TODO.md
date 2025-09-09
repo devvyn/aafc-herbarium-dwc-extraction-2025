@@ -1,6 +1,6 @@
 # TODO
 
-1. Implement GBIF taxonomy and locality verification for QC (context: `qc/gbif.py`) – _medium_.
+1. Integrate GBIF taxonomy and locality verification into the QC pipeline (context: `qc/gbif.py`) – _medium_.
 2. Move GBIF API endpoints into configuration files – _easy_.
 3. Support full schema parsing from official Darwin Core and ABCD XSDs – _medium_.
 4. Add evaluation harness for GPT prompt template coverage – _medium_.
