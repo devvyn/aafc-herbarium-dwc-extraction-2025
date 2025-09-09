@@ -1,11 +1,12 @@
 from pathlib import Path
 
-from .database import migrate as run_migrate
+from .candidate_models import migrate as migrate_candidates
 
 
 def migrate_db(db_path: Path) -> None:
-    """CLI-friendly helper to run database migrations."""
-    run_migrate(db_path)
+    """CLI-friendly helper to upgrade the candidate database."""
+
+    migrate_candidates(db_path)
 
 
 __all__ = ["migrate_db"]

@@ -1,38 +1,40 @@
 from pathlib import Path
-import sqlite3
-
 from io_utils.candidates import Candidate, init_db, insert_candidate
+from io_utils.candidate_models import Candidate as CandidateModel, Decision as DecisionModel
 from review import review_candidates
+from sqlalchemy import select
 
 
 def test_review_cli_records_choice(tmp_path: Path, monkeypatch) -> None:
     db_path = tmp_path / "candidates.db"
-    conn = init_db(db_path)
+    session = init_db(db_path)
     insert_candidate(
-        conn,
+        session,
         "run1",
         "img1.jpg",
         Candidate(value="hello", engine="vision", confidence=0.9),
     )
     insert_candidate(
-        conn,
+        session,
         "run1",
         "img1.jpg",
         Candidate(value="hola", engine="tesseract", confidence=0.7),
     )
-    conn.close()
+    session.close()
 
     monkeypatch.setattr("builtins.input", lambda _: "1")
     decision = review_candidates(db_path, "img1.jpg")
     assert decision and decision.engine == "tesseract"
     assert decision.run_id == "run1"
-    conn = sqlite3.connect(db_path)
-    row = conn.execute(
-        "SELECT value, engine, run_id FROM decisions WHERE image = ?", ("img1.jpg",)
-    ).fetchone()
+    session = init_db(db_path)
+    row = session.execute(
+        select(DecisionModel.value, DecisionModel.engine, DecisionModel.run_id).where(
+            DecisionModel.image == "img1.jpg"
+        )
+    ).one()
     assert row == ("hola", "tesseract", "run1")
-    rows = conn.execute(
-        "SELECT value FROM candidates WHERE image = ?", ("img1.jpg",)
-    ).fetchall()
-    assert len(rows) == 2
-    conn.close()
+    count = session.execute(
+        select(CandidateModel.value).where(CandidateModel.image == "img1.jpg")
+    ).all()
+    assert len(count) == 2
+    session.close()

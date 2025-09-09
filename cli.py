@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List
 import sys
 from importlib import resources
+from sqlalchemy.orm import Session
 from engines import dispatch, available_engines, get_fallback_policy
 
 if sys.version_info >= (3, 11):
@@ -90,7 +91,7 @@ def process_image(
     cfg: Dict[str, Any],
     run_id: str,
     dupe_catalog: Dict[str, int],
-    cand_conn,
+    cand_session: Session,
     app_conn,
     retry_limit: int,
     resume: bool,
@@ -187,7 +188,7 @@ def process_image(
                 )
                 avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
                 insert_candidate(
-                    cand_conn,
+                    cand_session,
                     run_id,
                     img_path.name,
                     Candidate(value=text, engine=preferred, confidence=avg_conf),
@@ -200,7 +201,7 @@ def process_image(
                     if final_engine != preferred:
                         avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
                         insert_candidate(
-                            cand_conn,
+                    cand_session,
                             run_id,
                             img_path.name,
                             Candidate(value=text, engine=final_engine, confidence=avg_conf),
@@ -341,7 +342,7 @@ def process_cli(
     dwc_rows: List[Dict[str, Any]] = []
     ident_history_rows: List[Dict[str, Any]] = []
     dupe_catalog: Dict[str, int] = {}
-    cand_conn = init_candidate_db(output / "candidates.db")
+    cand_session = init_candidate_db(output / "candidates.db")
     app_conn = init_app_db(output / "app.db")
     retry_limit = cfg.get("processing", {}).get("retry_limit", 3)
     for img_path in iter_images(input_dir):
@@ -350,7 +351,7 @@ def process_cli(
             cfg,
             run_id,
             dupe_catalog,
-            cand_conn,
+            cand_session,
             app_conn,
             retry_limit,
             resume,
@@ -370,7 +371,7 @@ def process_cli(
     }
 
     write_outputs(output, events, dwc_rows, ident_history_rows, meta, resume)
-    cand_conn.close()
+    cand_session.close()
     app_conn.close()
 
     logging.info("Processed %d images. Output written to %s", len(events), output)
