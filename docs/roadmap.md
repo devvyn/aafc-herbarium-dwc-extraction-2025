@@ -29,7 +29,7 @@ Secondary tasks cover medium and low priority items detailed below.
 
 | Feature | Priority | Timeline |
 | --- | --- | --- |
-| Hook into [qc/gbif.py](../qc/gbif.py) for taxonomy validation | Medium | Q3 2025 |
+| Hook into [qc/gbif.py](../qc/gbif.py) for taxonomy validation | High | Q3 2025 |
 | Move GBIF API endpoints into configuration files | Low | Q2 2025 |
 | Implement locality cross-checks using Gazetteer API | Low | Q4 2025 |
 
