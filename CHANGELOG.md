@@ -8,6 +8,7 @@
 - ✨ core Darwin Core field mappings and controlled vocabularies
 - ✨ load custom Darwin Core term mappings via `[dwc.custom]` config section
 - ✨ versioned Darwin Core Archive exports with run manifest
+- ✨ taxonomy and locality verification against GBIF with graceful error handling
 
 ### Fixed
 - 🐛 normalize `typeStatus` citations to lowercase using vocabulary rules
