@@ -32,3 +32,11 @@ language detection.
 ## Testing
 
 Unit tests in [../tests/unit/test_gpt_prompts.py](../tests/unit/test_gpt_prompts.py) load fixture templates from [../tests/resources/gpt_prompts](../tests/resources/gpt_prompts) to ensure custom prompt directories and legacy `*.prompt` files are honoured. Run `pytest` to validate these behaviours whenever prompts change.
+
+Validate that all prompt templates expose required placeholders with:
+
+```bash
+pytest tests/unit/test_prompt_coverage.py
+# or
+python review_tui.py --check-prompts
+```
