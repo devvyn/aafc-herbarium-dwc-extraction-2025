@@ -78,6 +78,6 @@ with sqlite3.connect("output/candidates.db") as conn:
 Merge reviewed selections back into your working database with [import_review.py](../import_review.py):
 
 ```
-python import_review.py output/review_v1.2.0.zip output/candidates.db --schema-version 1.2.0
+python import_review.py output/review_v1.2.0.zip output/candidates.db --schema-version 1.2.0 --user alice
 ```
 
