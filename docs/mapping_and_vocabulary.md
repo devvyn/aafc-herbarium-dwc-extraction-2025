@@ -30,6 +30,9 @@ record = map_ocr_to_dwc({"barcode": "ABC123"})
 
 The resulting `record.catalogNumber` is `"ABC123"`.
 
+The default rules already map common labels such as `collector number` to
+`recordNumber` via [`dwc_rules.toml`](../config/rules/dwc_rules.toml).
+
 ## Vocabulary normalisation example
 
 Controlled terms such as `basisOfRecord` are harmonised via
@@ -42,3 +45,5 @@ normalize_vocab("herbarium sheet", "basisOfRecord")
 ```
 
 This call returns `"PreservedSpecimen"`.
+
+Passing `"field note"` instead normalises the value to `"HumanObservation"`.
