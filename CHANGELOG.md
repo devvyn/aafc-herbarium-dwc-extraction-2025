@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+- :seedling: uv lockfile and bootstrap script for quick environment setup
+
+### Fixed
+- :bug: bootstrap script installs uv if missing
+
 ## [0.1.4] - 2025-09-10 (0.1.4)
 
 ### Added
