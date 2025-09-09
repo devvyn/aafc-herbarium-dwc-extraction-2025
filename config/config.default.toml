@@ -30,7 +30,7 @@ steps = ["image_to_text", "text_to_dwc"]
 
 [preprocess]
 pipeline = ["grayscale", "deskew", "binarize", "resize"]
-binarize = "adaptive_sauvola"
+binarize_method = "adaptive"  # "otsu" or "adaptive"
 max_dim_px = 4000
 contrast_factor = 1.5  # used when "contrast" is in the pipeline
 
