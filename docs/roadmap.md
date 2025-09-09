@@ -2,6 +2,8 @@
 
 Upcoming features and priorities for the herbarium OCR to Darwin Core toolkit.
 
+Run `python scripts/create_roadmap_issues.py --repo <owner>/<repo>` to open GitHub issues for tasks marked with `(Issue TBD)`.
+
 **Critical features**
 - Integrate multilingual OCR models for non-English labels
 - Integrate GBIF taxonomy and locality verification into the QC pipeline
@@ -13,7 +15,7 @@ Secondary tasks cover medium and low priority items detailed below.
 
 ## Preprocessing and OCR
 
-- Integrate multilingual OCR models for non-English labels — **High**, Q2 2025
+- Integrate multilingual OCR models for non-English labels — **High**, Q2 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/138)
 - Support GPU-accelerated inference for Tesseract — **Medium**, Q3 2025
 - Batch resize large images to accelerate OCR — **Low**, Q3 2025
 
@@ -26,7 +28,7 @@ Secondary tasks cover medium and low priority items detailed below.
 
 ## Quality control
 
-- Integrate GBIF taxonomy and locality verification into the QC pipeline — **Medium**, Q3 2025
+- Integrate GBIF taxonomy and locality verification into the QC pipeline — **Medium**, Q3 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/139)
 - Move GBIF API endpoints into configuration files — **Low**, Q2 2025
 - Implement locality cross-checks using Gazetteer API — **Low**, Q4 2025
 
