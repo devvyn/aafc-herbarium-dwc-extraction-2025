@@ -119,6 +119,7 @@ class DwcRecord(BaseModel):
     identificationRemarks: Optional[str] = None
     identificationReferences: Optional[str] = None
     identificationVerificationStatus: Optional[str] = None
+    typeStatus: Optional[str] = None
     associatedOccurrences: Optional[str] = None
     occurrenceRemarks: Optional[str] = None
     dynamicProperties: Optional[str] = None

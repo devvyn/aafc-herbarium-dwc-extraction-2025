@@ -1,2 +1,16 @@
 # Mapping rules from raw OCR output to Darwin Core terms.
 # Use this file to declare regex or lookup substitutions.
+
+# Field name aliases mapped to Darwin Core terms.
+[fields]
+# Common header printed on barcode labels
+barcode = "catalogNumber"
+# Collector name appearing on labels
+collector = "recordedBy"
+# Verbatim date strings found on sheets
+"date collected" = "eventDate"
+# Geographic annotations
+country = "country"
+province = "stateProvince"
+locality = "locality"
+"scientific name" = "scientificName"
