@@ -4,6 +4,7 @@
 
 ### Added
 - :seedling: uv lockfile and bootstrap script for quick environment setup
+- :test_tube: prompt coverage harness stub
 
 ### Fixed
 - :bug: bootstrap script installs uv if missing
