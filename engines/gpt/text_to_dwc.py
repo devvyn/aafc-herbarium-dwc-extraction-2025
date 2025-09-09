@@ -42,14 +42,32 @@ def text_to_dwc(
     model: str,
     dry_run: bool = False,
     prompt_dir: Optional[Path] = None,
+    fields: Optional[List[str]] = None,
 ) -> Tuple[Dict[str, str], Dict[str, float]]:
     """Map unstructured text to Darwin Core terms using a GPT model.
 
     The model is expected to return JSON where each key is a Darwin Core
     term mapping to a dictionary containing ``value`` and ``confidence``
     entries.  Any parsing errors result in empty outputs.
+
+    Parameters
+    ----------
+    text:
+        Unstructured text to map.
+    model:
+        The GPT model name to use.
+    dry_run:
+        When ``True`` or when the OpenAI SDK is unavailable, no network
+        call is performed and empty results are returned.
+    prompt_dir:
+        Optional directory containing prompt templates.
+    fields:
+        Optional list of Darwin Core fields to emphasise in the prompt.
     """
     messages = load_messages("text_to_dwc", prompt_dir)
+    field_hint = ", ".join(fields) if fields else "required"
+    for msg in messages:
+        msg["content"] = msg["content"].replace("%FIELD%", field_hint)
     if dry_run:
         return {}, {}
     if OpenAI is None:
