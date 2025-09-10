@@ -44,5 +44,5 @@ Secondary tasks cover medium and low priority items detailed below.
 
 ## Testing and documentation
 
-- Add evaluation harness for GPT prompt template coverage — **Medium**, Q2 2025
+- Add evaluation harness for GPT prompt template coverage — **Medium**, Q2 2025 (see `scripts/prompt_coverage.py`)
 - Expand procedural examples across docs — **Low**, Q3 2025
