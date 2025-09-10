@@ -7,4 +7,4 @@
 - Expand unit tests to cover new terms or transformations.
 
 ## Testing
-- After changes in this directory, run `ruff dwc` and the project test suite (`pytest`) from the repository root.
+- After changes in this directory, run `ruff check dwc` and the project test suite (`pytest`) from the repository root.
