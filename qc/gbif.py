@@ -1,21 +1,25 @@
 """GBIF lookup interface for taxonomy and locality verification.
 
-This module outlines the endpoints, parameter mappings, and result fields
-needed to integrate GBIF-based checks into the quality-control pipeline.  It
-contains only type stubs and placeholders for future implementation.
+The module provides a tiny wrapper around the public GBIF API that is
+used by the quality-control step to confirm scientific names and
+geographic coordinates.  It intentionally exposes only the small subset
+of functionality required by the tests but includes hooks for endpoint
+configuration and network timeouts.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 import json
+import socket
 from typing import Any, Dict, List
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
 DEFAULT_SPECIES_MATCH_ENDPOINT = "https://api.gbif.org/v1/species/match"
 DEFAULT_REVERSE_GEOCODE_ENDPOINT = "https://api.gbif.org/v1/geocode/reverse"
+DEFAULT_TIMEOUT = 10.0
 
 # Mapping of local record fields to GBIF query parameters
 TAXONOMY_QUERY_MAP: Dict[str, str] = {
@@ -61,10 +65,11 @@ LOCALITY_FIELDS: List[str] = [
 
 @dataclass
 class GbifLookup:
-    """Stub for GBIF lookup operations."""
+    """Minimal GBIF lookup client used during quality control."""
 
     species_match_endpoint: str = DEFAULT_SPECIES_MATCH_ENDPOINT
     reverse_geocode_endpoint: str = DEFAULT_REVERSE_GEOCODE_ENDPOINT
+    timeout: float | None = DEFAULT_TIMEOUT
 
     @classmethod
     def from_config(cls, cfg: Dict[str, Any]) -> "GbifLookup":
@@ -77,7 +82,20 @@ class GbifLookup:
             reverse_geocode_endpoint=gbif_cfg.get(
                 "reverse_geocode_endpoint", DEFAULT_REVERSE_GEOCODE_ENDPOINT
             ),
+            timeout=gbif_cfg.get("timeout", DEFAULT_TIMEOUT),
         )
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+    def _request_json(self, url: str) -> Any | None:
+        """Fetch ``url`` and decode JSON, returning ``None`` on errors."""
+
+        try:
+            with urlopen(url, timeout=self.timeout) as resp:
+                return json.load(resp)
+        except (URLError, HTTPError, json.JSONDecodeError, socket.timeout):
+            return None
 
     def verify_taxonomy(self, record: Dict[str, Any]) -> Dict[str, Any]:
         """Return a copy of ``record`` with taxonomy fields updated.
@@ -103,11 +121,9 @@ class GbifLookup:
         if not params:
             return updated
 
-        try:
-            url = f"{self.species_match_endpoint}?{urlencode(params)}"
-            with urlopen(url) as resp:
-                data = json.load(resp)
-        except (URLError, json.JSONDecodeError):
+        url = f"{self.species_match_endpoint}?{urlencode(params)}"
+        data = self._request_json(url)
+        if not isinstance(data, dict):
             return updated
 
         if "usageKey" in data:
@@ -145,16 +161,11 @@ class GbifLookup:
         if not params:
             return updated
 
-        try:
-            url = f"{self.reverse_geocode_endpoint}?{urlencode(params)}"
-            with urlopen(url) as resp:
-                data = json.load(resp)
-        except (URLError, json.JSONDecodeError):
-            return updated
-
+        url = f"{self.reverse_geocode_endpoint}?{urlencode(params)}"
+        data = self._request_json(url)
         if isinstance(data, list) and data:
             data = data[0]
-        elif not isinstance(data, dict):
+        if not isinstance(data, dict):
             return updated
 
         updated.update({field: data[field] for field in LOCALITY_FIELDS if field in data})
@@ -166,6 +177,7 @@ __all__ = [
     "GbifLookup",
     "DEFAULT_SPECIES_MATCH_ENDPOINT",
     "DEFAULT_REVERSE_GEOCODE_ENDPOINT",
+    "DEFAULT_TIMEOUT",
     "TAXONOMY_QUERY_MAP",
     "LOCALITY_QUERY_MAP",
     "TAXONOMY_FIELDS",

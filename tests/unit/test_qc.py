@@ -9,6 +9,7 @@ from cli import load_config
 from qc.gbif import (
     DEFAULT_REVERSE_GEOCODE_ENDPOINT,
     DEFAULT_SPECIES_MATCH_ENDPOINT,
+    DEFAULT_TIMEOUT,
     GbifLookup,
 )
 from dwc import map_ocr_to_dwc, normalize_vocab
@@ -70,6 +71,23 @@ reverse_geocode_endpoint = "https://example.org/reverse"
     gbif = GbifLookup.from_config(cfg)
     assert gbif.species_match_endpoint == "https://example.org/species"
     assert gbif.reverse_geocode_endpoint == "https://example.org/reverse"
+
+
+def test_gbif_timeout_default():
+    cfg = load_config(None)
+    gbif = GbifLookup.from_config(cfg)
+    assert gbif.timeout == DEFAULT_TIMEOUT
+
+
+def test_gbif_timeout_override(tmp_path: Path):
+    cfg_path = tmp_path / "config.toml"
+    cfg_path.write_text("""
+[qc.gbif]
+timeout = 1.5
+""")
+    cfg = load_config(cfg_path)
+    gbif = GbifLookup.from_config(cfg)
+    assert gbif.timeout == 1.5
 
 
 def test_map_ocr_to_dwc_rules() -> None:
