@@ -12,4 +12,11 @@ Run `./bootstrap.sh` before development to install dependencies, copy `.env.exam
 
 ## Testing and linting
 
-Run `ruff check .` and `pytest` from the project root to validate changes before committing.
+Run the full test suite and linter before committing changes.
+
+```bash
+ruff check .
+pytest
+```
+
+These checks help maintain a consistent code style and verify that new contributions do not introduce regressions.

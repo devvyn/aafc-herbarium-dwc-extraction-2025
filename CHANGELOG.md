@@ -11,6 +11,7 @@
 - :bug: bootstrap script installs uv if missing
 
 ### Docs
+- :memo: outline testing and linting expectations in the development guide
 - 📝 clarify Ruff commands in AGENTS instructions and development guide
 
 ## [0.1.4] - 2025-09-10 (0.1.4)
