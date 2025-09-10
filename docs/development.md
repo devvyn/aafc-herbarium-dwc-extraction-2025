@@ -10,4 +10,11 @@ The [roadmap](roadmap.md) is the single source for open tasks, priorities, and t
 
 ## Testing and linting
 
-Run `ruff check .` and `pytest` from the project root to validate changes before committing.
+Run the full test suite and linter before committing changes.
+
+```bash
+ruff check .
+pytest
+```
+
+These checks help maintain a consistent code style and verify that new contributions do not introduce regressions.
