@@ -83,6 +83,7 @@ def _discover_entry_points() -> None:
 
 
 # Import built-in engines so they register themselves on module import.
+# The multilingual stub is intentionally excluded until implemented.
 for _mod in ("gpt", "vision_swift", "tesseract", "paddleocr"):
     try:
         import_module(f"{__name__}.{_mod}")
