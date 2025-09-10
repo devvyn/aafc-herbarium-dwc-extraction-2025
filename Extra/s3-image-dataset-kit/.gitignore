@@ -1,0 +1,15 @@
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.uv/
+
+# Env
+.env
+
+# Local cache
+/tmp/imgcache/
+.cache/
+dist/
+build/
