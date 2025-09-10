@@ -53,3 +53,4 @@
 ## Miscellaneous
 - No sensitive data is handled in this repository.
 - Default image format is JPEG unless otherwise specified.
+- Set `GITHUB_TOKEN` before running scripts that interact with the GitHub API.

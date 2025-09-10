@@ -8,6 +8,7 @@
 - Examples should be reproducible via repository scripts; do not paste hand-edited outputs.
 - When features alter workflows or dependencies, refresh any affected usage or installation instructions (e.g., README.md and related docs).
 - Reviewers should verify these documentation updates during PR review.
+- Note any requirement to set `GITHUB_TOKEN` for scripts that call the GitHub API.
 
 ## Testing
 - Run `ruff check docs` and `pytest` from the repository root before committing documentation changes.
