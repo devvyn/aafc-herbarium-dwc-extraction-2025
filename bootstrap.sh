@@ -18,4 +18,4 @@ fi
 
 # Run linting and tests to verify setup
 uv run ruff check . --fix
-uv run pytest
+uv run pytest -q
