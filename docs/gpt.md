@@ -40,3 +40,8 @@ pytest tests/unit/test_prompt_coverage.py
 # or
 python review_tui.py --check-prompts
 ```
+Use the standalone harness to print missing placeholders:
+
+```bash
+python scripts/prompt_coverage.py
+```
