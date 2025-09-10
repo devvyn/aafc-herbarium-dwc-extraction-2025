@@ -39,9 +39,7 @@ IDENT_HISTORY_URIS: Dict[str, str] = {
     "identificationQualifier": _dwc_term("identificationQualifier"),
     "identificationRemarks": _dwc_term("identificationRemarks"),
     "identificationReferences": _dwc_term("identificationReferences"),
-    "identificationVerificationStatus": _dwc_term(
-        "identificationVerificationStatus"
-    ),
+    "identificationVerificationStatus": _dwc_term("identificationVerificationStatus"),
     "isCurrent": "http://rs.gbif.org/terms/1.0/isCurrent",
 }
 
@@ -53,9 +51,7 @@ def build_manifest(filters: Dict[str, Any] | None = None) -> Dict[str, Any]:
     """Return run metadata for archive exports."""
     commit = "unknown"
     try:
-        commit = subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], text=True
-        ).strip()
+        commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
         pass
     timestamp = datetime.now(timezone.utc).isoformat()
@@ -174,4 +170,3 @@ def create_archive(
             if file_path.exists():
                 zf.write(file_path, arcname=name)
     return archive_path
-

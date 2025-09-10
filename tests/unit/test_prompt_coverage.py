@@ -12,7 +12,4 @@ def test_prompts_contain_required_placeholders() -> None:
         messages = load_messages(task)
         content = "\n".join(m["content"] for m in messages)
         for placeholder in placeholders:
-            assert placeholder in content, (
-                f"{placeholder} missing from {task} prompts"
-            )
-
+            assert placeholder in content, f"{placeholder} missing from {task} prompts"

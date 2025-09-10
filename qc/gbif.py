@@ -96,9 +96,7 @@ class GbifLookup:
         """
 
         params = {
-            query: record[field]
-            for field, query in TAXONOMY_QUERY_MAP.items()
-            if record.get(field)
+            query: record[field] for field, query in TAXONOMY_QUERY_MAP.items() if record.get(field)
         }
 
         updated = record.copy()

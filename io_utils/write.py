@@ -21,14 +21,14 @@ IDENT_HISTORY_COLUMNS = [
     "isCurrent",
 ]
 
+
 def write_manifest(output_dir: Path, meta: Dict[str, Any]) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     manifest_path = output_dir / "manifest.json"
     manifest_path.write_text(json.dumps(meta, indent=2))
 
-def write_dwc_csv(
-    output_dir: Path, rows: Iterable[Dict[str, Any]], append: bool = False
-) -> None:
+
+def write_dwc_csv(output_dir: Path, rows: Iterable[Dict[str, Any]], append: bool = False) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     csv_path = output_dir / "occurrence.csv"
     file_exists = csv_path.exists()
@@ -55,9 +55,8 @@ def write_identification_history_csv(
         for row in rows:
             writer.writerow({k: row.get(k, "") for k in IDENT_HISTORY_COLUMNS})
 
-def write_jsonl(
-    output_dir: Path, events: Iterable[Dict[str, Any]], append: bool = False
-) -> None:
+
+def write_jsonl(output_dir: Path, events: Iterable[Dict[str, Any]], append: bool = False) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     jsonl_path = output_dir / "raw.jsonl"
     mode = "a" if append and jsonl_path.exists() else "w"

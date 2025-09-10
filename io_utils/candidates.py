@@ -93,9 +93,7 @@ def best_candidate(session: Session, image: str) -> Optional[Candidate]:
     return rows[0] if rows else None
 
 
-def record_decision(
-    session: Session, image: str, candidate: Candidate
-) -> Decision:
+def record_decision(session: Session, image: str, candidate: Candidate) -> Decision:
     """Persist a reviewer decision and return the stored record."""
 
     stmt = (
@@ -157,9 +155,7 @@ def import_decisions(dest: Session, src: Session) -> None:
             latest[row.image] = row
 
     for row in latest.values():
-        exists = dest.execute(
-            select(DecisionModel).where(DecisionModel.image == row.image)
-        ).first()
+        exists = dest.execute(select(DecisionModel).where(DecisionModel.image == row.image)).first()
         if exists:
             raise ValueError(f"Decision for {row.image} already exists")
         dest.add(

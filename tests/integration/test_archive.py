@@ -38,9 +38,7 @@ def test_meta_xml_written(tmp_path: Path) -> None:
 
 def test_zip_archive_contains_required_files(tmp_path: Path) -> None:
     _prepare_csvs(tmp_path)
-    archive_path = create_archive(
-        tmp_path, compress=True, version="1.2.3", filters={"foo": "bar"}
-    )
+    archive_path = create_archive(tmp_path, compress=True, version="1.2.3", filters={"foo": "bar"})
     assert archive_path.exists()
     assert archive_path.name == "dwca_v1.2.3.zip"
 

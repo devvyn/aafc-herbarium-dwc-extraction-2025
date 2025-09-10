@@ -12,9 +12,7 @@ SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
 
 
 def build_manifest(schema_version: str) -> dict[str, str]:
-    commit = (
-        subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-    )
+    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     timestamp = datetime.now(timezone.utc).isoformat()
     return {
         "timestamp": timestamp,
@@ -45,9 +43,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Package review bundle")
     parser.add_argument("db", type=Path, help="Path to candidates database")
     parser.add_argument("images", type=Path, help="Directory of source images")
-    parser.add_argument(
-        "--schema-version", required=True, help="Schema version (e.g. 1.2.0)"
-    )
+    parser.add_argument("--schema-version", required=True, help="Schema version (e.g. 1.2.0)")
     args = parser.parse_args()
     package_review(args.db, args.images, args.schema_version)
 

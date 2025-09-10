@@ -15,13 +15,8 @@ except Exception:  # pragma: no cover
     OpenAI = None
 
 
-
 def load_messages(task: str, prompt_dir: Optional[Path] = None) -> List[Dict[str, str]]:
-    base = (
-        Path(prompt_dir)
-        if prompt_dir
-        else resources.files("config").joinpath("prompts")
-    )
+    base = Path(prompt_dir) if prompt_dir else resources.files("config").joinpath("prompts")
     messages: List[Dict[str, str]] = []
     for role in ("system", "assistant", "user"):
         file = base.joinpath(f"{task}.{role}.prompt")

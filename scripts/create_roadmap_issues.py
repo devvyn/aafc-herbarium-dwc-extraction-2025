@@ -110,9 +110,7 @@ def create_issue(repo: str, token: str, task: RoadmapTask) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Create GitHub issues from roadmap")
     parser.add_argument("--repo", required=True, help="owner/repo")
-    parser.add_argument(
-        "--roadmap", default="docs/roadmap.md", help="Path to roadmap Markdown"
-    )
+    parser.add_argument("--roadmap", default="docs/roadmap.md", help="Path to roadmap Markdown")
     parser.add_argument("--dry-run", action="store_true", help="Do not call GitHub")
     args = parser.parse_args()
 

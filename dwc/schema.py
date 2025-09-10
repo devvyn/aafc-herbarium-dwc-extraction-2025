@@ -56,6 +56,7 @@ def load_schema_terms(schema_files: Optional[Iterable[Path]] = None) -> List[str
             terms.extend(_parse_schema(path))
     return terms + PROJECT_TERMS
 
+
 # Darwin Core terms supported by this project.  These mirror the column order
 # used when writing CSV output.  The list is based on the AAFC-SRDC example
 # dataset and extended with a few project-specific fields at the end.

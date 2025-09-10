@@ -48,8 +48,7 @@ class ReviewApp(App[Decision | None]):
             return
         img_widget = Static(_ascii_art(Path(self.image_name)))
         items = [
-            ListItem(Static(f"{c.engine} ({c.confidence:.2f}): {c.value}"))
-            for c in self.candidates
+            ListItem(Static(f"{c.engine} ({c.confidence:.2f}): {c.value}")) for c in self.candidates
         ]
         list_view = ListView(*items)
         yield Horizontal(img_widget, list_view)
@@ -108,4 +107,3 @@ if __name__ == "__main__":
     if args.check_prompts:
         raise SystemExit(_check_prompts())
     raise SystemExit("Use 'python review.py --tui' to launch the text interface.")
-

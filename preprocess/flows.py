@@ -1,4 +1,5 @@
 """Prototype preprocessing flows for different OCR engines."""
+
 from __future__ import annotations
 
 from typing import Dict, Any

@@ -69,8 +69,12 @@ def test_import_decisions_deduplicates(tmp_path: Path) -> None:
     dest = init_db(dest_db)
     earlier = "2024-01-01T00:00:00+00:00"
     later = "2024-01-02T00:00:00+00:00"
-    src.add(DecisionModel(run_id=None, image="img1.jpg", value="old", engine="e1", decided_at=earlier))
-    src.add(DecisionModel(run_id=None, image="img1.jpg", value="new", engine="e2", decided_at=later))
+    src.add(
+        DecisionModel(run_id=None, image="img1.jpg", value="old", engine="e1", decided_at=earlier)
+    )
+    src.add(
+        DecisionModel(run_id=None, image="img1.jpg", value="new", engine="e2", decided_at=later)
+    )
     src.commit()
     import_decisions(dest, src)
     row = dest.execute(
@@ -87,9 +91,17 @@ def test_import_decisions_conflict(tmp_path: Path) -> None:
     src = init_db(src_db)
     dest = init_db(dest_db)
     decided_at = "2024-01-01T00:00:00+00:00"
-    src.add(DecisionModel(run_id=None, image="img1.jpg", value="val", engine="e1", decided_at=decided_at))
+    src.add(
+        DecisionModel(
+            run_id=None, image="img1.jpg", value="val", engine="e1", decided_at=decided_at
+        )
+    )
     src.commit()
-    dest.add(DecisionModel(run_id=None, image="img1.jpg", value="dest", engine="e2", decided_at=decided_at))
+    dest.add(
+        DecisionModel(
+            run_id=None, image="img1.jpg", value="dest", engine="e2", decided_at=decided_at
+        )
+    )
     dest.commit()
     with pytest.raises(ValueError):
         import_decisions(dest, src)

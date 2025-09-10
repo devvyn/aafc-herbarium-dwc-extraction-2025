@@ -40,9 +40,7 @@ from .gbif import (
 TOP_FIFTH_PCT: float = 20.0
 
 
-def detect_duplicates(
-    catalog: Dict[str, int], sha256: str, phash_threshold: int
-) -> List[str]:
+def detect_duplicates(catalog: Dict[str, int], sha256: str, phash_threshold: int) -> List[str]:
     """Detect duplicate images.
 
     Parameters

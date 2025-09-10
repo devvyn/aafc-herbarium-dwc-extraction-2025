@@ -21,6 +21,7 @@ def image_to_text(
     try:
         import pytesseract
         from pytesseract import Output  # type: ignore
+
         TesseractError = getattr(pytesseract, "TesseractError", Exception)
     except Exception as exc:  # pragma: no cover - optional dependency
         raise EngineError("MISSING_DEPENDENCY", "pytesseract not available") from exc

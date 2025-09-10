@@ -17,7 +17,11 @@ def test_process_image_returns_event(monkeypatch, tmp_path):
     img_path = tmp_path / "img.png"
     Image.new("RGB", (10, 10), "white").save(img_path)
     cfg = {
-        "ocr": {"enabled_engines": ["test"], "preferred_engine": "test", "allow_tesseract_on_macos": True},
+        "ocr": {
+            "enabled_engines": ["test"],
+            "preferred_engine": "test",
+            "allow_tesseract_on_macos": True,
+        },
         "gpt": {"model": "gpt-4.1-mini", "dry_run": True},
         "qc": {},
         "preprocess": {},
@@ -69,7 +73,9 @@ def test_write_outputs_calls_writers(monkeypatch, tmp_path):
     calls = []
     monkeypatch.setattr(cli, "write_jsonl", lambda *a, **k: calls.append("jsonl"))
     monkeypatch.setattr(cli, "write_dwc_csv", lambda *a, **k: calls.append("dwc"))
-    monkeypatch.setattr(cli, "write_identification_history_csv", lambda *a, **k: calls.append("hist"))
+    monkeypatch.setattr(
+        cli, "write_identification_history_csv", lambda *a, **k: calls.append("hist")
+    )
     monkeypatch.setattr(cli, "write_manifest", lambda *a, **k: calls.append("manifest"))
     cli.write_outputs(tmp_path, [{}], [{}], [{}], {"meta": 1}, False)
     assert calls == ["jsonl", "dwc", "hist", "manifest"]

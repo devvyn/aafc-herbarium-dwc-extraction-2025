@@ -26,9 +26,7 @@ def test_specimen_and_state_roundtrip(tmp_path: Path) -> None:
     fetched_specimen = fetch_specimen(conn, "s1")
     assert fetched_specimen and fetched_specimen.image == specimen.image
 
-    state = ProcessingState(
-        specimen_id="s1", module="ocr", status="done", confidence=0.8
-    )
+    state = ProcessingState(specimen_id="s1", module="ocr", status="done", confidence=0.8)
     stored_state = upsert_processing_state(conn, state)
     fetched_state = fetch_processing_state(conn, "s1", "ocr")
     assert fetched_state and fetched_state.status == "done"
