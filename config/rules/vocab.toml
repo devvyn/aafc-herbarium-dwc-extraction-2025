@@ -1,5 +1,6 @@
 # Vocabulary normalisation tables.
 # Populate with mappings such as "Herbarium sheet" = "PreservedSpecimen".
+# TODO: extend controlled vocabularies (Issue TBD).
 
 [basisOfRecord]
 # Map common phrases to Darwin Core controlled terms

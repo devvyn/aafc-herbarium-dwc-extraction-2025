@@ -170,3 +170,14 @@ def create_archive(
             if file_path.exists():
                 zf.write(file_path, arcname=name)
     return archive_path
+
+
+def create_versioned_bundle(
+    output_dir: Path, version: str, filters: Dict[str, Any] | None = None
+) -> Path:
+    """Create a versioned DwC-A bundle with an embedded manifest.
+
+    Placeholder for forthcoming export enhancements. (Issue TBD)
+    """
+
+    raise NotImplementedError("Versioned DwC-A bundles are not yet implemented.")

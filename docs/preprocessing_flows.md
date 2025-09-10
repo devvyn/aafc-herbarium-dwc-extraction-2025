@@ -7,6 +7,8 @@ This document summarizes recommended preprocessing steps for each supported OCR 
 List the languages your project needs under `[ocr].langs` in the configuration. Tesseract models can be mapped explicitly via `[tesseract].model_paths`, allowing custom `.traineddata` locations. When no languages are provided, engines attempt automatic detection.
 PaddleOCR uses a single language code configured under `[paddleocr].lang`.
 
+Future work will integrate dedicated multilingual OCR models for non-English labels ([Issue #138](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/138)).
+
 ## Apple Vision
 
 | Step     | Purpose                                   | Recommended range |
