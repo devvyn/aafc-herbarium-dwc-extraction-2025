@@ -1,9 +1,14 @@
+"""Create GitHub issues from the roadmap and optionally sync to a project.
+
+Designed for agents that manage issue trackers and project boards.
+"""
+
 import argparse
 import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import requests
 
@@ -85,7 +90,7 @@ def ensure_milestone(repo: str, token: str, title: str) -> int:
     return resp.json()["number"]
 
 
-def create_issue(repo: str, token: str, task: RoadmapTask) -> str:
+def create_issue(repo: str, token: str, task: RoadmapTask) -> Dict[str, str]:
     headers = {
         "Authorization": f"Bearer {token}",
         "Accept": "application/vnd.github+json",
@@ -104,13 +109,67 @@ def create_issue(repo: str, token: str, task: RoadmapTask) -> str:
         verify=False,
     )
     resp.raise_for_status()
-    return resp.json()["html_url"]
+    data = resp.json()
+    return {"url": data["html_url"], "node_id": data["node_id"]}
+
+
+def get_project_id(owner: str, number: int, token: str) -> str:
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json",
+    }
+    query = """
+    query($login:String!, $number:Int!) {
+      organization(login:$login) { projectV2(number:$number) { id } }
+      user(login:$login) { projectV2(number:$number) { id } }
+    }
+    """
+    resp = requests.post(
+        "https://api.github.com/graphql",
+        headers=headers,
+        json={"query": query, "variables": {"login": owner, "number": number}},
+        verify=False,
+    )
+    resp.raise_for_status()
+    data = resp.json().get("data", {})
+    org = data.get("organization", {})
+    if org.get("projectV2"):
+        return org["projectV2"]["id"]
+    user = data.get("user", {})
+    if user.get("projectV2"):
+        return user["projectV2"]["id"]
+    raise RuntimeError("Project not found")
+
+
+def add_issue_to_project(project_id: str, issue_id: str, token: str) -> None:
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json",
+    }
+    mutation = """
+    mutation($project:ID!, $issue:ID!) {
+      addProjectV2ItemById(input:{projectId:$project, contentId:$issue}) {
+        item { id }
+      }
+    }
+    """
+    resp = requests.post(
+        "https://api.github.com/graphql",
+        headers=headers,
+        json={"query": mutation, "variables": {"project": project_id, "issue": issue_id}},
+        verify=False,
+    )
+    resp.raise_for_status()
+    if resp.json().get("errors"):
+        raise RuntimeError(resp.json()["errors"])
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Create GitHub issues from roadmap")
     parser.add_argument("--repo", required=True, help="owner/repo")
     parser.add_argument("--roadmap", default="docs/roadmap.md", help="Path to roadmap Markdown")
+    parser.add_argument("--project-owner", help="User or organisation login for the project")
+    parser.add_argument("--project-number", type=int, help="Numeric project identifier")
     parser.add_argument("--dry-run", action="store_true", help="Do not call GitHub")
     args = parser.parse_args()
 
@@ -125,14 +184,20 @@ def main() -> None:
         print("No '(Issue TBD)' entries found.")
         return
 
+    project_id: Optional[str] = None
+    if args.project_owner and args.project_number:
+        project_id = get_project_id(args.project_owner, args.project_number, token)
+
     replacements: Dict[int, str] = {}
     for task in tasks:
         if args.dry_run:
-            url = "https://example.com/issue"
+            issue = {"url": "https://example.com/issue", "node_id": "example"}
         else:
-            url = create_issue(args.repo, token, task)
-        replacements[task.line_index] = url
-        print(f"Created issue for '{task.description}': {url}")
+            issue = create_issue(args.repo, token, task)
+            if project_id:
+                add_issue_to_project(project_id, issue["node_id"], token)
+        replacements[task.line_index] = issue["url"]
+        print(f"Created issue for '{task.description}': {issue['url']}")
 
     new_text = replace_issue_links(text, replacements)
     if args.dry_run:
