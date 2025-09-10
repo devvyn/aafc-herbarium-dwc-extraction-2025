@@ -33,6 +33,10 @@ The resulting `record.catalogNumber` is `"ABC123"`.
 The default rules already map common labels such as `collector number` to
 `recordNumber` via [`dwc_rules.toml`](../config/rules/dwc_rules.toml).
 
+## Future work
+
+Custom schema mapping via the `[dwc]` configuration section will allow external field definitions to be translated without modifying core code (Issue TBD). Additional mapping rules will be populated in `config/rules/dwc_rules.toml` and `config/rules/vocab.toml` (Issue TBD).
+
 ## Vocabulary normalisation example
 
 Controlled terms such as `basisOfRecord` are harmonised via

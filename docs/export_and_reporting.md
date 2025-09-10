@@ -73,3 +73,7 @@ PY
 Tag every export with a semantic version. The accompanying `manifest.json` makes
 it possible to reproduce the dataset by recording filters and the exact code
 commit.
+
+## Future work
+
+Versioned DwC-A bundles will embed manifests and semantic tags for reproducible releases (Issue TBD).
