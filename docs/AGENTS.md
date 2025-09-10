@@ -12,3 +12,8 @@
 
 ## Testing
 - Run `ruff check docs` and `pytest` from the repository root before committing documentation changes.
+
+## Issue Management
+- Reference targeted GitHub issues with syntax like `#123` in commits and pull requests so they auto-link or close.
+- When an issue affecting documentation is resolved or reopened, update any relevant docs accordingly.
+- After closing an issue, review `roadmap.md` and TODO lists for follow-up ideas and open new issues for any additional suggestions or problems.

@@ -34,6 +34,11 @@
 - Use GitHub-style links for issues, commits, and pull requests (e.g. `[PR #42](https://github.com/your-org/your-repo/pull/42)`).
 - Open pull requests only after all linting/tests pass.
 
+## Issue Management
+- Tasks targeting a GitHub issue must reference the issue number using GitHub syntax (e.g. `#123`) in commits and pull requests to enable auto-linking or closing.
+- When an issue is resolved or reopened, ensure any related documents (such as `docs/roadmap.md`) are updated.
+- After closing an issue, review `docs/roadmap.md` and existing TODOs for follow-up ideas and file new issues for additional suggestions or problems.
+
 ## Release Guidelines
 - Publish a release only for **substantial** changes that add features, fix user-facing bugs, or alter data structures.
 - Every release must synchronize version numbers and update both `CHANGELOG.md` and `README.md`.
