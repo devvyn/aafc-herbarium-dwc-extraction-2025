@@ -3,6 +3,18 @@
 Upcoming features and priorities for the herbarium OCR to Darwin Core toolkit.
 
 Set `GITHUB_TOKEN` and run `python scripts/create_roadmap_issues.py --repo <owner>/<repo>` to open GitHub issues for tasks marked with `(Issue TBD)`.
+Provide `--project-owner <owner>` and `--project-number <n>` to add created issues to a GitHub project for unified tracking.
+
+## Project integration
+
+Use GitHub Projects to track roadmap progress. Adding the project owner and
+number when running the issue creation script keeps issues and the roadmap in
+sync for automated agents:
+
+```bash
+python scripts/create_roadmap_issues.py --repo <owner>/<repo> \
+    --project-owner <owner> --project-number <n>
+```
 
 **Critical features**
 - Integrate multilingual OCR models for non-English labels (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/138)
