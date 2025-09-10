@@ -9,3 +9,7 @@ Run `./bootstrap.sh` before development to install dependencies, copy `.env.exam
 - Keep preprocessing, OCR, mapping, QC, import, and export phases decoupled.
 - Prefer configuration-driven behavior and avoid hard-coded values.
 - Document new processing phases with reproducible examples.
+
+## Testing and linting
+
+Run `ruff check .` and `pytest` from the project root to validate changes before committing.
