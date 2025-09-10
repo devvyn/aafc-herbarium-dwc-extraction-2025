@@ -184,9 +184,7 @@ def process_image(
                 elif preferred == "paddleocr":
                     p_cfg = cfg.get("paddleocr", {})
                     kwargs.update(lang=p_cfg.get("lang", "en"))
-                text, confidences = dispatch(
-                    step, image=proc_path, engine=preferred, **kwargs
-                )
+                text, confidences = dispatch(step, image=proc_path, engine=preferred, **kwargs)
                 avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
                 insert_candidate(
                     cand_session,
@@ -202,7 +200,7 @@ def process_image(
                     if final_engine != preferred:
                         avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
                         insert_candidate(
-                    cand_session,
+                            cand_session,
                             run_id,
                             img_path.name,
                             Candidate(value=text, engine=final_engine, confidence=avg_conf),
@@ -277,9 +275,7 @@ def process_image(
                     event["flags"].extend(gbif_flags)
                     existing = updated.get("flags") or original.get("flags")
                     gbif_flag_str = ";".join(gbif_flags)
-                    updated["flags"] = (
-                        f"{existing};{gbif_flag_str}" if existing else gbif_flag_str
-                    )
+                    updated["flags"] = f"{existing};{gbif_flag_str}" if existing else gbif_flag_str
                 event["dwc"] = updated
 
         qc_cfg = cfg.get("qc", {})

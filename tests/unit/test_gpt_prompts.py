@@ -13,8 +13,8 @@ def test_loads_from_custom_dir() -> None:
     base = RESOURCES / "custom"
     messages = load_messages("text_to_dwc", base)
     expected = [
-        {"role": "system", "content": (base / "text_to_dwc.system.prompt").read_text()} ,
-        {"role": "user", "content": (base / "text_to_dwc.user.prompt").read_text()} ,
+        {"role": "system", "content": (base / "text_to_dwc.system.prompt").read_text()},
+        {"role": "user", "content": (base / "text_to_dwc.user.prompt").read_text()},
     ]
     assert messages == expected
 

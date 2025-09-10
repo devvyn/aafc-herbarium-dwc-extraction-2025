@@ -99,7 +99,11 @@ def test_process_image_gbif_success(monkeypatch, tmp_path):
     img_path = tmp_path / "img.png"
     Image.new("RGB", (10, 10), "white").save(img_path)
     cfg = {
-        "ocr": {"enabled_engines": ["test"], "preferred_engine": "test", "allow_tesseract_on_macos": True},
+        "ocr": {
+            "enabled_engines": ["test"],
+            "preferred_engine": "test",
+            "allow_tesseract_on_macos": True,
+        },
         "gpt": {"model": "gpt-4.1-mini", "dry_run": True},
         "qc": {"gbif": {"enabled": True}},
         "preprocess": {},
@@ -154,7 +158,11 @@ def test_process_image_gbif_failure(monkeypatch, tmp_path):
     img_path = tmp_path / "img.png"
     Image.new("RGB", (10, 10), "white").save(img_path)
     cfg = {
-        "ocr": {"enabled_engines": ["test"], "preferred_engine": "test", "allow_tesseract_on_macos": True},
+        "ocr": {
+            "enabled_engines": ["test"],
+            "preferred_engine": "test",
+            "allow_tesseract_on_macos": True,
+        },
         "gpt": {"model": "gpt-4.1-mini", "dry_run": True},
         "qc": {"gbif": {"enabled": True}},
         "preprocess": {},

@@ -63,9 +63,7 @@ def export_candidates_to_spreadsheet(
     return output_path
 
 
-def import_review_selections(
-    spreadsheet: Path, schema_version: str
-) -> List[Dict[str, Any]]:
+def import_review_selections(spreadsheet: Path, schema_version: str) -> List[Dict[str, Any]]:
     """Read reviewer selections and validate manifest data."""
     book = pyexcel.get_book(file_name=str(spreadsheet))
     manifest_sheet = book["manifest"]

@@ -104,7 +104,9 @@ def upsert_processing_state(session: Session, state: ProcessingState) -> Process
     return state
 
 
-def fetch_processing_state(session: Session, specimen_id: str, module: str) -> Optional[ProcessingState]:
+def fetch_processing_state(
+    session: Session, specimen_id: str, module: str
+) -> Optional[ProcessingState]:
     return session.get(ProcessingState, (specimen_id, module))
 
 
@@ -129,15 +131,11 @@ def record_failure(
     return upsert_processing_state(session, state)
 
 
-def insert_import_audit(
-    session: Session, user_id: str, bundle_hash: str
-) -> ImportAudit:
+def insert_import_audit(session: Session, user_id: str, bundle_hash: str) -> ImportAudit:
     """Store an import audit entry and return the stored record."""
 
     imported_at = datetime.now(timezone.utc).isoformat()
-    audit = ImportAudit(
-        bundle_hash=bundle_hash, user_id=user_id, imported_at=imported_at
-    )
+    audit = ImportAudit(bundle_hash=bundle_hash, user_id=user_id, imported_at=imported_at)
     session.add(audit)
     session.commit()
     return audit

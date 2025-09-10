@@ -14,12 +14,14 @@ from io_utils.write import (
     IDENT_HISTORY_COLUMNS,
 )
 
+
 def test_write_manifest(tmp_path: Path) -> None:
     meta = {"foo": "bar"}
     write_manifest(tmp_path, meta)
     manifest_path = tmp_path / "manifest.json"
     assert manifest_path.exists()
     assert json.loads(manifest_path.read_text()) == meta
+
 
 def test_write_dwc_csv(tmp_path: Path) -> None:
     rows = [{"catalogNumber": "1", "scientificName": "Test"}]
@@ -51,6 +53,7 @@ def test_write_identification_history_csv(tmp_path: Path) -> None:
     assert fieldnames == IDENT_HISTORY_COLUMNS
     assert len(data) == 2
     assert data[0]["scientificName"] == "A"
+
 
 def test_write_jsonl(tmp_path: Path) -> None:
     events = [{"id": 1}, {"id": 2}]

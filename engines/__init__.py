@@ -41,7 +41,9 @@ def register_task(task: str, engine: str, module: str, func: str) -> None:
 
 def register_fallback_policy(
     engine: str,
-    func: Callable[[Path, str, List[float], Dict[str, Any]], Tuple[str, List[float], str, Optional[str]]],
+    func: Callable[
+        [Path, str, List[float], Dict[str, Any]], Tuple[str, List[float], str, Optional[str]]
+    ],
 ) -> None:
     """Register a fallback policy for an engine.
 
@@ -104,9 +106,7 @@ def dispatch(task: str, *args: Any, engine: str = "gpt", **kwargs: Any) -> Any:
     engines = _REGISTRY[task]
     if engine not in engines:
         available = ", ".join(sorted(engines))
-        raise ValueError(
-            f"Engine '{engine}' unavailable for task '{task}'. Available: {available}"
-        )
+        raise ValueError(f"Engine '{engine}' unavailable for task '{task}'. Available: {available}")
     module_name, func_name = engines[engine]
     module = import_module(module_name)
     func = getattr(module, func_name)
@@ -167,4 +167,3 @@ __all__ = [
     "register_fallback_policy",
     "get_fallback_policy",
 ]
-

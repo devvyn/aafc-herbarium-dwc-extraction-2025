@@ -13,9 +13,7 @@ from io_utils.read import compute_sha256
 
 
 def verify_manifest(manifest: dict, expected_version: str) -> None:
-    commit = (
-        subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-    )
+    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     if manifest.get("commit") != commit:
         raise RuntimeError("commit hash mismatch")
     if manifest.get("schema_version") != expected_version:
@@ -50,9 +48,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Import reviewed decisions")
     parser.add_argument("bundle", type=Path, help="Path to review bundle zip")
     parser.add_argument("db", type=Path, help="Local candidates database")
-    parser.add_argument(
-        "--schema-version", required=True, help="Expected schema version"
-    )
+    parser.add_argument("--schema-version", required=True, help="Expected schema version")
     parser.add_argument("--user", required=True, help="User ID for auditing")
     parser.add_argument(
         "--app-db",
@@ -60,9 +56,7 @@ def main() -> None:
         help="Application database (defaults to app.db next to candidates.db)",
     )
     args = parser.parse_args()
-    import_bundle(
-        args.bundle, args.db, args.schema_version, args.user, args.app_db
-    )
+    import_bundle(args.bundle, args.db, args.schema_version, args.user, args.app_db)
 
 
 if __name__ == "__main__":

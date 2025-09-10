@@ -5,6 +5,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from io_utils.read import iter_images, compute_sha256
 
+
 def test_iter_images_supported_extensions(tmp_path: Path) -> None:
     # create files with supported and unsupported extensions
     (tmp_path / "img1.jpg").write_text("a")
@@ -17,13 +18,17 @@ def test_iter_images_supported_extensions(tmp_path: Path) -> None:
     (sub / "img4.jpg").write_text("f")
     (sub / "note.md").write_text("g")
     images = list(iter_images(tmp_path))
-    expected = sorted([
-        tmp_path / "img1.jpg",
-        tmp_path / "img2.jpeg",
-        tmp_path / "img3.PNG",
-        sub / "img4.jpg",
-    ], key=lambda p: str(p))
+    expected = sorted(
+        [
+            tmp_path / "img1.jpg",
+            tmp_path / "img2.jpeg",
+            tmp_path / "img3.PNG",
+            sub / "img4.jpg",
+        ],
+        key=lambda p: str(p),
+    )
     assert images == expected
+
 
 def test_compute_sha256_hash(tmp_path: Path) -> None:
     data = b"hello"

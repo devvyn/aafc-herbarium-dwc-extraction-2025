@@ -40,9 +40,7 @@ def review_candidates(db_path: Path, image: str) -> Decision | None:
     sel = int(choice) if choice else 0
     sel = max(0, min(sel, len(candidates) - 1))
     decision = record_decision(session, image, candidates[sel])
-    print(
-        f"Selected '{decision.value}' from {decision.engine} at {decision.decided_at}"
-    )
+    print(f"Selected '{decision.value}' from {decision.engine} at {decision.decided_at}")
     session.close()
     return decision
 

@@ -8,7 +8,9 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 
-def run(image_path: str, langs: Optional[List[str]] = None) -> Tuple[List[str], List[List[float]], List[float]]:
+def run(
+    image_path: str, langs: Optional[List[str]] = None
+) -> Tuple[List[str], List[List[float]], List[float]]:
     """Run the Swift Vision text recognizer.
 
     Parameters

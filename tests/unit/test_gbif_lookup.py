@@ -117,4 +117,3 @@ def test_verify_locality_empty_response(monkeypatch):
 
     assert result == record
     assert result is not record
-
