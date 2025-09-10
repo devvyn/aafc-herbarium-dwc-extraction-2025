@@ -79,16 +79,20 @@ def test_map_ocr_to_dwc_rules() -> None:
             "collector number": "42",
             "date collected": "2025-09-01",
             "barcode": "ABC123",
-            "basisOfRecord": "herbarium sheet",
-            "typeStatus": "Holotype",
+            "lat": "51.5",
+            "long": "-0.1",
+            "basisOfRecord": "specimen voucher",
+            "typeStatus": "Syntype",
         }
     )
     assert record.recordedBy == "Jane Doe"
     assert record.eventDate == "2025-09-01"
     assert record.catalogNumber == "ABC123"
     assert record.recordNumber == "42"
+    assert record.decimalLatitude == "51.5"
+    assert record.decimalLongitude == "-0.1"
     assert record.basisOfRecord == "PreservedSpecimen"
-    assert record.typeStatus == "holotype"
+    assert record.typeStatus == "syntype"
 
 
 def test_normalize_vocab_field_note() -> None:
