@@ -1,0 +1,25 @@
+
+[project]
+name = "s3-image-dataset-kit"
+version = "0.1.0"
+description = "Immutable S3 image dataset toolkit with content-addressed uploads, JSONL manifest, and read-through cache client."
+requires-python = ">=3.10"
+dependencies = [
+  "boto3>=1.34",
+  "python-dotenv>=1.0",
+  "jsonschema>=4.22",
+  "tqdm>=4.66"
+]
+
+[project.optional-dependencies]
+images = ["Pillow>=10.0"]
+
+[tool.uv]
+dev-dependencies = [
+  "pytest>=8.0",
+  "ruff>=0.5"
+]
+
+[tool.ruff]
+line-length = 100
+select = ["E","F","I","B"]
