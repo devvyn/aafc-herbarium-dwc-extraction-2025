@@ -12,7 +12,7 @@ Requires Python 3.11 or later (see [pyproject.toml](pyproject.toml) or [python.o
 Quick start (with uv)
 
 ### Bootstrap script
-Installs `uv` if it's missing, syncs dependencies, and copies `.env.example`.
+Installs `uv` if it's missing, syncs dependencies, copies `.env.example`, and runs linting/tests.
 
 ```bash
 ./bootstrap.sh
