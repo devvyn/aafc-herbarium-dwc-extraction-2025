@@ -114,9 +114,9 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true", help="Do not call GitHub")
     args = parser.parse_args()
 
-    token = os.environ.get("AAFC_ISSUES") or os.environ.get("GITHUB_TOKEN")
+    token = os.environ.get("GITHUB_TOKEN")
     if not token:
-        raise SystemExit("AAFC_ISSUES or GITHUB_TOKEN must be set")
+        raise SystemExit("GITHUB_TOKEN must be set")
 
     roadmap_path = Path(args.roadmap)
     text = roadmap_path.read_text(encoding="utf-8")

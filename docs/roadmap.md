@@ -2,7 +2,7 @@
 
 Upcoming features and priorities for the herbarium OCR to Darwin Core toolkit.
 
-Run `python scripts/create_roadmap_issues.py --repo <owner>/<repo>` to open GitHub issues for tasks marked with `(Issue TBD)`.
+Set `GITHUB_TOKEN` and run `python scripts/create_roadmap_issues.py --repo <owner>/<repo>` to open GitHub issues for tasks marked with `(Issue TBD)`.
 
 **Critical features**
 - Integrate multilingual OCR models for non-English labels
