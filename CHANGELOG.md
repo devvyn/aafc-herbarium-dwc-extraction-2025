@@ -4,7 +4,7 @@
 
 ### Added
 - :seedling: uv lockfile and bootstrap script for quick environment setup
-- :test_tube: prompt coverage harness stub
+- :label: expand mapping rules for collector numbers and field note vocabulary
 
 ### Fixed
 - :bug: bootstrap script installs uv if missing
