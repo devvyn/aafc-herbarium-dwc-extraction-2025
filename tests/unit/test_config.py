@@ -26,6 +26,10 @@ model = "gpt-test"
 def test_normalize_vocab_rules() -> None:
     assert normalize_vocab("herbarium sheet", "basisOfRecord") == "PreservedSpecimen"
     assert normalize_vocab("Holotype", "typeStatus") == "holotype"
+    assert normalize_vocab("specimen voucher", "basisOfRecord") == "PreservedSpecimen"
+    assert normalize_vocab("Syntype", "typeStatus") == "syntype"
+    assert normalize_vocab("Marsh", "habitat") == "wetland"
+    assert normalize_vocab("1 km", "coordinatePrecision") == "0.01"
 
 
 def test_custom_mappings_from_config(tmp_path: Path) -> None:
