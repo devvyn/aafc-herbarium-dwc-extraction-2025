@@ -5,6 +5,7 @@
 ### Added
 - :seedling: uv lockfile and bootstrap script for quick environment setup
 - :label: expand mapping rules for collector numbers and field note vocabulary
+- :dog: bootstrap script now runs linting and tests after syncing dependencies
 
 ### Fixed
 - :bug: bootstrap script installs uv if missing

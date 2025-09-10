@@ -15,3 +15,7 @@ uv sync --dev
 if [ ! -f .env ]; then
   cp .env.example .env
 fi
+
+# Run linting and tests to verify setup
+uv run ruff check . --fix
+uv run pytest -q
