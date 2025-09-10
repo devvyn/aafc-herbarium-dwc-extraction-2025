@@ -1,5 +1,5 @@
 from .schema import DwcRecord, DWC_TERMS, configure_terms, resolve_term
-from .mapper import map_ocr_to_dwc, configure_mappings
+from .mapper import map_custom_schema, map_ocr_to_dwc, configure_mappings
 from .normalize import normalize_institution, normalize_vocab
 from .validators import (
     validate,
@@ -14,6 +14,7 @@ __all__ = [
     "configure_terms",
     "configure_mappings",
     "resolve_term",
+    "map_custom_schema",
     "map_ocr_to_dwc",
     "normalize_institution",
     "normalize_vocab",

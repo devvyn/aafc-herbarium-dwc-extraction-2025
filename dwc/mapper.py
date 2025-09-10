@@ -24,8 +24,35 @@ def map_custom_schema(record: Dict[str, Any], schema_mapping: Dict[str, str]) ->
     This function will allow mapping arbitrary field names defined in the
     configuration's `[dwc]` section. (Issue TBD)
     """
+    data: Dict[str, Any] = {}
+    rules = {k.lower(): v for k, v in _load_rules("dwc_rules").get("fields", {}).items()}
+    for raw, term in schema_mapping.items():
+        rules[raw.lower()] = term
+    for raw_key, value in record.items():
+        term = resolve_term(str(raw_key))
+        if term in schema.DWC_TERMS:
+            data[term] = value
+            continue
+        mapped = rules.get(str(raw_key).lower())
+        if mapped in schema.DWC_TERMS:
+            data[mapped] = value
 
-    raise NotImplementedError("Custom schema mapping is not yet implemented.")
+    for field in ("institutionCode", "ownerInstitutionCode"):
+        if field in data and data[field]:
+            data[field] = normalize_institution(str(data[field]))
+
+    vocab_terms = ["basisOfRecord", "typeStatus"]
+    for field in vocab_terms:
+        if field in data and data[field]:
+            data[field] = normalize_vocab(str(data[field]), field)
+
+    record_obj = DwcRecord(**data)
+    flags = validate(record_obj, ())
+    if flags:
+        existing = record_obj.flags.split(";") if record_obj.flags else []
+        record_obj.flags = ";".join(existing + flags)
+
+    return record_obj
 
 
 def map_ocr_to_dwc(ocr_output: Dict[str, Any], minimal_fields: Iterable[str] = ()) -> DwcRecord:
