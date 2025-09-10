@@ -17,6 +17,8 @@ from typing import Any, Dict
 from datetime import datetime, timezone
 import subprocess
 import re
+import json
+import hashlib
 
 from .schema import DWC_TERMS
 from io_utils.write import IDENT_HISTORY_COLUMNS, write_manifest
@@ -175,9 +177,57 @@ def create_archive(
 def create_versioned_bundle(
     output_dir: Path, version: str, filters: Dict[str, Any] | None = None
 ) -> Path:
-    """Create a versioned DwC-A bundle with an embedded manifest.
+    """Create a semantically versioned DwC-A bundle with rich provenance tags.
 
-    Placeholder for forthcoming export enhancements. (Issue TBD)
+    The resulting archive filename incorporates the provided semantic version,
+    the export timestamp, the current commit hash, and a hash of any filter
+    criteria. The same information is stored in ``manifest.json``.
+
+    Parameters
+    ----------
+    output_dir:
+        Directory where the bundle should be created.
+    version:
+        Semantic version of the export (e.g. ``"1.0.0"``).
+    filters:
+        Optional criteria used for the export.
+
+    Returns
+    -------
+    Path
+        Path to the created ZIP bundle.
     """
 
-    raise NotImplementedError("Versioned DwC-A bundles are not yet implemented.")
+    if not SEMVER_RE.match(version):
+        raise ValueError("version must follow semantic versioning")
+
+    manifest = build_manifest(filters)
+    # Construct a compact timestamp tag like YYYYMMDDTHHMMSSZ
+    ts_tag = manifest["timestamp"].replace("+00:00", "Z").replace("-", "").replace(":", "")
+    # Stable hash of filters for the filename; empty if no filters provided
+    filter_hash = ""
+    if filters:
+        filters_json = json.dumps(filters, sort_keys=True)
+        filter_hash = hashlib.sha256(filters_json.encode()).hexdigest()[:8]
+
+    tag_parts = [f"v{version}", ts_tag, manifest["commit"][:7]]
+    if filter_hash:
+        tag_parts.append(filter_hash)
+    tag = "_".join(tag_parts)
+    manifest["version"] = tag
+
+    write_manifest(output_dir, manifest)
+    build_meta_xml(output_dir)
+
+    archive_path = output_dir / f"dwca_{tag}.zip"
+    with ZipFile(archive_path, "w", ZIP_DEFLATED) as zf:
+        for name in [
+            "occurrence.csv",
+            "identification_history.csv",
+            "meta.xml",
+            "manifest.json",
+        ]:
+            file_path = output_dir / name
+            if file_path.exists():
+                zf.write(file_path, arcname=name)
+    return archive_path
