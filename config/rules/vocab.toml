@@ -1,11 +1,11 @@
 # Vocabulary normalisation tables.
 # Populate with mappings such as "Herbarium sheet" = "PreservedSpecimen".
-# TODO: extend controlled vocabularies (Issue TBD).
 
 [basisOfRecord]
 # Map common phrases to Darwin Core controlled terms
 "herbarium sheet" = "PreservedSpecimen"
 "preserved specimen" = "PreservedSpecimen"
+"specimen voucher" = "PreservedSpecimen"
 "fossil" = "FossilSpecimen"
 "observation" = "HumanObservation"
 "field note" = "HumanObservation"
@@ -17,15 +17,20 @@ Isotype = "isotype"
 Paratype = "paratype"
 Lectotype = "lectotype"
 Neotype = "neotype"
+Syntype = "syntype"
 
 [habitat]
 # Normalise habitat descriptions
 bog = "bog"
 forest = "forest"
 wetland = "wetland"
+marsh = "wetland"
+grassland = "grassland"
 
 [coordinatePrecision]
 # Convert precision units to decimal degrees
 "1 m" = "0.00001"
 "10 m" = "0.0001"
 "100 m" = "0.001"
+"1 km" = "0.01"
+"10 km" = "0.1"
