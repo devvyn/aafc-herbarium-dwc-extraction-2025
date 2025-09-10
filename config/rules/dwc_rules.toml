@@ -1,5 +1,6 @@
 # Mapping rules from raw OCR output to Darwin Core terms.
 # Use this file to declare regex or lookup substitutions.
+# TODO: expand with additional mappings (Issue TBD).
 
 # Field name aliases mapped to Darwin Core terms.
 [fields]
