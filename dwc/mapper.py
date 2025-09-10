@@ -18,6 +18,16 @@ def configure_mappings(mapping: Dict[str, str]) -> None:
         _CUSTOM_MAPPINGS[raw.lower()] = term
 
 
+def map_custom_schema(record: Dict[str, Any], schema_mapping: Dict[str, str]) -> DwcRecord:
+    """Translate a record from a custom schema into Darwin Core terms.
+
+    This function will allow mapping arbitrary field names defined in the
+    configuration's `[dwc]` section. (Issue TBD)
+    """
+
+    raise NotImplementedError("Custom schema mapping is not yet implemented.")
+
+
 def map_ocr_to_dwc(ocr_output: Dict[str, Any], minimal_fields: Iterable[str] = ()) -> DwcRecord:
     """Translate OCR output into a :class:`DwcRecord`.
 
