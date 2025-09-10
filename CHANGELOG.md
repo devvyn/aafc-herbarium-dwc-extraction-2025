@@ -9,6 +9,7 @@
 
 ### Fixed
 - :bug: bootstrap script installs uv if missing
+- :bug: avoid auto-registering unimplemented multilingual OCR engine
 
 ### Docs
 - :memo: outline testing and linting expectations in the development guide
