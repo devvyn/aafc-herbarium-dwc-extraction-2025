@@ -5,11 +5,11 @@ Upcoming features and priorities for the herbarium OCR to Darwin Core toolkit.
 Set `GITHUB_TOKEN` and run `python scripts/create_roadmap_issues.py --repo <owner>/<repo>` to open GitHub issues for tasks marked with `(Issue TBD)`.
 
 **Critical features**
-- Integrate multilingual OCR models for non-English labels
-- Integrate GBIF taxonomy and locality verification into the QC pipeline
-- Configurable mapping from custom schemas via the [`[dwc]` section](configuration.md) (Issue TBD)
-- Versioned DwC-A export bundles with embedded manifest (Issue TBD)
-- Populate mapping rules in `config/rules/dwc_rules.toml` and `config/rules/vocab.toml` (Issue TBD)
+- Integrate multilingual OCR models for non-English labels (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/138)
+- Integrate GBIF taxonomy and locality verification into the QC pipeline (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/139)
+- Configurable mapping from custom schemas via the [`[dwc]` section](configuration.md) (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/156)
+- Versioned DwC-A export bundles with embedded manifest (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/158)
+- Populate mapping rules in `config/rules/dwc_rules.toml` and `config/rules/vocab.toml` (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/157)
 
 Secondary tasks cover medium and low priority items detailed below.
 
@@ -21,8 +21,8 @@ Secondary tasks cover medium and low priority items detailed below.
 
 ## Mapping and vocabulary
 
- - Configurable mapping from custom schemas via the [`[dwc]` section](configuration.md) — **High**, Q2 2025 (Issue TBD)
- - Populate mapping rules in `config/rules/dwc_rules.toml` and `config/rules/vocab.toml` — **High**, Q2 2025 (Issue TBD)
+- Configurable mapping from custom schemas via the [`[dwc]` section](configuration.md) (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/156)
+- Populate mapping rules in `config/rules/dwc_rules.toml` and `config/rules/vocab.toml` (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/157)
 - Support full schema parsing from official Darwin Core and ABCD XSDs — **Medium**, Q3 2025
 - Auto-generate Darwin Core term mappings from external XSD — **Low**, Q4 2025
 
@@ -39,7 +39,7 @@ Secondary tasks cover medium and low priority items detailed below.
 
 ## Export and reporting
 
- - Versioned DwC-A export bundles with embedded manifest — **High**, Q2 2025 (Issue TBD)
+- Versioned DwC-A export bundles with embedded manifest (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/158)
 - Spreadsheet pivot table exports for data summaries — **Low**, Q4 2025
 
 ## Testing and documentation
