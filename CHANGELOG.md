@@ -6,7 +6,8 @@
 - :seedling: uv lockfile and bootstrap script for quick environment setup
 - :label: expand mapping rules for collector numbers and field note vocabulary
 - :dog: bootstrap script now runs linting and tests after syncing dependencies
-- :seedling: codex task stubs for multilingual OCR, custom schema mapping, and versioned exports
+- :seedling: codex task stubs for custom schema mapping and versioned exports
+- ✨ paddleocr-backed multilingual OCR engine
 
 ### Fixed
 - :bug: bootstrap script installs uv if missing
@@ -15,7 +16,8 @@
 ### Docs
 - :memo: outline testing and linting expectations in the development guide
 - 📝 clarify Ruff commands in AGENTS instructions and development guide
-- 📝 note upcoming multilingual OCR, mapping rules expansion, and versioned exports in docs
+- 📝 note mapping rules expansion and versioned exports in docs
+- 📝 document multilingual OCR engine usage
 
 ## [0.1.4] - 2025-09-10 (0.1.4)
 
