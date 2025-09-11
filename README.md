@@ -29,6 +29,7 @@ cp .env.example .env
 #   Tesseract OCR  -> brew install tesseract && uv add ".[tesseract]"
 #   Apple Vision   -> macOS only: uv add ".[apple-vision]"
 #   PaddleOCR      -> uv add ".[paddleocr]"
+#   Multilingual   -> uv add ".[paddleocr]"
 #   GPT models     -> uv add ".[gpt]"
 ```
 
@@ -45,6 +46,7 @@ pip install -e .[dev]
 #   Tesseract OCR  -> brew install tesseract && pip install pytesseract
 #   Apple Vision   -> macOS only: pip install pyobjc
 #   PaddleOCR      -> pip install paddleocr
+#   Multilingual   -> pip install paddleocr
 #   GPT models     -> pip install openai
 
 pytest -q
@@ -106,6 +108,7 @@ See [docs/review_workflow.md](docs/review_workflow.md) for OS-specific commands 
 - **GPT** – `model`, `dry_run`, `fallback_threshold`
 - **Tesseract** – `oem`, `psm`, `langs`, `extra_args`
 - **PaddleOCR** – `lang`
+- **Multilingual** – `langs`, `model_paths`
 - **Preprocess** – `pipeline = ["grayscale","deskew","binarize","resize"]`, `binarize_method`, `max_dim_px`, optional `contrast_factor` (used when `"contrast"` is in the pipeline)
 - **DWc mapping** – `assume_country_if_missing`, `strict_minimal_fields`, normalization toggles
 - **QC** – duplicate detection (`phash_threshold`), low-confidence flagging, top-fifth scan flag

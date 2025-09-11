@@ -6,7 +6,8 @@
 - :seedling: uv lockfile and bootstrap script for quick environment setup
 - :label: expand mapping rules for collector numbers and field note vocabulary
 - :dog: bootstrap script now runs linting and tests after syncing dependencies
-- :seedling: codex task stubs for multilingual OCR, custom schema mapping, and versioned exports
+- ✨ PaddleOCR-based multilingual OCR engine
+- :seedling: codex task stubs for custom schema mapping and versioned exports
 
 ### Fixed
 - :bug: bootstrap script installs uv if missing
