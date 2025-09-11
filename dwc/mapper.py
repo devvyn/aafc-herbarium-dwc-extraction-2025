@@ -18,16 +18,21 @@ def configure_mappings(mapping: Dict[str, str]) -> None:
         _CUSTOM_MAPPINGS[raw.lower()] = term
 
 
-def map_custom_schema(record: Dict[str, Any], schema_mapping: Dict[str, str]) -> DwcRecord:
+def map_custom_schema(
+    record: Dict[str, Any], schema_mapping: Dict[str, str] | None = None
+) -> DwcRecord:
     """Translate a record from a custom schema into Darwin Core terms.
 
-    This function will allow mapping arbitrary field names defined in the
-    configuration's `[dwc]` section. (Issue TBD)
+    Mappings come from the ``[dwc.custom]`` section loaded via
+    :func:`configure_mappings`.  A ``schema_mapping`` argument can override or
+    supply additional rules directly.
     """
     data: Dict[str, Any] = {}
     rules = {k.lower(): v for k, v in _load_rules("dwc_rules").get("fields", {}).items()}
-    for raw, term in schema_mapping.items():
-        rules[raw.lower()] = term
+    rules.update(_CUSTOM_MAPPINGS)
+    if schema_mapping:
+        for raw, term in schema_mapping.items():
+            rules[raw.lower()] = term
     for raw_key, value in record.items():
         term = resolve_term(str(raw_key))
         if term in schema.DWC_TERMS:

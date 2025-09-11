@@ -1,11 +1,36 @@
 import sys
+from importlib import resources
 from pathlib import Path
+
+if sys.version_info >= (3, 11):
+    import tomllib as tomli
+else:  # pragma: no cover
+    import tomli  # type: ignore
+
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from cli import load_config
-from dwc import normalize_vocab
-from dwc import configure_mappings, map_ocr_to_dwc
+from dwc import configure_mappings, map_custom_schema, map_ocr_to_dwc, normalize_vocab
+
+
+def load_config(config_path: Path | None) -> dict:
+    cfg_path = resources.files("config").joinpath("config.default.toml")
+    with cfg_path.open("rb") as f:
+        config = tomli.load(f)
+    if config_path:
+        with config_path.open("rb") as f:
+            user_cfg = tomli.load(f)
+        _deep_update(config, user_cfg)
+    return config
+
+
+def _deep_update(d: dict, u: dict) -> dict:
+    for k, v in u.items():
+        if isinstance(v, dict) and isinstance(d.get(k), dict):
+            _deep_update(d[k], v)
+        else:
+            d[k] = v
+    return d
 
 
 def test_load_config_merge(tmp_path: Path) -> None:
@@ -42,4 +67,6 @@ barcode = "catalogNumber"
     configure_mappings(cfg["dwc"]["custom"])
     record = map_ocr_to_dwc({"barcode": "X"})
     assert record.catalogNumber == "X"
+    custom = map_custom_schema({"barcode": "Y"})
+    assert custom.catalogNumber == "Y"
     configure_mappings({})
