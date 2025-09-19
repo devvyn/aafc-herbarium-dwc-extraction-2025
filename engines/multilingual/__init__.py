@@ -13,6 +13,7 @@ from typing import Dict, List, Tuple
 from .. import register_task
 from ..errors import EngineError
 from ..protocols import ImageToTextEngine
+from ..language_codes import normalize_iso2
 
 
 def image_to_text(
@@ -40,7 +41,13 @@ def image_to_text(
 
     tokens: List[str] = []
     confidences: List[float] = []
-    languages = langs or ["en"]
+    if langs:
+        try:
+            languages = normalize_iso2(langs)
+        except ValueError as exc:
+            raise EngineError("INVALID_LANGUAGE", str(exc)) from exc
+    else:
+        languages = ["en"]
     for lang in languages:
         try:  # pragma: no cover - runtime failure
             ocr = PaddleOCR(lang=lang, use_angle_cls=True)
