@@ -31,6 +31,28 @@ def test_image_to_text_passes_lang(monkeypatch, tmp_path: Path) -> None:
     assert conf == [0.9]
 
 
+def test_image_to_text_normalizes_iso3(monkeypatch, tmp_path: Path) -> None:
+    fake_called = {}
+
+    class FakePaddleOCR:
+        def __init__(self, lang, use_angle_cls):
+            fake_called["lang"] = lang
+
+        def ocr(self, image_path, cls):
+            fake_called["image"] = image_path
+            return [[(None, ("hola", 0.95))]]
+
+    fake_module = types.SimpleNamespace(PaddleOCR=FakePaddleOCR)
+    monkeypatch.setitem(sys.modules, "paddleocr", fake_module)
+
+    from engines.paddleocr import image_to_text
+
+    text, conf = image_to_text(tmp_path / "img.png", lang="eng", langs=["eng", "spa"])
+    assert fake_called["lang"] == "en"
+    assert text == "hola"
+    assert conf == [0.95]
+
+
 def test_dispatch_uses_paddleocr_engine(monkeypatch, tmp_path: Path) -> None:
     cfg_path = tmp_path / "config.toml"
     cfg_path.write_text(

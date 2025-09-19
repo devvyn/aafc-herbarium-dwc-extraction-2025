@@ -9,6 +9,7 @@ import sys
 from importlib import resources
 from sqlalchemy.orm import Session
 from engines import dispatch, available_engines, get_fallback_policy
+from engines.language_codes import normalize_iso2, normalize_iso3, to_iso2
 
 if sys.version_info >= (3, 11):
     import tomllib as tomli
@@ -42,6 +43,43 @@ from engines.errors import EngineError
 from preprocess import preprocess_image
 
 import qc
+
+
+def _prepare_ocr_languages(
+    preferred: str, raw_langs: Optional[List[str]]
+) -> tuple[Optional[List[str]], Optional[str]]:
+    """Return normalized language hints for an OCR engine.
+
+    Parameters
+    ----------
+    preferred:
+        Name of the engine currently selected for ``image_to_text``.
+    raw_langs:
+        Values from ``[ocr].langs`` in the configuration.  The list may contain
+        ISO 639-1 or 639-2 codes in any mix of upper or lower case.
+
+    Returns
+    -------
+    tuple
+        ``(langs, primary)`` where ``langs`` is the list passed to the engine's
+        ``langs`` parameter and ``primary`` is the best single-language hint for
+        engines such as PaddleOCR that expect a dedicated ``lang`` argument.
+    """
+
+    if not raw_langs:
+        return None, None
+
+    try:
+        if preferred == "tesseract":
+            normalized = normalize_iso3(raw_langs)
+            return normalized, None
+        if preferred in {"paddleocr", "multilingual"}:
+            normalized = normalize_iso2(raw_langs)
+            primary = normalized[0] if normalized else None
+            return normalized, primary
+        return raw_langs, None
+    except ValueError as exc:
+        raise ValueError(f"Invalid [ocr].langs entry for {preferred}: {exc}") from exc
 
 
 def load_config(config_path: Optional[Path]) -> Dict[str, Any]:
@@ -129,6 +167,8 @@ def process_image(
         text: str | None = None
         dwc_data: Dict[str, Any] = {}
         field_conf: Dict[str, Any] = {}
+        ocr_cfg = cfg.get("ocr", {})
+        raw_langs = ocr_cfg.get("langs")
         for step in steps:
             section = "ocr" if step == "image_to_text" else step
             step_cfg = cfg.get(section, {})
@@ -161,10 +201,9 @@ def process_image(
 
             if step == "image_to_text":
                 kwargs: Dict[str, Any] = {}
-                ocr_cfg = cfg.get("ocr", {})
-                langs = ocr_cfg.get("langs")
-                if langs and preferred != "paddleocr":
-                    kwargs["langs"] = langs
+                lang_hints, primary_lang = _prepare_ocr_languages(preferred, raw_langs)
+                if lang_hints:
+                    kwargs["langs"] = lang_hints
                 if preferred == "gpt":
                     gpt_cfg = cfg.get("gpt", {})
                     kwargs.update(
@@ -179,11 +218,21 @@ def process_image(
                         psm=t_cfg.get("psm", 3),
                         extra_args=t_cfg.get("extra_args", []),
                     )
+                    if lang_hints:
+                        kwargs["langs"] = lang_hints
                     if t_cfg.get("model_paths"):
                         kwargs["model_paths"] = t_cfg["model_paths"]
                 elif preferred == "paddleocr":
                     p_cfg = cfg.get("paddleocr", {})
-                    kwargs.update(lang=p_cfg.get("lang", "en"))
+                    language = p_cfg.get("lang")
+                    if language:
+                        try:
+                            language = to_iso2(language)
+                        except ValueError as exc:
+                            raise ValueError(f"Invalid [paddleocr].lang value: {exc}") from exc
+                    elif primary_lang:
+                        language = primary_lang
+                    kwargs["lang"] = language or "en"
                 text, confidences = dispatch(step, image=proc_path, engine=preferred, **kwargs)
                 avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
                 insert_candidate(

@@ -23,6 +23,8 @@ text, confidences = dispatch(
 )
 ```
 
+The engine accepts ISO 639-1 (two-letter) and ISO 639-2 (three-letter) codes. Mixed lists such as `"eng"`, `"fr"`, and `"la"` are normalized automatically before invoking PaddleOCR, so the same configuration can drive Tesseract and multilingual OCR without manual edits.
+
 ## Supported languages
 
 PaddleOCR's multilingual model covers 80+ languages including `en`, `fr`, `de`, `es`, `ru`, and `it`. Refer to the [PaddleOCR documentation](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.7/doc/doc_en/models_list_en.md#multi-language-ocr-model-list) for the full list.
