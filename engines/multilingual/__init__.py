@@ -8,7 +8,7 @@ the first successful recognition result.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 from .. import register_task
 from ..errors import EngineError
@@ -48,9 +48,19 @@ def image_to_text(
             raise EngineError("INVALID_LANGUAGE", str(exc)) from exc
     else:
         languages = ["en"]
+
+    engines: List[Tuple[str, Any]] = []
     for lang in languages:
         try:  # pragma: no cover - runtime failure
-            ocr = PaddleOCR(lang=lang, use_angle_cls=True)
+            engines.append((lang, PaddleOCR(lang=lang, use_angle_cls=True)))
+        except Exception as exc:  # pragma: no cover - runtime failure
+            raise EngineError(
+                "OCR_ERROR",
+                f"Failed to initialize PaddleOCR for '{lang}': {exc}",
+            ) from exc
+
+    for lang, ocr in engines:
+        try:  # pragma: no cover - runtime failure
             result = ocr.ocr(str(image), cls=True)
         except Exception as exc:  # pragma: no cover - runtime failure
             raise EngineError("OCR_ERROR", str(exc)) from exc
