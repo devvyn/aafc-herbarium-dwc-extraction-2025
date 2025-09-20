@@ -55,6 +55,7 @@ _ISO3_TO_ISO2 = {
     'eng': 'en',
     'epo': 'eo',
     'est': 'et',
+    'esp': 'es',
     'eus': 'eu',
     'ewe': 'ee',
     'fao': 'fo',
