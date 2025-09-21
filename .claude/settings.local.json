@@ -32,7 +32,8 @@
       "Bash(ruff check:*)",
       "Bash(git push:*)",
       "Bash(gh repo sync:*)",
-      "Bash(gh release create:*)"
+      "Bash(gh release create:*)",
+      "Bash(gh pr create:*)"
     ],
     "deny": [],
     "ask": []
