@@ -76,4 +76,4 @@ commit.
 
 ## Future work
 
-Versioned DwC-A bundles will embed manifests and semantic tags for reproducible releases (Issue TBD).
+Versioned DwC-A bundles will embed manifests and semantic tags for reproducible releases ([issue #158](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/158)).
