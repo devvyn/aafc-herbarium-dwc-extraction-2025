@@ -1,6 +1,6 @@
 [project]
 name = "herbarium-dwc"
-version = "0.1.4"
+version = "1.0.0-beta.1"
 description = "Herbarium OCR to Darwin Core extraction toolkit"
 authors = [{name = "AAFC"}]
 readme = "README.md"
