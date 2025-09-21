@@ -29,7 +29,9 @@
       "Bash(for item_id in PVTI_lAHOAA7NQ84BCoJjzge-ei0 PVTI_lAHOAA7NQ84BCoJjzge-ei8 PVTI_lAHOAA7NQ84BCoJjzge-ejE PVTI_lAHOAA7NQ84BCoJjzge-ejc PVTI_lAHOAA7NQ84BCoJjzge-ejk PVTI_lAHOAA7NQ84BCoJjzge-ejo PVTI_lAHOAA7NQ84BCoJjzge-ejs PVTI_lAHOAA7NQ84BCoJjzge-ekM PVTI_lAHOAA7NQ84BCoJjzge-ekQ PVTI_lAHOAA7NQ84BCoJjzge-eko)",
       "Bash(do gh project item-delete 4 --owner devvyn --id $item_id)",
       "Bash(find:*)",
-      "Bash(ruff check:*)"
+      "Bash(ruff check:*)",
+      "Bash(git push:*)",
+      "Bash(gh repo sync:*)"
     ],
     "deny": [],
     "ask": []
