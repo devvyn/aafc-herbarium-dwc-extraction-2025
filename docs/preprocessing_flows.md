@@ -2,6 +2,10 @@
 
 This document summarizes recommended preprocessing steps for each supported OCR engine. The steps correspond to functions in `preprocess` and can be composed via the `pipeline` list in the configuration file's `[preprocess]` section.
 
+## Batch resizing helper
+
+Use `python scripts/batch_resize.py --input input/ --output resized/` to downscale large sheets before running the main pipeline. The helper mirrors the input directory, limits the longest edge to the configured `max_dim_px`, and copies images that are already below the threshold. Provide `--max-dim` to override the value detected from `config.default.toml` or `--dry-run` to preview the changes.
+
 ## Multilingual setup
 
 List the languages your project needs under `[ocr].langs` in the configuration. The CLI now accepts ISO 639-1 (two-letter) and ISO 639-2 (three-letter) codes and normalizes them so Tesseract receives the expected model identifiers while PaddleOCR and the multilingual engine get two-letter hints. Tesseract models can be mapped explicitly via `[tesseract].model_paths`, allowing custom `.traineddata` locations. When no languages are provided, engines attempt automatic detection.

@@ -36,3 +36,15 @@ def test_compute_sha256_hash(tmp_path: Path) -> None:
     file_path.write_bytes(data)
     expected = "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
     assert compute_sha256(file_path) == expected
+
+
+def test_iter_images_custom_extensions(tmp_path: Path) -> None:
+    (tmp_path / "sheet.tif").write_text("a")
+    (tmp_path / "slide.TIFF").write_text("b")
+    (tmp_path / "photo.jpg").write_text("c")
+
+    images = list(iter_images(tmp_path, extensions={"tif", ".tiff"}))
+
+    assert images == sorted(
+        [tmp_path / "sheet.tif", tmp_path / "slide.TIFF"], key=lambda p: str(p)
+    )
