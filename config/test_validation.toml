@@ -1,0 +1,113 @@
+# OCR Validation Test Configuration
+#
+# This file defines quality expectations and thresholds for automated OCR testing
+# using stratified image samples. Used by test_ocr_sample_validation.py
+
+[test_categories]
+
+[test_categories.readable_labels]
+description = "Images with clear, OCR-readable specimen labels"
+expected_confidence = 0.80
+min_text_length = 10
+max_processing_time = 30
+success_rate_threshold = 0.70
+validation_rules = [
+    "meaningful_content",  # Should extract substantial text
+    "high_confidence",     # Should have high OCR confidence
+    "reasonable_speed"     # Should process within time limit
+]
+
+[test_categories.minimal_text]
+description = "Images with specimens and minimal/unclear text"
+expected_confidence = 0.30
+min_text_length = 3
+max_processing_time = 30
+success_rate_threshold = 0.50
+validation_rules = [
+    "graceful_handling",   # Should not crash
+    "partial_extraction",  # May extract some text
+    "reasonable_speed"
+]
+
+[test_categories.unlabeled]
+description = "Images with specimens but no visible labels"
+expected_confidence = 0.20
+min_text_length = 0
+max_processing_time = 30
+max_false_positive_length = 50
+success_rate_threshold = 0.80  # High success rate for "no false positives"
+validation_rules = [
+    "low_false_positives", # Should minimize incorrect text extraction
+    "graceful_handling",
+    "reasonable_speed"
+]
+
+[test_categories.poor_quality]
+description = "Images with unusable/corrupted text or poor quality"
+expected_confidence = 0.10
+min_text_length = 0
+max_processing_time = 45
+success_rate_threshold = 0.90  # High success rate for "graceful failure"
+validation_rules = [
+    "graceful_failure",    # Should handle errors gracefully
+    "no_crashes",         # Should not cause system crashes
+    "acceptable_timeout"   # May take longer but should complete
+]
+
+# Sampling distribution for creating test bundles
+[sampling]
+default_distribution = { readable_labels = 0.40, minimal_text = 0.25, unlabeled = 0.20, poor_quality = 0.15 }
+development_distribution = { readable_labels = 0.60, minimal_text = 0.30, unlabeled = 0.10, poor_quality = 0.0 }
+stress_test_distribution = { readable_labels = 0.20, minimal_text = 0.20, unlabeled = 0.30, poor_quality = 0.30 }
+
+# Engine-specific expectations (can override category defaults)
+[engines.tesseract]
+timeout_multiplier = 1.0
+confidence_adjustment = 0.0
+supported_categories = ["readable_labels", "minimal_text", "unlabeled", "poor_quality"]
+
+[engines.vision_swift]
+timeout_multiplier = 0.8  # Generally faster
+confidence_adjustment = 0.05  # Generally higher confidence
+supported_categories = ["readable_labels", "minimal_text", "unlabeled"]
+
+[engines.multilingual]
+timeout_multiplier = 1.2  # May be slower due to multiple language processing
+confidence_adjustment = -0.05  # May have slightly lower confidence
+supported_categories = ["readable_labels", "minimal_text", "unlabeled", "poor_quality"]
+
+[engines.gpt]
+timeout_multiplier = 3.0  # Much slower due to API calls
+confidence_adjustment = 0.10  # Generally higher quality
+supported_categories = ["readable_labels", "minimal_text"]
+max_batch_size = 5  # Limit concurrent requests
+
+# Performance benchmarks (baseline times in seconds)
+[benchmarks]
+baseline_processing_time = 10.0  # Acceptable average processing time
+performance_regression_threshold = 1.5  # Alert if 50% slower than baseline
+memory_limit_mb = 500  # Memory usage limit during processing
+
+# Quality regression detection
+[regression]
+enable_golden_sample_testing = true
+golden_samples_path = "tests/fixtures/golden_samples"
+quality_degradation_threshold = 0.10  # Alert if quality drops by 10%
+confidence_degradation_threshold = 0.05  # Alert if confidence drops by 5%
+
+# Test execution settings
+[execution]
+default_sample_size = 20  # Number of images to test per category
+max_parallel_tests = 3    # Maximum concurrent OCR operations
+retry_failed_tests = 1    # Number of retries for failed tests
+save_test_outputs = true  # Save OCR outputs for analysis
+output_directory = "test_outputs"
+
+# Reporting and monitoring
+[reporting]
+generate_performance_report = true
+include_confidence_distribution = true
+include_processing_time_analysis = true
+export_format = "json"  # json, csv, html
+alert_on_failures = true
+alert_threshold = 0.20  # Alert if more than 20% of tests fail

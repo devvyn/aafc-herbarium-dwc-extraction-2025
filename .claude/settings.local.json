@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git pull:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue view:*)",
+      "Bash(git remote:*)",
+      "Bash(git branch:*)",
+      "Bash(gh api:*)",
+      "Bash(git clean:*)",
+      "Bash(gh project list:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh project view:*)",
+      "Bash(gh project item-list:*)",
+      "Bash(gh project item-delete:*)",
+      "Bash(python:*)",
+      "Bash(uv run:*)",
+      "Bash(gh issue create:*)",
+      "Bash(gh project item-add:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh issue close:*)",
+      "Bash(for issue in 179 180 181 182 183 184 185)",
+      "Bash(do gh issue close $issue --comment \"Closing in favor of comprehensive planning in docs/issues/secondary_roadmap.md\")",
+      "Bash(done)",
+      "Bash(for issue in 186 187 188 189 190 191 192 193 194 195 196)",
+      "Bash(do gh project item-add 4 --owner devvyn --url https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/$issue)",
+      "Bash(for item_id in PVTI_lAHOAA7NQ84BCoJjzge-ei0 PVTI_lAHOAA7NQ84BCoJjzge-ei8 PVTI_lAHOAA7NQ84BCoJjzge-ejE PVTI_lAHOAA7NQ84BCoJjzge-ejc PVTI_lAHOAA7NQ84BCoJjzge-ejk PVTI_lAHOAA7NQ84BCoJjzge-ejo PVTI_lAHOAA7NQ84BCoJjzge-ejs PVTI_lAHOAA7NQ84BCoJjzge-ekM PVTI_lAHOAA7NQ84BCoJjzge-ekQ PVTI_lAHOAA7NQ84BCoJjzge-eko)",
+      "Bash(do gh project item-delete 4 --owner devvyn --id $item_id)",
+      "Bash(find:*)",
+      "Bash(ruff check:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
