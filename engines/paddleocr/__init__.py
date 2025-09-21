@@ -6,6 +6,7 @@ from typing import List, Optional, Tuple
 from .. import register_task
 from ..errors import EngineError
 from ..protocols import ImageToTextEngine
+from ..language_codes import normalize_iso2, to_iso2
 
 
 def image_to_text(
@@ -19,7 +20,18 @@ def image_to_text(
     except Exception as exc:  # pragma: no cover - optional dependency
         raise EngineError("MISSING_DEPENDENCY", "paddleocr not available") from exc
 
-    language = lang or (langs[0] if langs else "en")
+    normalized_langs: Optional[List[str]] = None
+    if langs:
+        try:
+            normalized_langs = normalize_iso2(langs)
+        except ValueError as exc:
+            raise EngineError("INVALID_LANGUAGE", str(exc)) from exc
+
+    language_hint = lang or (normalized_langs[0] if normalized_langs else None)
+    try:
+        language = to_iso2(language_hint or "en")
+    except ValueError as exc:
+        raise EngineError("INVALID_LANGUAGE", str(exc)) from exc
 
     try:  # pragma: no cover - runtime failure
         ocr = PaddleOCR(lang=language, use_angle_cls=True)

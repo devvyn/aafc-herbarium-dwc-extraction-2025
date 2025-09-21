@@ -12,6 +12,7 @@
 ### Fixed
 - :bug: bootstrap script installs uv if missing
 - :bug: avoid auto-registering unimplemented multilingual OCR engine
+- :bug: normalize `[ocr].langs` for PaddleOCR, multilingual, and Tesseract engines so ISO 639-1/639-2 codes interoperate out of the box ([#138](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/138))
 
 ### Docs
 - :memo: outline testing and linting expectations in the development guide

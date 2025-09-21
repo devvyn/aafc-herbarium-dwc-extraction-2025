@@ -4,8 +4,8 @@ This document summarizes recommended preprocessing steps for each supported OCR 
 
 ## Multilingual setup
 
-List the languages your project needs under `[ocr].langs` in the configuration. Tesseract models can be mapped explicitly via `[tesseract].model_paths`, allowing custom `.traineddata` locations. When no languages are provided, engines attempt automatic detection.
-PaddleOCR uses a single language code configured under `[paddleocr].lang`.
+List the languages your project needs under `[ocr].langs` in the configuration. The CLI now accepts ISO 639-1 (two-letter) and ISO 639-2 (three-letter) codes and normalizes them so Tesseract receives the expected model identifiers while PaddleOCR and the multilingual engine get two-letter hints. Tesseract models can be mapped explicitly via `[tesseract].model_paths`, allowing custom `.traineddata` locations. When no languages are provided, engines attempt automatic detection.
+PaddleOCR also honors ISO 639-1/639-2 values for its `[paddleocr].lang` setting, defaulting to the first entry from `[ocr].langs` when unset.
 
 Future work will integrate dedicated multilingual OCR models for non-English labels ([Issue #138](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/138)).
 

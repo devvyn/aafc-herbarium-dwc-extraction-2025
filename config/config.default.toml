@@ -12,6 +12,7 @@ enabled_engines = ["vision", "tesseract", "paddleocr", "gpt"]
 allow_tesseract_on_macos = true
 allow_gpt = true
 confidence_threshold = 0.70
+# Accepts ISO 639-1 or ISO 639-2 codes; engines normalize as needed.
 langs = ["eng", "fra", "lat"]
 
 [gpt]
@@ -28,7 +29,7 @@ model_paths = { eng = "/usr/share/tesseract-ocr/4.00/tessdata/eng.traineddata", 
 extra_args = []
 
 [paddleocr]
-# PaddleOCR uses a single language code such as "en" or "fr".
+# PaddleOCR accepts ISO 639-1/639-2 codes and defaults to the first entry above.
 lang = "en"
 
 [pipeline]
@@ -52,7 +53,8 @@ normalize_spelling = true
 do_not_update_nomenclature = true
 
 [dwc.custom]
-# example = "catalogNumber"  # raw_field = "dwc_term"
+# Add custom field mappings. Example:
+# barcode = "catalogNumber"  # raw_field = "dwc_term"
 
 [qc]
 dupes = ["catalog","sha256","phash"]

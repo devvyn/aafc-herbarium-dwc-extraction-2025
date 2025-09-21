@@ -19,23 +19,25 @@ configuration:
 barcode = "catalogNumber"
 ```
 
-With this configuration, the mapping function converts OCR output:
+With this configuration, the mapping functions convert data:
 
 ```python
-from dwc import configure_mappings, map_ocr_to_dwc
+from dwc import configure_mappings, map_custom_schema, map_ocr_to_dwc
 
 configure_mappings({"barcode": "catalogNumber"})
 record = map_ocr_to_dwc({"barcode": "ABC123"})
+custom = map_custom_schema({"barcode": "XYZ"})
 ```
 
-The resulting `record.catalogNumber` is `"ABC123"`.
+Both `record.catalogNumber` and `custom.catalogNumber` are populated from the
+`barcode` field. See [issue #156](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/156) for background on configuration-based schema mapping.
 
 The default rules already map common labels such as `collector number` to
 `recordNumber` via [`dwc_rules.toml`](../config/rules/dwc_rules.toml).
 
 ## Future work
 
-Custom schema mapping via the `[dwc]` configuration section will allow external field definitions to be translated without modifying core code (Issue TBD). Additional mapping rules will be populated in `config/rules/dwc_rules.toml` and `config/rules/vocab.toml` (Issue TBD).
+Additional mapping rules will be populated in `config/rules/dwc_rules.toml` and `config/rules/vocab.toml` ([issue #157](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/157)).
 
 ## Vocabulary normalisation example
 

@@ -1,46 +1,30 @@
 # Multilingual OCR engine
 
-The [multilingual OCR engine](../engines/multilingual/__init__.py) wraps
-PaddleOCR's language models to recognize non-English labels during the
-preprocessing phase. Extracted text and confidences are stored in the pipeline's
-SQLite database, keeping raw OCR output separate from the main DwC+ABCD store.
+The [`engines.multilingual`](../engines/multilingual/__init__.py) module wraps [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) to extract text from images in multiple languages. It is part of the OCR phase of the digitization pipeline and produces raw text and token confidences for downstream mapping.
 
 ## Installation
 
-Install PaddleOCR to enable the engine:
-
-```sh
-pip install paddleocr
+```bash
+pip install paddlepaddle paddleocr
 ```
 
-The models download on first use and are cached under the user's home
-directory. No data are written to the central database until an explicit import
-step.
-
 ## Usage
-
-Run the engine from Python using the task dispatcher:
 
 ```python
 from pathlib import Path
 from engines import dispatch
+import engines.multilingual  # noqa: F401 ensures engine registration
 
-text, conf = dispatch(
+text, confidences = dispatch(
     "image_to_text",
-    image=Path("label.jpg"),
+    image=Path("specimen.jpg"),
     engine="multilingual",
     langs=["fr", "en"],
 )
 ```
 
-This example sequentially applies French and English models and aggregates the
-results. The command-line interfaces under `./scripts` provide equivalent
-workflow steps.
+The engine accepts ISO 639-1 (two-letter) and ISO 639-2 (three-letter) codes. Mixed lists such as `"eng"`, `"fr"`, and `"la"` are normalized automatically before invoking PaddleOCR, so the same configuration can drive Tesseract and multilingual OCR without manual edits.
 
 ## Supported languages
 
-PaddleOCR ships recognition models for over 80 languages including `ar`, `en`,
-`fr`, `de`, `es`, `ru`, `zh`, and more. Consult the
-[PaddleOCR language table](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.7/doc/doc_en/multi_languages.md)
-for the full list.
-
+PaddleOCR's multilingual model covers 80+ languages including `en`, `fr`, `de`, `es`, `ru`, and `it`. Refer to the [PaddleOCR documentation](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.7/doc/doc_en/models_list_en.md#multi-language-ocr-model-list) for the full list.
