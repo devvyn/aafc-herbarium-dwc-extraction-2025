@@ -402,6 +402,30 @@ pytest tests/integration/                  # End-to-end workflows
 python scripts/prompt_coverage.py --mode comprehensive
 ```
 
+### Reproducible Image Testing
+
+The toolkit includes a comprehensive system for reproducible testing with quality-stratified herbarium images:
+
+```bash
+# Set up S3 access and discover images
+python scripts/setup_s3_access.py --bucket your-herbarium-bucket --update-config
+
+# Create test bundles for consistent testing
+python scripts/manage_test_images.py create-bundle validation --output ./test_images/validation
+
+# Validate image accessibility
+python scripts/manage_test_images.py validate-urls
+```
+
+**Quality Categories**:
+- **Readable specimens** (40%): Clear labels, >95% accuracy expected
+- **Minimal text** (25%): Basic OCR suitable, ~85% accuracy
+- **Unlabeled specimens** (20%): Edge cases, ~30% accuracy
+- **Poor quality** (15%): Challenging images, ~15% accuracy
+- **Multilingual** (variable): Non-English labels, ~80% accuracy
+
+See [REPRODUCIBLE_IMAGES_SUMMARY.md](REPRODUCIBLE_IMAGES_SUMMARY.md) for complete setup and usage guide.
+
 ### Code Quality
 
 - **Linting**: Ruff for code formatting and style
