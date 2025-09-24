@@ -19,42 +19,45 @@ python scripts/create_roadmap_issues.py --repo <owner>/<repo> \
 **Critical features**
 - Integrate multilingual OCR models for non-English labels (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/138)
 - Integrate GBIF taxonomy and locality verification into the QC pipeline (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/139)
-- Configurable mapping from custom schemas via the [`[dwc]` section](configuration.md) (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/156)
-- Versioned DwC-A export bundles with embedded manifest (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/158)
-- Populate mapping rules in `config/rules/dwc_rules.toml` and `config/rules/vocab.toml` (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/157)
+
+**Recently Completed (v0.2.0)**
+- ✅ Configurable mapping from custom schemas via the [`[dwc]` section](configuration.md) (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/156)
+- ✅ Versioned DwC-A export bundles with embedded manifest (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/158)
+- ✅ Parse official DwC and ABCD schemas (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/188)
+- ✅ ORM-backed pipeline storage (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/192)
 
 Secondary tasks cover medium and low priority items detailed below.
 
 ## Preprocessing and OCR
 
 - Integrate multilingual OCR models for non-English labels — **High**, Q2 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/138)
-- Support GPU-accelerated inference for Tesseract — **Medium**, Q3 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/159)
-- Batch resize large images to accelerate OCR — **Low**, Q3 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/160)
+- Support GPU-accelerated inference for Tesseract — **Medium**, Q3 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/186)
+- Batch resize large images to accelerate OCR — **Low**, Q3 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/187)
 
 ## Mapping and vocabulary
 
-- Configurable mapping from custom schemas via the [`[dwc]` section](configuration.md) (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/156)
+- ✅ Configurable mapping from custom schemas via the [`[dwc]` section](configuration.md) (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/156) - **COMPLETED v0.2.0**
 - Populate mapping rules in `config/rules/dwc_rules.toml` and `config/rules/vocab.toml` (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/157)
-- Support full schema parsing from official Darwin Core and ABCD XSDs — **Medium**, Q3 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/161)
-- Auto-generate Darwin Core term mappings from external XSD — **Low**, Q4 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/162)
+- ✅ Support full schema parsing from official Darwin Core and ABCD XSDs (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/188) - **COMPLETED v0.2.0**
+- Auto-generate Darwin Core term mappings from external XSD — **Low**, Q4 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/189)
 
 ## Quality control
 
 - Integrate GBIF taxonomy and locality verification into the QC pipeline — **Medium**, Q3 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/139)
-- Move GBIF API endpoints into configuration files — **Low**, Q2 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/163)
-- Implement locality cross-checks using Gazetteer API — **Low**, Q4 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/164)
+- Move GBIF API endpoints into configuration files — **Low**, Q2 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/190)
+- Implement locality cross-checks using Gazetteer API — **Low**, Q4 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/191)
 
 ## Database and import
 
-- Transition pipeline storage to an ORM — **Medium**, Q3 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/165)
-- Audit trail for import steps with explicit user sign-off to keep pipeline and database separate — **Medium**, Q3 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/166)
+- ✅ Transition pipeline storage to an ORM (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/192) - **COMPLETED (pre-v0.2.0)**
+- Audit trail for import steps with explicit user sign-off to keep pipeline and database separate — **Medium**, Q3 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/193)
 
 ## Export and reporting
 
-- Versioned DwC-A export bundles with embedded manifest (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/158)
-- Spreadsheet pivot table exports for data summaries — **Low**, Q4 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/167)
+- ✅ Versioned DwC-A export bundles with embedded manifest (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/158) - **COMPLETED v0.2.0**
+- Spreadsheet pivot table exports for data summaries — **Low**, Q4 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/194)
 
 ## Testing and documentation
 
-- Add evaluation harness for GPT prompt template coverage — **Medium**, Q2 2025 (see `scripts/prompt_coverage.py`) (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/168)
-- Expand procedural examples across docs — **Low**, Q3 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/169)
+- Add evaluation harness for GPT prompt template coverage — **Medium**, Q2 2025 (see `scripts/prompt_coverage.py`) (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/195)
+- Expand procedural examples across docs — **Low**, Q3 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/196)
