@@ -4,6 +4,16 @@ Strategic priorities for the herbarium OCR to Darwin Core toolkit.
 
 **Current development focus:** See [GitHub Projects](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/projects) for detailed progress tracking and issue management.
 
+## Completed Research Contributions
+
+- **✅ Reproducible Image Access System** — **Research Tool Development** (September 2025)
+  - **Purpose**: Developed comprehensive system for reproducible herbarium image referencing to support digitization research
+  - **Methodology**: Quality-stratified image categorization with realistic distributions matching institutional collections
+  - **Impact**: Enables reproducible testing, collaborative research, and standardized benchmarking across institutions
+  - **Components**: S3 integration, automated categorization, test bundle generation, public accessibility framework
+  - **Academic Value**: Provides standardized research methodology for herbarium digitization quality assessment
+  - **Documentation**: [REPRODUCIBLE_IMAGES_SUMMARY.md](../REPRODUCIBLE_IMAGES_SUMMARY.md)
+
 ## Critical Features
 
 - **Integrate multilingual OCR models for non-English labels** — High priority, Q2 2025 ([#138](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/138))

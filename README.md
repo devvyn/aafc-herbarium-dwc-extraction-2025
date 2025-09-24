@@ -404,7 +404,7 @@ python scripts/prompt_coverage.py --mode comprehensive
 
 ### Reproducible Image Testing
 
-The toolkit includes a comprehensive system for reproducible testing with quality-stratified herbarium images:
+The toolkit includes a comprehensive system for reproducible testing with quality-stratified herbarium images, including integrated S3 upload capabilities for complete research workflow management:
 
 ```bash
 # Set up S3 access and discover images
