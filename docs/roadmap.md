@@ -1,63 +1,30 @@
 # Roadmap
 
-Upcoming features and priorities for the herbarium OCR to Darwin Core toolkit.
+Strategic priorities for the herbarium OCR to Darwin Core toolkit.
 
-Set `GITHUB_TOKEN` and run `python scripts/create_roadmap_issues.py --repo <owner>/<repo>` to open GitHub issues for tasks marked with `(Issue TBD)`.
-Provide `--project-owner <owner>` and `--project-number <n>` to add created issues to a GitHub project for unified tracking.
+**Current development focus:** See [GitHub Projects](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/projects) for detailed progress tracking and issue management.
 
-## Project integration
+## Critical Features
 
-Use GitHub Projects to track roadmap progress. Adding the project owner and
-number when running the issue creation script keeps issues and the roadmap in
-sync for automated agents:
+- **Integrate multilingual OCR models for non-English labels** — High priority, Q2 2025 ([#138](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/138))
+- **Integrate GBIF taxonomy and locality verification into QC pipeline** — Medium priority, Q3 2025 ([#139](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/139))
+
+## Issue Management
+
+Create GitHub issues from roadmap entries:
 
 ```bash
 python scripts/create_roadmap_issues.py --repo <owner>/<repo> \
     --project-owner <owner> --project-number <n>
 ```
 
-**Critical features**
-- Integrate multilingual OCR models for non-English labels (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/138)
-- Integrate GBIF taxonomy and locality verification into the QC pipeline (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/139)
+This script keeps the roadmap synchronized with GitHub Projects for automated agent workflows.
 
-**Recently Completed (v0.2.0)**
-- ✅ Configurable mapping from custom schemas via the [`[dwc]` section](configuration.md) (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/156)
-- ✅ Versioned DwC-A export bundles with embedded manifest (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/158)
-- ✅ Parse official DwC and ABCD schemas (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/188)
-- ✅ ORM-backed pipeline storage (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/192)
+## Medium Priority Features
 
-Secondary tasks cover medium and low priority items detailed below.
+- **Support GPU-accelerated inference for Tesseract** — Q3 2025 ([#186](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/186))
+- **Populate mapping rules** in `config/rules/dwc_rules.toml` and `config/rules/vocab.toml` ([#157](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/157))
+- **Audit trail for import steps** with explicit user sign-off ([#193](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/193))
+- **Add evaluation harness** for GPT prompt template coverage ([#195](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/195))
 
-## Preprocessing and OCR
-
-- Integrate multilingual OCR models for non-English labels — **High**, Q2 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/138)
-- Support GPU-accelerated inference for Tesseract — **Medium**, Q3 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/186)
-- Batch resize large images to accelerate OCR — **Low**, Q3 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/187)
-
-## Mapping and vocabulary
-
-- ✅ Configurable mapping from custom schemas via the [`[dwc]` section](configuration.md) (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/156) - **COMPLETED v0.2.0**
-- Populate mapping rules in `config/rules/dwc_rules.toml` and `config/rules/vocab.toml` (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/157)
-- ✅ Support full schema parsing from official Darwin Core and ABCD XSDs (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/188) - **COMPLETED v0.2.0**
-- Auto-generate Darwin Core term mappings from external XSD — **Low**, Q4 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/189)
-
-## Quality control
-
-- Integrate GBIF taxonomy and locality verification into the QC pipeline — **Medium**, Q3 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/139)
-- Move GBIF API endpoints into configuration files — **Low**, Q2 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/190)
-- Implement locality cross-checks using Gazetteer API — **Low**, Q4 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/191)
-
-## Database and import
-
-- ✅ Transition pipeline storage to an ORM (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/192) - **COMPLETED (pre-v0.2.0)**
-- Audit trail for import steps with explicit user sign-off to keep pipeline and database separate — **Medium**, Q3 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/193)
-
-## Export and reporting
-
-- ✅ Versioned DwC-A export bundles with embedded manifest (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/158) - **COMPLETED v0.2.0**
-- Spreadsheet pivot table exports for data summaries — **Low**, Q4 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/194)
-
-## Testing and documentation
-
-- Add evaluation harness for GPT prompt template coverage — **Medium**, Q2 2025 (see `scripts/prompt_coverage.py`) (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/195)
-- Expand procedural examples across docs — **Low**, Q3 2025 (https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/196)
+For a complete feature history, see [CHANGELOG.md](../CHANGELOG.md).
