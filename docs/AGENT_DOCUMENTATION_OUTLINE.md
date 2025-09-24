@@ -1,0 +1,86 @@
+# Agent Documentation Outline
+
+## Overview
+This document provides a quick reference to all documentation that primarily instructs automated agents, scripts, and AI tools working on this repository.
+
+## Primary Agent Instruction Documents
+
+### 1. `/AGENTS.md` - Repository-level agent guidelines
+**Purpose**: General development conventions for AI agents and scripts
+**Key sections**:
+- Data & folder conventions (`./input/`, `./output/`, SQLite usage)
+- Digitization workflow separation (pipeline vs main database)
+- Export versioning with semantic tags
+- Coding style (Ruff formatting, PEP 8)
+- Commit & PR guidelines (gitmoji, small focused commits)
+- Issue management (GitHub syntax, roadmap updates)
+- Release guidelines (substantial changes only)
+- Human-in-the-loop generative development
+
+### 2. `/docs/AGENTS.md` - Documentation-specific agent guidelines
+**Purpose**: Instructions for agents working on documentation
+**Key sections**:
+- Documentation formatting (Markdown, sentence-case headings)
+- Workflow organization (preprocessing → OCR → mapping → QC → import → export)
+- Link conventions (relative links, no duplication)
+- Testing requirements (`ruff check docs`, `pytest`)
+- Issue management synchronization
+
+### 3. `/dwc/AGENTS.md` - Darwin Core module agent guidelines
+**Purpose**: Instructions for agents working on DwC/ABCD data modules
+**Key sections**:
+- Schema management (`schema.py` canonical terms, consistent ordering)
+- Mapping logic (`mapper.py`, `normalize.py` pure functions)
+- ABCD field conventions (comments with equivalent terms)
+- Testing requirements (module-specific linting and tests)
+
+## Supporting Automation
+
+### 4. `/scripts/create_roadmap_issues.py`
+**Purpose**: "Designed for agents that manage issue trackers and project boards"
+**Function**: Creates GitHub issues from roadmap entries and syncs to GitHub Projects
+**Usage**: Referenced in `/docs/roadmap.md` for automated agent workflows
+
+### 5. `/docs/roadmap.md`
+**Purpose**: Strategic priorities with agent automation integration
+**Agent features**:
+- References issue creation script for automated workflows
+- Designed to sync with GitHub Projects for automated agents
+- Links roadmap entries to GitHub issues for tracking
+
+## Document Tree Structure
+
+```
+Repository Root
+├── AGENTS.md                    # Primary agent guidelines
+├── docs/
+│   ├── AGENTS.md               # Documentation agent guidelines
+│   └── roadmap.md              # Strategic priorities with automation
+├── dwc/
+│   └── AGENTS.md               # Darwin Core module guidelines
+└── scripts/
+    └── create_roadmap_issues.py # Agent-designed issue automation
+```
+
+## Agent Workflow Integration
+
+**Issue Management Flow**:
+1. Agent reads `/docs/roadmap.md` for strategic priorities
+2. Uses `/scripts/create_roadmap_issues.py` to sync roadmap with GitHub
+3. Follows `/AGENTS.md` for commit/PR conventions
+4. Updates documentation per `/docs/AGENTS.md` guidelines
+5. Handles DwC modules per `/dwc/AGENTS.md` guidelines
+
+**Quality Assurance**:
+- All documents require `ruff check` and `pytest` before commits
+- GitHub issue linking (`#123`) required for traceability
+- Roadmap synchronization after issue resolution
+
+## Key Principles for Agents
+
+1. **Separation of Concerns**: Pipeline vs main database separation
+2. **Reproducibility**: Semantic versioning, commit hashes, timestamps
+3. **Traceability**: GitHub issue linking, audit trails
+4. **Quality**: Automated testing and linting before commits
+5. **Human-in-the-loop**: Small reviewable steps, early feedback
+6. **Documentation synchronization**: Update roadmap when closing issues
