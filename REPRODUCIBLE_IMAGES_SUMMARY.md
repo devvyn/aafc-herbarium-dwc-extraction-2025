@@ -14,6 +14,24 @@ The project needed a standardized way to reference and access downscaled herbari
 
 > **Note**: All images are non-sensitive, non-protected content, making public accessibility safe and beneficial for collaboration.
 
+## 📋 **Documented Research Methodology**
+
+### **Data Preparation Process Documentation**
+- **Research Process**: Systematic approach for uploading herbarium image folders to S3 for research purposes
+- **Methodology**: CLI-based workflow using standard boto3 tools for organized specimen image storage
+- **Academic Documentation**: Process documented to support research reproducibility and methodology transparency
+- **Scope Focus**: Core emphasis remains on herbarium digitization analysis rather than auxiliary tool maintenance
+- **Research Value**: Complete documented methodology from data preparation through validation
+
+### **End-to-End Research Workflow**
+1. **📤 Data Organization**: Documented process for systematic upload of specimen image folders to research storage
+2. **🔍 Discovery & Configuration**: `setup_s3_access.py` discovers and configures access to research image datasets
+3. **📊 Quality Assessment**: Automated categorization and stratification of images by quality characteristics
+4. **🧪 Research Testing**: `manage_test_images.py` creates reproducible test bundles for consistent workflows
+5. **✅ Validation**: Comprehensive testing and validation of complete research methodology
+
+**Project Focus**: Core herbarium digitization research with documented data preparation processes to support reproducibility.
+
 ## ✅ Complete Solution Delivered
 
 ### 🔧 **Core Components Implemented**

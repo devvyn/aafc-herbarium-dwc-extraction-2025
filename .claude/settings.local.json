@@ -17,7 +17,11 @@
       "Bash(git stash:*)",
       "Read(//Users/devvynmurphy/**)",
       "Bash(grep:*)",
-      "Bash(git tag:*)"
+      "Bash(git tag:*)",
+      "Bash(gh release:*)",
+      "Bash(aws s3 ls:*)",
+      "Bash(env)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [],
     "ask": []
