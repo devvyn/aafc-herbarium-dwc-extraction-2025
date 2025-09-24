@@ -39,6 +39,7 @@ from io_utils.database import (
     upsert_processing_state,
 )
 from dwc import configure_terms, configure_mappings
+from dwc.archive import create_archive, create_versioned_bundle
 from engines.errors import EngineError
 from preprocess import preprocess_image
 
@@ -309,22 +310,58 @@ def process_image(
         if gbif_cfg.get("enabled") and event.get("dwc"):
             gbif = qc.GbifLookup.from_config(cfg)
             original = event["dwc"].copy()
+            verification_metadata = {}
+
             try:
-                updated = gbif.verify_taxonomy(event["dwc"])
-                updated = gbif.verify_locality(updated)
+                # Enhanced taxonomy verification with metadata
+                updated, taxonomy_meta = gbif.verify_taxonomy(event["dwc"])
+                verification_metadata["taxonomy"] = taxonomy_meta
+
+                # Enhanced locality verification with metadata
+                updated, locality_meta = gbif.verify_locality(updated)
+                verification_metadata["locality"] = locality_meta
+
+                # Optional occurrence validation
+                if gbif_cfg.get("enable_occurrence_validation", False):
+                    updated, occurrence_meta = gbif.validate_occurrence(updated)
+                    verification_metadata["occurrence"] = occurrence_meta
+
             except Exception as exc:  # pragma: no cover - network issues
-                event["errors"].append(str(exc))
+                event["errors"].append(f"GBIF verification error: {str(exc)}")
             else:
+                # Track field additions and changes
                 added = [k for k in updated if k not in original]
                 changed = [k for k in original if updated.get(k) != original.get(k)]
+
+                # Collect verification issues for flagging
+                gbif_issues = []
+                for verify_type, meta in verification_metadata.items():
+                    if isinstance(meta, dict) and "gbif_issues" in meta:
+                        for issue in meta["gbif_issues"]:
+                            gbif_issues.append(f"{verify_type}:{issue}")
+
+                # Add verification metadata to event
+                event["gbif_verification"] = verification_metadata
+
                 if added:
                     event["added_fields"].extend(added)
+
+                # Create flags for changes and issues
+                all_flags = []
                 if changed:
-                    gbif_flags = [f"gbif:{f}" for f in changed]
-                    event["flags"].extend(gbif_flags)
+                    gbif_flags = [f"gbif_updated:{f}" for f in changed]
+                    all_flags.extend(gbif_flags)
+
+                if gbif_issues:
+                    issue_flags = [f"gbif_issue:{issue}" for issue in gbif_issues]
+                    all_flags.extend(issue_flags)
+
+                if all_flags:
+                    event["flags"].extend(all_flags)
                     existing = updated.get("flags") or original.get("flags")
-                    gbif_flag_str = ";".join(gbif_flags)
+                    gbif_flag_str = ";".join(all_flags)
                     updated["flags"] = f"{existing};{gbif_flag_str}" if existing else gbif_flag_str
+
                 event["dwc"] = updated
 
         qc_cfg = cfg.get("qc", {})
@@ -539,6 +576,96 @@ try:  # optional dependency
             list(enabled_engine) if enabled_engine else None,
             resume=True,
         )
+
+    @app.command()
+    def export(
+        output: Path = typer.Option(
+            ...,
+            "--output",
+            "-o",
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            help="Directory containing DwC CSV files to export",
+        ),
+        version: str = typer.Option(
+            "1.0.0",
+            "--version",
+            "-v",
+            help="Semantic version for the export bundle",
+        ),
+        bundle_format: str = typer.Option(
+            "rich",
+            "--format",
+            "-f",
+            help="Bundle format: 'rich' (with metadata) or 'simple' (version only)",
+        ),
+        include_checksums: bool = typer.Option(
+            True,
+            "--checksums/--no-checksums",
+            help="Include file checksums in manifest",
+        ),
+        compress: bool = typer.Option(
+            True,
+            "--compress/--no-compress",
+            help="Create compressed ZIP archive",
+        ),
+        config: Optional[Path] = typer.Option(
+            None,
+            "--config",
+            "-c",
+            exists=True,
+            dir_okay=False,
+            file_okay=True,
+            help="Optional config file for export settings",
+        ),
+    ) -> None:
+        """Create a versioned Darwin Core Archive export bundle."""
+        import re
+
+        # Validate semantic version
+        semver_pattern = re.compile(r"^\d+\.\d+\.\d+$")
+        if not semver_pattern.match(version):
+            typer.echo(f"Error: Version '{version}' must follow semantic versioning (e.g., '1.0.0')", err=True)
+            raise typer.Exit(1)
+
+        # Validate bundle format
+        if bundle_format not in ["rich", "simple"]:
+            typer.echo(f"Error: Bundle format must be 'rich' or 'simple', got '{bundle_format}'", err=True)
+            raise typer.Exit(1)
+
+        # Load configuration for export settings
+        cfg = load_config(config)
+        export_cfg = cfg.get("export", {})
+
+        # Override config with CLI options
+        filters = None  # Could be extended to accept filter criteria
+        additional_files = export_cfg.get("additional_files", [])
+
+        try:
+            archive_path = create_archive(
+                output,
+                compress=compress,
+                version=version,
+                filters=filters,
+                bundle_format=bundle_format,
+                include_checksums=include_checksums,
+                additional_files=additional_files,
+            )
+
+            if compress:
+                typer.echo(f"✅ Export bundle created: {archive_path}")
+                typer.echo(f"📊 Format: {bundle_format}")
+                typer.echo(f"🏷️  Version: {version}")
+                if include_checksums:
+                    typer.echo("🔐 Checksums: included")
+            else:
+                typer.echo(f"✅ DwC-A files prepared in: {output}")
+                typer.echo(f"📄 Meta.xml created: {archive_path}")
+
+        except Exception as e:
+            typer.echo(f"❌ Export failed: {e}", err=True)
+            raise typer.Exit(1)
 
     if __name__ == "__main__":
         app()

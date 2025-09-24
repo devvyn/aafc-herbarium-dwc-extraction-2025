@@ -154,12 +154,24 @@ def test_process_image_gbif_success(monkeypatch, tmp_path):
             updated = record.copy()
             updated["scientificName"] = "Corrected"
             updated["kingdom"] = "Plantae"
-            return updated
+            metadata = {
+                "gbif_taxonomy_verified": True,
+                "gbif_match_type": "EXACT",
+                "gbif_confidence": 95.0,
+                "gbif_issues": [],
+            }
+            return updated, metadata
 
         def verify_locality(self, record):
             updated = record.copy()
             updated["country"] = "Canada"
-            return updated
+            metadata = {
+                "gbif_locality_verified": True,
+                "gbif_coordinate_valid": True,
+                "gbif_distance_km": 0.5,
+                "gbif_issues": [],
+            }
+            return updated, metadata
 
     monkeypatch.setattr(cli.qc.GbifLookup, "from_config", lambda cfg: DummyGbif())
     cand_session = cli.init_candidate_db(tmp_path / "candidates.db")
@@ -170,10 +182,10 @@ def test_process_image_gbif_success(monkeypatch, tmp_path):
     cand_session.close()
     app_conn.close()
     assert set(event["added_fields"]) == {"kingdom", "country"}
-    assert "gbif:scientificName" in event["flags"]
+    assert "gbif_updated:scientificName" in event["flags"]
     assert event["dwc"]["scientificName"] == "Corrected"
     assert dwc_row["country"] == "Canada"
-    assert "gbif:scientificName" in event["dwc"]["flags"]
+    assert "gbif_updated:scientificName" in event["dwc"]["flags"]
 
 
 def test_process_image_gbif_failure(monkeypatch, tmp_path):
@@ -213,7 +225,7 @@ def test_process_image_gbif_failure(monkeypatch, tmp_path):
             raise RuntimeError("boom")
 
         def verify_locality(self, record):  # pragma: no cover - not called
-            return record
+            return record, {}
 
     monkeypatch.setattr(cli.qc.GbifLookup, "from_config", lambda cfg: FailingGbif())
     cand_session = cli.init_candidate_db(tmp_path / "candidates.db")
@@ -225,5 +237,5 @@ def test_process_image_gbif_failure(monkeypatch, tmp_path):
     app_conn.close()
     assert "boom" in event["errors"][0]
     assert event["added_fields"] == []
-    assert "gbif:scientificName" not in event["flags"]
+    assert "gbif_updated:scientificName" not in event["flags"]
     assert dwc_row["scientificName"] == "Orig"
