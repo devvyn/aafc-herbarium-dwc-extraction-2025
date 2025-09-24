@@ -45,6 +45,29 @@
 - Every release must synchronize version numbers and update both `CHANGELOG.md` and `README.md`.
 - Skip releases for minor internal tweaks, refactors, or other changes with no external impact.
 
+### Complete Release Process
+When creating a release, **all steps must be completed** to prevent broken CHANGELOG links:
+
+1. **Update version numbers** in:
+   - `pyproject.toml` (version field)
+   - `README.md` (current version description)
+   - `CHANGELOG.md` (new version section with date)
+
+2. **Create git tag immediately after release commit**:
+   ```bash
+   git tag v<version> <commit-sha>
+   git push origin --tags
+   ```
+
+3. **Verify CHANGELOG links work**:
+   - CHANGELOG.md comparison links require actual git tags to function
+   - Test links like `[0.2.0]: https://github.com/owner/repo/compare/v0.1.4...v0.2.0`
+   - If tags are missing, comparison pages return 404 errors
+
+4. **Follow semantic versioning**: v0.1.0, v0.2.0, v1.0.0, etc.
+
+**Critical**: Never update CHANGELOG.md version references without creating corresponding git tags. This breaks the Keep a Changelog format and creates non-functional comparison links.
+
 ## Documentation & roadmap
 - Keep `docs/roadmap.md` current; update it whenever project scope or priorities change.
 - Pull requests touching areas with open tasks must reconcile or reference the relevant entries in `docs/roadmap.md`.
