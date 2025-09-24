@@ -2,7 +2,7 @@
 
 Strategic priorities for the herbarium OCR to Darwin Core toolkit.
 
-**Current development focus:** See [GitHub Projects](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/projects) for detailed progress tracking and issue management.
+**Current development focus:** See [GitHub Projects](#project-organization) below for detailed progress tracking across the complete herbarium digitization ecosystem.
 
 ## Critical Features
 
@@ -28,3 +28,33 @@ This script keeps the roadmap synchronized with GitHub Projects for automated ag
 - **Add evaluation harness** for GPT prompt template coverage ([#195](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/195))
 
 For a complete feature history, see [CHANGELOG.md](../CHANGELOG.md).
+
+## Project Organization
+
+The AAFC herbarium digitization project spans multiple domains requiring coordinated development across several GitHub Projects:
+
+### [🏗️ AAFC Herbarium Infrastructure](https://github.com/users/devvyn/projects/5)
+**Focus**: Deployment, operations, and production workflows
+- Import audit workflows and compliance
+- Configuration management and deployment automation
+- Production monitoring and system integration
+- Multi-repository orchestration and CI/CD pipelines
+
+### [💻 AAFC Herbarium Core Development](https://github.com/users/devvyn/projects/6)
+**Focus**: Core toolkit features and technical enhancements
+- OCR engine improvements (GPU acceleration, multilingual support)
+- Schema parsing and mapping automation
+- Development tooling and testing infrastructure
+- Performance optimization and technical debt
+
+### [📊 AAFC Herbarium Data & Research](https://github.com/users/devvyn/projects/7)
+**Focus**: Data quality, analysis, and research workflows
+- GBIF integration and taxonomic validation
+- Geographic data verification and gazetteer services
+- Export formats and reporting tools
+- Research collaboration and data publication
+
+### [📋 Legacy Project](https://github.com/users/devvyn/projects/4)
+**Status**: Being reorganized into the new structure above
+
+This multi-project structure supports the full scope of herbarium digitization beyond just code development, enabling coordinated progress across infrastructure deployment, research workflows, and institutional integration.
