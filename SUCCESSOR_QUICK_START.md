@@ -25,11 +25,11 @@ python cli.py process --input photos/ --output results/
 # Review and correct results
 python review_web.py --db results/candidates.db --images photos/
 
-# Export to spreadsheet
-python cli.py archive --output results/ --version 1.1.0
+# Export a versioned Darwin Core bundle
+python cli.py export --output results/ --version 1.1.0
 
 # Check processing status
-python cli.py stats --db results/app.db
+sqlite3 results/app.db "SELECT status, COUNT(*) FROM processing_state GROUP BY status;"
 ```
 
 ## Where Everything Lives
