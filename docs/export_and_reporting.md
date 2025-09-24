@@ -54,26 +54,186 @@ Audit records are accessible with `fetch_import_audit` in
 
 ## Darwin Core archive exports
 
-Use the archive helpers to build Darwin Core files and bundle them with a
-manifest. The manifest records the export timestamp, commit hash and any filter
-criteria. When `compress=True`, provide a semantic version string so the bundle
-is saved as `dwca_v<version>.zip` under `output/`.
+The system provides comprehensive Darwin Core Archive (DwC-A) export functionality with semantic versioning, embedded manifests, and rich provenance tracking.
+
+### Quick Export via CLI
+
+The easiest way to create versioned exports is through the CLI:
+
+```bash
+# Create a rich versioned bundle with full metadata
+python cli.py export --output output/ --version 1.2.0 --format rich
+
+# Create a simple versioned bundle
+python cli.py export --output output/ --version 1.2.0 --format simple
+
+# Export without compression (files only)
+python cli.py export --output output/ --version 1.2.0 --no-compress
+```
+
+### Programmatic Export
+
+Use the archive helpers to build Darwin Core files and bundle them with enhanced manifests:
 
 ```bash
 python - <<'PY'
 from pathlib import Path
-from dwc.archive import create_archive
+from dwc.archive import create_archive, create_versioned_bundle
 
+# Simple versioned bundle
 create_archive(Path("output"), compress=True, version="1.0.0")
+
+# Rich bundle with enhanced metadata
+create_versioned_bundle(
+    Path("output"),
+    version="1.2.0",
+    bundle_format="rich",
+    include_checksums=True,
+    additional_files=["processing_log.txt"]
+)
 PY
 ```
 
-## Versioning guidelines
+### Bundle Formats
 
-Tag every export with a semantic version. The accompanying `manifest.json` makes
-it possible to reproduce the dataset by recording filters and the exact code
-commit.
+Two bundle formats are available:
 
-## Future work
+**Rich Format** (default): `dwca_v1.2.0_20241201T120000Z_abc1234_ef567890.zip`
+- Includes version, timestamp, git commit hash, and filter hash
+- Full provenance tracking
+- Recommended for archival and reproducibility
 
-Versioned DwC-A bundles will embed manifests and semantic tags for reproducible releases ([issue #158](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/158)).
+**Simple Format**: `dwca_v1.2.0.zip`
+- Clean, version-only filename
+- Suitable for regular distribution
+
+### Enhanced Manifest Features
+
+The embedded `manifest.json` now includes:
+
+- **Format versioning**: Schema version for the manifest format itself
+- **Git information**: Commit hash, branch, dirty status detection
+- **System information**: Platform, Python version, package version
+- **File checksums**: SHA256 hashes and file sizes for integrity verification
+- **Export metadata**: Timestamp, version, filters, bundle format
+
+Example manifest structure:
+
+```json
+{
+  "format_version": "1.1.0",
+  "export_type": "darwin_core_archive",
+  "timestamp": "2024-12-01T12:00:00.000000+00:00",
+  "version": "1.2.0",
+  "bundle_format": "rich",
+  "git_commit": "abc1234567890def",
+  "git_commit_short": "abc1234",
+  "git_branch": "main",
+  "git_dirty": false,
+  "filters": {},
+  "system_info": {
+    "platform": "Darwin-24.6.0-arm64",
+    "python_version": "3.11.5",
+    "python_executable": "/usr/bin/python3"
+  },
+  "file_checksums": {
+    "occurrence.csv": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb924...",
+      "size_bytes": 1024
+    },
+    "identification_history.csv": {
+      "sha256": "d4f5e6789abc123def456789...",
+      "size_bytes": 512
+    },
+    "meta.xml": {
+      "sha256": "a1b2c3d4e5f6789012345678...",
+      "size_bytes": 2048
+    }
+  }
+}
+```
+
+### Configuration Options
+
+Configure export behavior in your `config.toml` file:
+
+```toml
+[export]
+enable_versioned_exports = true
+default_export_version = "1.0.0"
+bundle_format = "rich"  # "rich" or "simple"
+include_checksums = true
+include_git_info = true
+include_system_info = true
+export_retention_days = 365
+additional_files = ["README.txt", "processing_log.txt"]
+```
+
+### Versioning Guidelines
+
+- **MAJOR.MINOR.PATCH** semantic versioning is required
+- Tag every export with a meaningful version
+- Use MAJOR for breaking schema changes
+- Use MINOR for new fields or features
+- Use PATCH for data corrections or updates
+- The `manifest.json` ensures complete reproducibility
+
+### Archive Validation
+
+Validate DwC-A bundles using standard tools:
+
+```bash
+# Check archive contents
+unzip -l dwca_v1.2.0.zip
+
+# Verify checksums
+python -c "
+import zipfile, json, hashlib
+with zipfile.ZipFile('dwca_v1.2.0.zip') as zf:
+    manifest = json.loads(zf.read('manifest.json'))
+    for filename, info in manifest['file_checksums'].items():
+        content = zf.read(filename)
+        actual = hashlib.sha256(content).hexdigest()
+        expected = info['sha256']
+        print(f'{filename}: {\'✓\' if actual == expected else \'✗\'}')
+"
+```
+
+### Integration with GBIF and DataONE
+
+The enhanced DwC-A format is fully compatible with:
+- **GBIF IPT**: Direct upload of versioned archives
+- **DataONE**: Rich metadata supports data package requirements
+- **BiodiversityLinks**: Embedded provenance aids citation tracking
+- **Darwin Core standard**: Compliant meta.xml and CSV structure
+
+### Export Retention
+
+Configure automatic cleanup of old exports:
+
+```bash
+# Clean exports older than retention period
+python - <<'PY'
+from pathlib import Path
+import time
+from datetime import datetime, timedelta
+
+output_dir = Path("output")
+retention_days = 365  # From config
+cutoff = datetime.now() - timedelta(days=retention_days)
+
+for archive in output_dir.glob("dwca_*.zip"):
+    if archive.stat().st_mtime < cutoff.timestamp():
+        print(f"Removing old export: {archive.name}")
+        archive.unlink()
+PY
+```
+
+## Recent Enhancements
+
+✅ **Issue #158 Complete**: Versioned DwC-A export bundles with embedded manifests
+- Enhanced semantic versioning with rich provenance tags
+- Comprehensive manifest embedding with checksums and system info
+- CLI integration for easy export workflows
+- Configuration-driven export behavior
+- Full Darwin Core Archive standard compliance

@@ -45,6 +45,12 @@ contrast_factor = 1.5  # used when "contrast" is in the pipeline
 schema = "dwc-abcd"
 schema_uri = "http://rs.tdwg.org/dwc/terms/"
 schema_files = ["dwc.xsd", "abcd.xsd"]
+# Schema source configuration
+use_official_schemas = false  # Set to true to fetch from official TDWG sources
+preferred_official_schemas = ["dwc_simple", "abcd_206"]  # Schema names to use when fetching official schemas
+schema_cache_enabled = true  # Enable caching of downloaded schemas
+schema_update_interval_days = 30  # How often to check for schema updates
+schema_compatibility_check = true  # Validate terms against target schemas
 assume_country_if_missing = "Canada"
 strict_minimal_fields = ["catalogNumber","scientificName","eventDate","recordedBy","locality"]
 flag_if_missing_minimal = true
@@ -64,11 +70,47 @@ top_fifth_scan_pct = 20
 
 [qc.gbif]
 enabled = false
+# Primary GBIF API endpoints
 species_match_endpoint = "https://api.gbif.org/v1/species/match"
 reverse_geocode_endpoint = "https://api.gbif.org/v1/geocode/reverse"
+occurrence_search_endpoint = "https://api.gbif.org/v1/occurrence/search"
+suggest_endpoint = "https://api.gbif.org/v1/species/suggest"
+
+# Network and retry configuration
+timeout = 10.0
+retry_attempts = 3
+backoff_factor = 1.0
+cache_size = 1000
+
+# Verification behavior settings
+enable_fuzzy_matching = true
+min_confidence_score = 0.80
+enable_occurrence_validation = false
+
+# Quality control thresholds
+max_coordinate_distance_km = 10.0
+min_occurrence_count_threshold = 1
 
 [report]
 html = true
 
 [processing]
 retry_limit = 3
+
+[export]
+# Darwin Core Archive export configuration
+enable_versioned_exports = true
+default_export_version = "1.0.0"
+bundle_format = "rich"  # "rich" (with metadata) or "simple" (version only)
+include_checksums = true
+include_git_info = true
+include_system_info = true
+auto_increment_version = false  # Automatically increment patch version
+export_retention_days = 365  # How long to keep old exports (0 = keep forever)
+
+# Additional files to include in archives (relative to output directory)
+additional_files = []  # Example: ["README.txt", "processing_log.txt"]
+
+# Export filename patterns
+rich_filename_pattern = "dwca_{version}_{timestamp}_{commit}_{filter_hash}.zip"
+simple_filename_pattern = "dwca_v{version}.zip"
