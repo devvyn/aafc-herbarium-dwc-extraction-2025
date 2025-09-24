@@ -15,6 +15,7 @@ This document provides a quick reference to all documentation that primarily ins
 - Commit & PR guidelines (gitmoji, small focused commits)
 - Issue management (GitHub syntax, roadmap updates)
 - Release guidelines (substantial changes only)
+- **Complete release process** (version updates, git tagging, CHANGELOG verification)
 - Human-in-the-loop generative development
 
 ### 2. `/docs/AGENTS.md` - Documentation-specific agent guidelines
@@ -25,6 +26,7 @@ This document provides a quick reference to all documentation that primarily ins
 - Link conventions (relative links, no duplication)
 - Testing requirements (`ruff check docs`, `pytest`)
 - Issue management synchronization
+- **Release and version management** (coordinate with complete release process)
 
 ### 3. `/dwc/AGENTS.md` - Darwin Core module agent guidelines
 **Purpose**: Instructions for agents working on DwC/ABCD data modules
@@ -82,5 +84,6 @@ Repository Root
 2. **Reproducibility**: Semantic versioning, commit hashes, timestamps
 3. **Traceability**: GitHub issue linking, audit trails
 4. **Quality**: Automated testing and linting before commits
-5. **Human-in-the-loop**: Small reviewable steps, early feedback
-6. **Documentation synchronization**: Update roadmap when closing issues
+5. **Release integrity**: Git tags must match CHANGELOG version references
+6. **Human-in-the-loop**: Small reviewable steps, early feedback
+7. **Documentation synchronization**: Update roadmap when closing issues
