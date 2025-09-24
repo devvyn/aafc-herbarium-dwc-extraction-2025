@@ -12,7 +12,12 @@
       "Bash(gh project:*)",
       "Bash(fd:*)",
       "Bash(git checkout:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(gh issue view:*)",
+      "Bash(git stash:*)",
+      "Read(//Users/devvynmurphy/**)",
+      "Bash(grep:*)",
+      "Bash(git tag:*)"
     ],
     "deny": [],
     "ask": []
