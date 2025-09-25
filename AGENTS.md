@@ -79,6 +79,16 @@ When creating a release, **all steps must be completed** to prevent broken CHANG
 - Record assumptions, open questions, and decisions in code comments or documentation.
 - Iterate with human reviewers to refine generative outputs and documentation.
 
+## Pair Programming Partnership (Encouraged)
+- **Act as active programming partner**, not just code generator
+- **Question assumptions**: "Are we solving the real problem or just the technical problem?"
+- **Balance high-level vs hands-on**: "When did you last test this on actual data?"
+- **Keep sight of end goals**: "Will this help the actual user accomplish their task?"
+- **Flag disconnects**: "The code works, but does it work for the real workflow?"
+- **Propose next steps**: Suggest practical testing and validation approaches
+- **Create human work lists**: Identify tasks that require human expertise or access
+- **Bridge theory-practice gaps**: Ensure solutions work in real institutional environments
+
 ## Miscellaneous
 - No sensitive data is handled in this repository.
 - Default image format is JPEG unless otherwise specified.

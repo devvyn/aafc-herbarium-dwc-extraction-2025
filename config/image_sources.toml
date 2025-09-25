@@ -3,8 +3,9 @@
 
 [sources]
 # Primary development and testing image sources
-primary_bucket = ""  # To be configured with your S3 bucket name
-public_base_url = ""  # To be configured with public S3 URL or CDN
+primary_bucket = "devvyn.aafc-srdc.herbarium"
+public_base_url = "https://devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com"
+region = "us-east-1"
 
 [test_images]
 # Curated test images for different scenarios - publicly accessible URLs
@@ -12,7 +13,12 @@ public_base_url = ""  # To be configured with public S3 URL or CDN
 
 # Clear, readable specimen labels (good for GPT processing)
 readable_specimens = [
-    # URLs to be added for specimens with clear, legible labels
+    "https://devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com/images/00/0e/000e426d6ed12c347a937c47f568088a8daa32cdea3127d90f1eca5653831c84.jpg",
+    "https://devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com/images/00/21/002143863d4b7c143fbf210738ff3f6a01a0f0d421e93e2762e3ee3e4c5c3fdd.jpg",
+    "https://devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com/images/00/2e/002e8642edeadc9390dc630b8bd0a0a656e6b2bf76894943df0032b4b3916ee4.jpg",
+    "https://devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com/images/00/32/0032c4e7a00e97fcaafa518ceaea0d91919131e12c77c727ad8fb90ef1d30267.jpg",
+    "https://devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com/images/00/42/0042a8ea8490719b559ed7ada1b424adfaffd3ef88cc4f99432d63d8c4984ebe.jpg",
+    # ... and 95 more images
 ]
 
 # Minimal text specimens (good for basic OCR)
@@ -58,7 +64,8 @@ distribution = [35, 30, 20, 10, 5]  # Balanced for performance testing
 
 [public_access]
 # Configuration for making images publicly accessible
-enable_public_urls = false  # Set to true when bucket is configured for public access
+enable_public_urls = true
+region = "us-east-1"
 cdn_endpoint = ""  # Optional CDN endpoint for faster access
 cache_control = "public, max-age=3600"  # HTTP cache headers for public images
 
