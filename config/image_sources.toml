@@ -1,39 +1,22 @@
-# Image Sources Configuration for Herbarium Digitization
-# This file defines reproducible image sources for testing, documentation, and development
-
 [sources]
-# Primary development and testing image sources
-primary_bucket = ""  # To be configured with your S3 bucket name
-public_base_url = ""  # To be configured with public S3 URL or CDN
+primary_bucket = "devvyn.aafc-srdc.herbarium"
+public_base_url = "https://devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com"
+region = "us-east-1"
 
 [test_images]
-# Curated test images for different scenarios - publicly accessible URLs
-# These can be used for documentation, testing, and development
-
-# Clear, readable specimen labels (good for GPT processing)
+# Readable Specimens
 readable_specimens = [
-    # URLs to be added for specimens with clear, legible labels
+    "https://devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com/images/00/0e/000e426d6ed12c347a937c47f568088a8daa32cdea3127d90f1eca5653831c84.jpg",
+    "https://devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com/images/00/21/002143863d4b7c143fbf210738ff3f6a01a0f0d421e93e2762e3ee3e4c5c3fdd.jpg",
+    "https://devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com/images/00/2e/002e8642edeadc9390dc630b8bd0a0a656e6b2bf76894943df0032b4b3916ee4.jpg",
+    "https://devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com/images/00/32/0032c4e7a00e97fcaafa518ceaea0d91919131e12c77c727ad8fb90ef1d30267.jpg",
+    "https://devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com/images/00/42/0042a8ea8490719b559ed7ada1b424adfaffd3ef88cc4f99432d63d8c4984ebe.jpg",
+    # ... and 95 more images
 ]
 
-# Minimal text specimens (good for basic OCR)
-minimal_text_specimens = [
-    # URLs to be added for specimens with minimal but readable text
-]
-
-# Unlabeled specimens (specimen only, no text)
-unlabeled_specimens = [
-    # URLs to be added for specimens without visible text labels
-]
-
-# Poor quality specimens (challenging for any processing)
-poor_quality_specimens = [
-    # URLs to be added for challenging specimens (blurry, damaged, etc.)
-]
-
-# Multilingual specimens for language testing
-multilingual_specimens = [
-    # URLs to be added for specimens with labels in different languages
-]
+[public_access]
+enable_public_urls = true
+region = "us-east-1"
 
 [sample_collections]
 # Predefined collections for different use cases
