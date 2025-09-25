@@ -21,7 +21,22 @@
       "Bash(gh release:*)",
       "Bash(aws s3 ls:*)",
       "Bash(env)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(git fetch:*)",
+      "Bash(git merge:*)",
+      "Bash(python:*)",
+      "Bash(uv add:*)",
+      "Bash(aws:*)",
+      "Bash(swift --version)",
+      "Bash(swift build)",
+      "Bash(swift run:*)",
+      "Bash(sw_vers)",
+      "Bash(if [ -n \"$ANTHROPIC_API_KEY\" ])",
+      "Bash(then echo \"✅ Claude API key available\")",
+      "Bash(else echo \"❌ No Claude API key\")",
+      "Bash(fi)",
+      "Bash(if [ -n \"$OPENAI_API_KEY\" ])",
+      "Bash(else echo \"❌ No OpenAI API key\")"
     ],
     "deny": [],
     "ask": []

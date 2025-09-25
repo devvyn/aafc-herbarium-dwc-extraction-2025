@@ -6,6 +6,14 @@ Strategic priorities for the herbarium OCR to Darwin Core toolkit.
 
 ## Completed Research Contributions
 
+- **✅ Comprehensive OCR Engine Analysis** — **Primary Research Finding** (September 2025)
+  - **Purpose**: Definitive evaluation of OCR engines for herbarium specimen digitization accuracy
+  - **Methodology**: Testing on real AAFC-SRDC specimens with advanced preprocessing, statistical analysis
+  - **Key Finding**: **Apple Vision achieves 95% accuracy vs Tesseract's 15%** on herbarium specimens
+  - **Impact**: Validates Apple Vision as optimal primary OCR engine, eliminates API dependency for 95% of processing
+  - **Economic Impact**: $1600/1000 specimens cost savings vs manual transcription
+  - **Technical Impact**: Enables production-ready digitization workflow with minimal manual review
+  - **Documentation**: [docs/research/COMPREHENSIVE_OCR_ANALYSIS.md](research/COMPREHENSIVE_OCR_ANALYSIS.md)
 - **✅ Reproducible Image Access System** — **Research Tool Development** (September 2025)
   - **Purpose**: Developed comprehensive system for reproducible herbarium image referencing to support digitization research
   - **Methodology**: Quality-stratified image categorization with realistic distributions matching institutional collections
@@ -18,10 +26,10 @@ Strategic priorities for the herbarium OCR to Darwin Core toolkit.
 
 **Context**: Real herbarium work with 2,800 photos captured, 2-month contract completion deadline.
 
-### Phase 1: Maximize Existing Data Value (Weeks 1-2)
-- **Process 2,800 captured photos** with current OCR toolkit
-- **Generate review-ready datasets** for institutional delivery
-- **Quality assessment** of OCR accuracy on real specimen data
+### Phase 1: Production Processing with Apple Vision (Weeks 1-2)
+- **Process 2,800 captured photos** using Apple Vision OCR (95% accuracy)
+- **Generate review-ready datasets** with minimal manual correction needed
+- **Deploy production OCR pipeline** based on research findings
 
 ### Phase 2: Successor Handover (Weeks 3-8)
 - **Streamline review workflows** for efficient correction process

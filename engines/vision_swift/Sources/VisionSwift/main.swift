@@ -18,11 +18,23 @@ func filterLanguages(
     level: VNRequestTextRecognitionLevel,
     revision: Int
 ) -> [String] {
-    let mapped = languages.compactMap { Locale.Language(identifier: $0).languageCode?.identifier }
-    guard let supported = try? VNRecognizeTextRequest.supportedRecognitionLanguages(for: level, revision: revision) else {
-        return mapped
+    // Simplified language filtering for compatibility
+    if languages.isEmpty {
+        return []
     }
-    return mapped.filter { supported.contains($0) }
+
+    // Basic language code extraction without newer APIs
+    let mapped = languages.compactMap { lang -> String? in
+        let locale = Locale(identifier: lang)
+        return locale.languageCode
+    }
+
+    // Try to get supported languages, fall back gracefully
+    if let supported = try? VNRecognizeTextRequest.supportedRecognitionLanguages(for: level, revision: revision) {
+        return mapped.filter { supported.contains($0) }
+    }
+
+    return mapped
 }
 
 func recognizeText(in image: CGImage, languages: [String]) throws -> [RecognitionResult] {
