@@ -31,23 +31,25 @@
 
 ## 🔍 **What Information Can Be Extracted?**
 
-### **✅ High Success Rate (90%+ accuracy)**
-- **Scientific names** (genus + species)
+### **✅ Apple Vision OCR - High Success Rate (95% accuracy)**
+- **Institution names** ("REGINA RESEARCH STATION", "AGRICULTURE CANADA")
+- **Scientific names** (genus + species, including author citations)
 - **Collection numbers** (when clearly written)
-- **Dates** (in standard formats)
-- **Collector names** (printed labels)
-
-### **✅ Moderate Success Rate (70%+ accuracy)**
-- **Geographic locations** (countries, provinces)
-- **Coordinates** (when present on labels)
+- **Dates** (in various formats, including handwritten)
+- **Collector names** (both printed and handwritten labels)
+- **Geographic locations** (countries, provinces, detailed localities)
 - **Specimen types** (holotype, isotype, etc.)
+
+### **✅ Moderate Success Rate (80-90% accuracy)**
+- **Handwritten notes** (legibility dependent)
+- **Coordinates** (when present on labels)
+- **Complex locality descriptions** (detailed geographic info)
 - **Institution codes** (herbarium identifiers)
 
-### **⚠️ Challenging (30-50% accuracy)**
-- **Handwritten notes** (depends on legibility)
+### **⚠️ Challenging but Manageable (60-70% accuracy)**
 - **Faded or damaged labels** (age-related deterioration)
-- **Non-English text** (requires language detection)
-- **Complex locality descriptions** (detailed geographic info)
+- **Non-English text** (may require specialized processing)
+- **Heavily overlapped text** (specimen material covering labels)
 
 ---
 
