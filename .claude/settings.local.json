@@ -12,7 +12,16 @@
       "Bash(gh project:*)",
       "Bash(fd:*)",
       "Bash(git checkout:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(gh issue view:*)",
+      "Bash(git stash:*)",
+      "Read(//Users/devvynmurphy/**)",
+      "Bash(grep:*)",
+      "Bash(git tag:*)",
+      "Bash(gh release:*)",
+      "Bash(aws s3 ls:*)",
+      "Bash(env)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [],
     "ask": []

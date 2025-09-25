@@ -17,3 +17,13 @@
 - Reference targeted GitHub issues with syntax like `#123` in commits and pull requests so they auto-link or close.
 - When an issue affecting documentation is resolved or reopened, update any relevant docs accordingly.
 - After closing an issue, review `roadmap.md` and TODO lists for follow-up ideas and open new issues for any additional suggestions or problems.
+
+## Release and Version Management
+When documentation updates relate to version releases:
+
+1. **Coordinate with release process**: Follow complete release process in `/AGENTS.md`
+2. **Update version references**: Ensure docs reference correct version numbers
+3. **Verify external links**: Check that CHANGELOG.md comparison links work after git tags are created
+4. **Cross-reference documentation**: Update links between docs when files are moved or renamed
+
+**Important**: Documentation agents should never update version numbers without coordinating with the complete release process, including git tag creation.

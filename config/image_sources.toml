@@ -1,0 +1,135 @@
+# Image Sources Configuration for Herbarium Digitization
+# This file defines reproducible image sources for testing, documentation, and development
+
+[sources]
+# Primary development and testing image sources
+primary_bucket = ""  # To be configured with your S3 bucket name
+public_base_url = ""  # To be configured with public S3 URL or CDN
+
+[test_images]
+# Curated test images for different scenarios - publicly accessible URLs
+# These can be used for documentation, testing, and development
+
+# Clear, readable specimen labels (good for GPT processing)
+readable_specimens = [
+    # URLs to be added for specimens with clear, legible labels
+]
+
+# Minimal text specimens (good for basic OCR)
+minimal_text_specimens = [
+    # URLs to be added for specimens with minimal but readable text
+]
+
+# Unlabeled specimens (specimen only, no text)
+unlabeled_specimens = [
+    # URLs to be added for specimens without visible text labels
+]
+
+# Poor quality specimens (challenging for any processing)
+poor_quality_specimens = [
+    # URLs to be added for challenging specimens (blurry, damaged, etc.)
+]
+
+# Multilingual specimens for language testing
+multilingual_specimens = [
+    # URLs to be added for specimens with labels in different languages
+]
+
+[sample_collections]
+# Predefined collections for different use cases
+
+[sample_collections.demo]
+description = "Small demo collection for quick testing and documentation"
+count = 10
+categories = ["readable", "minimal", "unlabeled", "poor"]
+distribution = [4, 3, 2, 1]  # Number of specimens per category
+
+[sample_collections.validation]
+description = "Comprehensive validation set for quality assessment"
+count = 100
+categories = ["readable", "minimal", "unlabeled", "poor", "multilingual"]
+distribution = [40, 25, 20, 10, 5]  # Percentages matching stratified sampling
+
+[sample_collections.benchmark]
+description = "Performance benchmarking collection"
+count = 1000
+categories = ["readable", "minimal", "unlabeled", "poor", "multilingual"]
+distribution = [35, 30, 20, 10, 5]  # Balanced for performance testing
+
+[public_access]
+# Configuration for making images publicly accessible
+enable_public_urls = false  # Set to true when bucket is configured for public access
+cdn_endpoint = ""  # Optional CDN endpoint for faster access
+cache_control = "public, max-age=3600"  # HTTP cache headers for public images
+
+[metadata]
+# Metadata for reproducible image references
+version = "1.0"
+created_date = "2025-09-24"
+maintainer = "AAFC Herbarium Digitization Team"
+license = "Public Domain - No sensitive or protected content"
+description = "Curated herbarium specimen images for testing and documentation purposes"
+
+[urls]
+# Template URL patterns for different access methods
+s3_pattern = "s3://{bucket}/{key}"
+https_pattern = "https://{bucket}.s3.{region}.amazonaws.com/{key}"
+cdn_pattern = "https://{cdn_endpoint}/{key}"
+
+[quality_categories]
+# Detailed definitions for image quality stratification
+
+[quality_categories.readable_labels]
+description = "Specimens with clear, legible labels suitable for GPT processing"
+characteristics = [
+    "High resolution text labels",
+    "Good lighting and contrast",
+    "Minimal occlusion or damage",
+    "Scientific names clearly visible",
+    "Collection data readable"
+]
+expected_accuracy = 95
+processing_method = "gpt_herbarium"
+
+[quality_categories.minimal_text]
+description = "Specimens with minimal but readable text, good for OCR"
+characteristics = [
+    "Some readable text elements",
+    "Acceptable image quality",
+    "May have partial occlusion",
+    "Basic collection data visible"
+]
+expected_accuracy = 85
+processing_method = "hybrid_triage"
+
+[quality_categories.unlabeled]
+description = "Specimens without visible text labels"
+characteristics = [
+    "No readable text labels",
+    "Specimen clearly visible",
+    "May have specimen-only information"
+]
+expected_accuracy = 30
+processing_method = "specimen_analysis"
+
+[quality_categories.poor_quality]
+description = "Challenging specimens with quality issues"
+characteristics = [
+    "Blurry or low resolution",
+    "Poor lighting or contrast",
+    "Significant damage or occlusion",
+    "Difficult to process"
+]
+expected_accuracy = 15
+processing_method = "manual_review"
+
+[quality_categories.multilingual]
+description = "Specimens with labels in non-English languages"
+characteristics = [
+    "Labels in various languages",
+    "May include Latin scientific names",
+    "Historical specimens with old language variants",
+    "Mixed language content"
+]
+expected_accuracy = 80
+processing_method = "multilingual_ocr"
