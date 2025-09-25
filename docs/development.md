@@ -42,3 +42,66 @@ pytest
 ```
 
 These checks help maintain a consistent code style and verify that new contributions do not introduce regressions.
+
+## Release Process
+
+This project follows semantic versioning and Keep a Changelog format for all releases.
+
+### Creating a Release
+
+1. **Update version numbers**:
+   ```bash
+   # Update version in pyproject.toml
+   # Update version in CHANGELOG.md with new section
+   ```
+
+2. **Update CHANGELOG.md**:
+   - Add new version section with date: `## [X.Y.Z] - YYYY-MM-DD`
+   - Move items from `[Unreleased]` to the new version section
+   - Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format
+   - Add version comparison link at bottom of file
+
+3. **Create and push the release**:
+   ```bash
+   git add .
+   git commit -m "🚀 Release vX.Y.Z: Brief description"
+   git tag vX.Y.Z
+   git push origin main
+   git push origin vX.Y.Z
+   ```
+
+4. **Update comparison links**:
+   - Update `[Unreleased]` link to compare from new version
+   - Add new version comparison link
+   - Example format:
+     ```
+     [Unreleased]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/vX.Y.Z...HEAD
+     [X.Y.Z]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/vX.Y.W...vX.Y.Z
+     ```
+
+### Critical Requirements
+
+- **Always create git tags** for releases - this enables changelog comparison links
+- **Use semantic versioning**: v0.1.0, v0.2.0, v1.0.0, etc.
+- **Follow Keep a Changelog format** - agents must maintain this structure
+- **Update pyproject.toml version** to match changelog and tag
+- **Test the comparison links** - they should work on GitHub
+
+### Changelog Format Reference
+
+```markdown
+## [Unreleased]
+
+## [1.0.0] - 2025-01-15
+### Added
+- New feature descriptions
+
+### Changed
+- Modified functionality descriptions
+
+### Fixed
+- Bug fix descriptions
+
+[Unreleased]: https://github.com/repo/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/repo/compare/v0.9.0...v1.0.0
+```
