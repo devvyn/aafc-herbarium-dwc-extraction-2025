@@ -1,6 +1,6 @@
 [project]
 name = "herbarium-dwc"
-version = "0.2.0"
+version = "0.3.0"
 description = "Herbarium OCR to Darwin Core extraction toolkit"
 authors = [{name = "AAFC"}]
 readme = "README.md"
@@ -8,7 +8,7 @@ requires-python = ">=3.11"
 dependencies = [
     "typer",
     "pydantic",
-    "Pillow",
+    "pillow",
     "numpy",
     "sqlalchemy",
     "python-dotenv",
@@ -16,6 +16,13 @@ dependencies = [
     "pyexcel",
     "pyexcel-xlsx",
     "pygsheets",
+    "boto3>=1.40.39",
+    "requests>=2.32.5",
+    "pytesseract>=0.3.13",
+    "opencv-python>=4.11.0.86",
+    "anthropic>=0.68.0",
+    "openai>=1.109.1",
+    "google-cloud-vision>=3.10.2",
 ]
 
 [project.scripts]

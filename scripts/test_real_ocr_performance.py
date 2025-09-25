@@ -23,8 +23,15 @@ except ImportError:
     ocr_engines['tesseract'] = False
 
 try:
-    from engines.vision_swift import VisionSwiftEngine
-    ocr_engines['vision_swift'] = True
+    import subprocess
+    import json
+    from pathlib import Path
+    # Test if Apple Vision Swift is available
+    pkg_dir = Path(__file__).resolve().parent.parent / "engines" / "vision_swift"
+    if pkg_dir.exists():
+        ocr_engines['vision_swift'] = True
+    else:
+        ocr_engines['vision_swift'] = False
 except ImportError:
     ocr_engines['vision_swift'] = False
 
@@ -76,17 +83,33 @@ class RealWorldOCRTester:
 
         start_time = time.time()
         try:
-            engine = VisionSwiftEngine()
-            result = engine.extract_text(image_path)
+            # Run Apple Vision Swift directly
+            pkg_dir = image_path.parent.parent / "engines" / "vision_swift"
+            cmd = [
+                "swift", "run", "--package-path", str(pkg_dir),
+                "vision_swift", str(image_path)
+            ]
+
+            proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            results = json.loads(proc.stdout)
+
+            # Extract text and calculate confidence
+            tokens = [r["text"] for r in results]
+            confidences = [r["confidence"] for r in results]
+            text = " ".join(tokens)
+            avg_confidence = sum(confidences) / len(confidences) if confidences else 0
+
             processing_time = time.time() - start_time
 
             return {
                 'engine': 'vision_swift',
-                'text': result.get('text', ''),
-                'confidence': result.get('confidence', 0),
+                'text': text,
+                'confidence': avg_confidence,
                 'processing_time': processing_time,
-                'text_length': len(result.get('text', '')),
-                'line_count': len([line for line in result.get('text', '').split('\n') if line.strip()])
+                'text_length': len(text),
+                'line_count': len([line for line in text.split('\n') if line.strip()]),
+                'tokens_detected': len(tokens),
+                'raw_results': results[:5]  # First 5 results for inspection
             }
         except Exception as e:
             return {'error': str(e), 'engine': 'vision_swift'}
