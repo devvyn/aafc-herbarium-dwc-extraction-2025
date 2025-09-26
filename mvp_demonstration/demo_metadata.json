@@ -1,0 +1,73 @@
+{
+  "demonstration_info": {
+    "created_at": "2025-09-25T21:21:40.399638",
+    "sample_size": 10,
+    "output_directory": "/Users/devvynmurphy/Documents/GitHub/aafc-herbarium-dwc-extraction-2025/mvp_demonstration",
+    "purpose": "Stakeholder demonstration of herbarium OCR capabilities"
+  },
+  "steps": {
+    "1_sample_creation": {
+      "success": true,
+      "processing_time": 2.038149833679199,
+      "stdout": "\ud83d\udcc1 Processing readable category (target: 40 images)\n  \ud83d\udce5 Downloading 000e426d6ed12c347a937c47f568088a8daa32cdea3127d90f1eca5653831c84.jpg...\nFailed to download https://devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com/images/00/0e/000e426d6ed12c347a937c47f568088a8daa32cdea3127d90f1eca5653831c84.jpg: HTTPSConnectionPool(host='devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com', port=443): Max retries exceeded with url: /images/00/0e/000e426d6ed12c347a937c47f568088a8daa32cdea3127d90f1eca5653831c84.jpg (Caused by SSLError(SSLCertVerificationError(1, \"[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com'. (_ssl.c:1016)\")))\n  \u274c Failed to download 000e426d6ed12c347a937c47f568088a8daa32cdea3127d90f1eca5653831c84.jpg\n  \ud83d\udce5 Downloading 002143863d4b7c143fbf210738ff3f6a01a0f0d421e93e2762e3ee3e4c5c3fdd.jpg...\nFailed to download https://devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com/images/00/21/002143863d4b7c143fbf210738ff3f6a01a0f0d421e93e2762e3ee3e4c5c3fdd.jpg: HTTPSConnectionPool(host='devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com', port=443): Max retries exceeded with url: /images/00/21/002143863d4b7c143fbf210738ff3f6a01a0f0d421e93e2762e3ee3e4c5c3fdd.jpg (Caused by SSLError(SSLCertVerificationError(1, \"[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com'. (_ssl.c:1016)\")))\n  \u274c Failed to download 002143863d4b7c143fbf210738ff3f6a01a0f0d421e93e2762e3ee3e4c5c3fdd.jpg\n  \ud83d\udce5 Downloading 002e8642edeadc9390dc630b8bd0a0a656e6b2bf76894943df0032b4b3916ee4.jpg...\nFailed to download https://devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com/images/00/2e/002e8642edeadc9390dc630b8bd0a0a656e6b2bf76894943df0032b4b3916ee4.jpg: HTTPSConnectionPool(host='devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com', port=443): Max retries exceeded with url: /images/00/2e/002e8642edeadc9390dc630b8bd0a0a656e6b2bf76894943df0032b4b3916ee4.jpg (Caused by SSLError(SSLCertVerificationError(1, \"[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com'. (_ssl.c:1016)\")))\n  \u274c Failed to download 002e8642edeadc9390dc630b8bd0a0a656e6b2bf76894943df0032b4b3916ee4.jpg\n  \ud83d\udce5 Downloading 0032c4e7a00e97fcaafa518ceaea0d91919131e12c77c727ad8fb90ef1d30267.jpg...\nFailed to download https://devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com/images/00/32/0032c4e7a00e97fcaafa518ceaea0d91919131e12c77c727ad8fb90ef1d30267.jpg: HTTPSConnectionPool(host='devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com', port=443): Max retries exceeded with url: /images/00/32/0032c4e7a00e97fcaafa518ceaea0d91919131e12c77c727ad8fb90ef1d30267.jpg (Caused by SSLError(SSLCertVerificationError(1, \"[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com'. (_ssl.c:1016)\")))\n  \u274c Failed to download 0032c4e7a00e97fcaafa518ceaea0d91919131e12c77c727ad8fb90ef1d30267.jpg\n  \ud83d\udce5 Downloading 0042a8ea8490719b559ed7ada1b424adfaffd3ef88cc4f99432d63d8c4984ebe.jpg...\nFailed to download https://devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com/images/00/42/0042a8ea8490719b559ed7ada1b424adfaffd3ef88cc4f99432d63d8c4984ebe.jpg: HTTPSConnectionPool(host='devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com', port=443): Max retries exceeded with url: /images/00/42/0042a8ea8490719b559ed7ada1b424adfaffd3ef88cc4f99432d63d8c4984ebe.jpg (Caused by SSLError(SSLCertVerificationError(1, \"[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'devvyn.aafc-srdc.herbarium.s3.us-east-1.amazonaws.com'. (_ssl.c:1016)\")))\n  \u274c Failed to download 0042a8ea8490719b559ed7ada1b424adfaffd3ef88cc4f99432d63d8c4984ebe.jpg\n\ud83d\udcc1 Processing minimal category (target: 25 images)\n\ud83d\udcc1 Processing unlabeled category (target: 20 images)\n\ud83d\udcc1 Processing poor category (target: 10 images)\n\ud83d\udcc1 Processing multilingual category (target: 5 images)\n\n\u2705 Created validation bundle with 0 images\n\ud83d\udcc4 Bundle manifest: /Users/devvynmurphy/Documents/GitHub/aafc-herbarium-dwc-extraction-2025/mvp_demonstration/sample_images/bundle_manifest.json\n\n\ud83c\udfaf Bundle ready for testing:\n   Path: /Users/devvynmurphy/Documents/GitHub/aafc-herbarium-dwc-extraction-2025/mvp_demonstration/sample_images\n   Images: 0\n   Categories: ['readable', 'minimal', 'unlabeled', 'poor', 'multilingual']\n",
+      "stderr": ""
+    },
+    "2_processing": {
+      "success": true,
+      "processing_time": 0.7374711036682129,
+      "stdout": "",
+      "stderr": "2025-09-25 21:21:43,076 [INFO] Processed 0 images. Output written to /Users/devvynmurphy/Documents/GitHub/aafc-herbarium-dwc-extraction-2025/mvp_demonstration/processing_results\n"
+    },
+    "3_statistics": {
+      "success": false,
+      "processing_time": 0.5294492244720459,
+      "error": "Command '['python', 'cli.py', 'stats', '--db', '/Users/devvynmurphy/Documents/GitHub/aafc-herbarium-dwc-extraction-2025/mvp_demonstration/processing_results/app.db', '--format', 'json']' returned non-zero exit status 2.",
+      "stderr": "Usage: cli.py [OPTIONS] COMMAND [ARGS]...\nTry 'cli.py --help' for help.\n\u256d\u2500 Error \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 No such command 'stats'.                                                     \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n"
+    },
+    "4_archive": {
+      "success": false,
+      "processing_time": 0.4942440986633301,
+      "error": "Command '['python', 'cli.py', 'archive', '--output', '/Users/devvynmurphy/Documents/GitHub/aafc-herbarium-dwc-extraction-2025/mvp_demonstration/processing_results', '--version', 'mvp_demo_1.0', '--filter', 'confidence > 0.7']' returned non-zero exit status 2.",
+      "stderr": "Usage: cli.py [OPTIONS] COMMAND [ARGS]...\nTry 'cli.py --help' for help.\n\u256d\u2500 Error \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 No such command 'archive'.                                                   \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n"
+    },
+    "5_quality_report": {
+      "success": false,
+      "processing_time": 0.012584924697875977,
+      "error": "Command '['python', 'qc/comprehensive_qc.py', '--db', '/Users/devvynmurphy/Documents/GitHub/aafc-herbarium-dwc-extraction-2025/mvp_demonstration/processing_results/app.db', '--output', '/Users/devvynmurphy/Documents/GitHub/aafc-herbarium-dwc-extraction-2025/mvp_demonstration/quality_control_report.html', '--include-geographic-validation', '--include-taxonomic-validation']' returned non-zero exit status 2.",
+      "stderr": "python: can't open file '/Users/devvynmurphy/Documents/GitHub/aafc-herbarium-dwc-extraction-2025/qc/comprehensive_qc.py': [Errno 2] No such file or directory\n"
+    }
+  },
+  "summary": {
+    "processing_metrics": {
+      "total_processing_time": 3.81,
+      "steps_completed": 2,
+      "steps_failed": 3
+    },
+    "quality_metrics": {},
+    "output_files": {
+      "occurrence.csv": {
+        "exists": false
+      },
+      "identification_history.csv": {
+        "exists": false
+      },
+      "raw.jsonl": {
+        "exists": false
+      },
+      "app.db": {
+        "exists": true,
+        "size_bytes": 36864,
+        "size_mb": 0.04
+      },
+      "candidates.db": {
+        "exists": true,
+        "size_bytes": 20480,
+        "size_mb": 0.02
+      }
+    },
+    "recommendations": [
+      "\u2705 Processing speed suitable for production batches",
+      "\u2705 Quality control database ready for curator review"
+    ]
+  }
+}

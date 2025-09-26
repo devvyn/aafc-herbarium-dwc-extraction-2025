@@ -1,0 +1,76 @@
+# Image Source Configuration Examples
+# Different configurations for accessing herbarium images
+
+# S3-only configuration (current default)
+[s3_only]
+type = "s3"
+bucket = "devvyn.aafc-srdc.herbarium"
+region = "ca-central-1"
+prefix = "images"
+description = "Access images directly from S3 bucket"
+
+# Local filesystem only
+[local_only]
+type = "local"
+base_path = "./local_images"
+description = "Access images from local filesystem cache"
+
+# Multi-source: Try local first, fallback to S3
+[local_first]
+type = "multi"
+description = "Try local cache first, download from S3 if needed"
+
+[[local_first.sources]]
+type = "local"
+base_path = "./image_cache"
+
+[[local_first.sources]]
+type = "s3"
+bucket = "devvyn.aafc-srdc.herbarium"
+region = "ca-central-1"
+prefix = "images"
+
+# Multi-source: Development environment
+[development]
+type = "multi"
+description = "Development setup with multiple fallback options"
+
+# Check local development images first
+[[development.sources]]
+type = "local"
+base_path = "./dev_images"
+
+# Then check shared cache
+[[development.sources]]
+type = "local"
+base_path = "/shared/herbarium_cache"
+
+# Finally fallback to S3
+[[development.sources]]
+type = "s3"
+bucket = "devvyn.aafc-srdc.herbarium"
+region = "ca-central-1"
+prefix = "images"
+
+# Production configuration
+[production]
+type = "multi"
+description = "Production setup with local cache and S3 backup"
+
+# Production cache
+[[production.sources]]
+type = "local"
+base_path = "/opt/herbarium/images"
+
+# S3 fallback
+[[production.sources]]
+type = "s3"
+bucket = "devvyn.aafc-srdc.herbarium"
+region = "ca-central-1"
+prefix = "images"
+
+# Testing configuration
+[testing]
+type = "local"
+base_path = "./test_images"
+description = "Local test images for unit tests"

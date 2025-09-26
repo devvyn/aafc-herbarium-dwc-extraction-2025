@@ -12,7 +12,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict
 import requests
 import tomllib
 from urllib.parse import urlparse
@@ -228,7 +228,7 @@ Examples:
 
         elif args.command == 'create-bundle':
             bundle_info = create_test_bundle(args.collection, args.output, config)
-            print(f"\n🎯 Bundle ready for testing:")
+            print("\n🎯 Bundle ready for testing:")
             print(f"   Path: {args.output}")
             print(f"   Images: {len(bundle_info['images'])}")
             print(f"   Categories: {list(bundle_info['categories'].keys())}")
@@ -237,18 +237,18 @@ Examples:
             print("🔗 Validating sample image URLs...")
             results = validate_sample_urls(config)
 
-            print(f"\n📊 Validation Results:")
+            print("\n📊 Validation Results:")
             print(f"   Total URLs checked: {results['total_checked']}")
             print(f"   ✅ Accessible: {len(results['accessible'])}")
             print(f"   ❌ Broken: {len(results['broken'])}")
 
             if results['broken']:
-                print(f"\n⚠️  Broken URLs:")
+                print("\n⚠️  Broken URLs:")
                 for url in results['broken']:
                     print(f"     {url}")
                 return 1
             else:
-                print(f"\n🎉 All URLs are accessible!")
+                print("\n🎉 All URLs are accessible!")
 
     except Exception as e:
         print(f"Error: {e}")
