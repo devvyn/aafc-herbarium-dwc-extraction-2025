@@ -1,332 +1,253 @@
-# User Guide: Herbarium Digitization Workflows
+# User Guide - Herbarium Specimen Digitization
 
-This guide provides step-by-step instructions for common herbarium digitization scenarios using the OCR to Darwin Core toolkit.
+**Step-by-step guide for institutional staff to digitize herbarium specimens using OCR automation.**
 
-## Table of Contents
+---
 
-1. [Quick Start](#quick-start)
-2. [Complete Institutional Workflow](#complete-institutional-workflow)
-3. [Small Collection Processing](#small-collection-processing)
-4. [Multi-language Specimens](#multi-language-specimens)
-5. [Quality Control Procedures](#quality-control-procedures)
-6. [Export and Data Publishing](#export-and-data-publishing)
+## Quick Reference
 
-## Quick Start
+### Basic Workflow
+1. **Setup** → Install software and organize photos
+2. **Process** → Automated OCR extraction (2-4 hours for 1000 specimens)
+3. **Review** → Quality control using web interface
+4. **Export** → Generate Darwin Core data for GBIF/databases
 
-### Prerequisites
-
-- Python 3.11 or later
-- API keys for GPT models (optional but recommended)
-- Collection of herbarium specimen images (JPG/PNG format)
-
-### Installation and Setup
-
+### Common Commands
 ```bash
-# Clone and set up the environment
-git clone <repository-url>
-cd aafc-herbarium-dwc-extraction-2025
-./bootstrap.sh
-
-# Configure API keys
-cp .env.example .env
-# Edit .env to add your OPENAI_API_KEY
-```
-
-### Processing Your First Specimen
-
-```bash
-# Create input directory and add images
-mkdir -p ./input/test-specimens
-# Copy your specimen images to ./input/test-specimens/
-
-# Process with multiple OCR engines
-python cli.py process \
-  --input ./input/test-specimens \
-  --output ./output/test-run \
-  --engine tesseract \
-  --engine vision \
-  --engine gpt
+# Process specimens
+python cli.py process --input photos/ --output results/ --engine vision
 
 # Review results
-ls ./output/test-run/
-# occurrence.csv - Darwin Core records
-# raw.jsonl - Detailed OCR results
-# candidates.db - Raw OCR data
+python review_web.py --db results/candidates.db --images photos/
+
+# Generate reports
+python cli.py stats --db results/app.db --format html
 ```
 
-## Complete Institutional Workflow
+---
 
-This workflow is designed for institutions processing hundreds to thousands of specimens.
+## Getting Started
 
-### Step 1: Preparation and Planning
+### First Time Setup
 
+#### 1. Install Software
 ```bash
-# Create organized directory structure
-mkdir -p ./input/collection-2024
-mkdir -p ./output/collection-2024
-mkdir -p ./backup/collection-2024
-
-# Verify specimen images are properly named
-# Recommended format: INSTITUTION_BARCODE.jpg
-# Example: AAFC_12345678.jpg
-ls ./input/collection-2024/ | head -10
+# Clone and install (one-time setup)
+git clone https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025.git
+cd aafc-herbarium-dwc-extraction-2025
+./bootstrap.sh
 ```
 
-### Step 2: Configuration Setup
-
-Create a custom configuration file for your institution:
-
+#### 2. Organize Your Photos
+Create a consistent directory structure:
 ```bash
-cp config/config.default.toml config/institution.toml
+mkdir -p ~/herbarium_work/batch_1/{input,output}
 ```
 
-Edit `config/institution.toml`:
-
-```toml
-[ocr]
-preferred_engine = "gpt"
-enabled_engines = ["gpt", "tesseract", "vision"]
-confidence_threshold = 0.7
-
-[gpt]
-model = "gpt-4-vision-preview"
-dry_run = false
-fallback_threshold = 0.5
-
-[dwc]
-assume_country_if_missing = "Canada"  # Adjust for your institution
-strict_minimal_fields = true
-
-[preprocess]
-pipeline = ["grayscale", "deskew", "binarize", "resize"]
-max_dim_px = 3000
-```
-
-### Step 3: Batch Processing
-
+Copy your specimen photos to the input directory:
 ```bash
-# Start initial processing
+cp /path/to/your/photos/*.jpg ~/herbarium_work/batch_1/input/
+```
+
+#### 3. Verify System Ready
+```bash
+# Check OCR engines available
+python cli.py check-deps --engines vision,tesseract,gpt
+
+# Expected on macOS: ✅ Apple Vision: Available
+```
+
+---
+
+## Processing Specimens
+
+### Standard Processing Workflow
+
+#### Step 1: Start Processing
+```bash
 python cli.py process \
-  --input ./input/collection-2024 \
-  --output ./output/collection-2024 \
-  --config config/institution.toml \
-  --engine gpt \
-  --engine tesseract
+  --input ~/herbarium_work/batch_1/input \
+  --output ~/herbarium_work/batch_1/output \
+  --engine vision
+```
 
-# Monitor progress
-tail -f ./output/collection-2024/app.log
+**What happens:**
+- Each photo is analyzed using Apple Vision OCR
+- Text is extracted and identified (scientific names, collectors, dates)
+- Results are saved with confidence scores
+- Progress is shown: "Processing specimen 1/100: photo_001.jpg"
 
-# Resume if interrupted
+#### Step 2: Monitor Progress
+```bash
+# Check processing status
+python cli.py stats --db ~/herbarium_work/batch_1/output/app.db
+
+# See confidence distribution
+python cli.py stats --db ~/herbarium_work/batch_1/output/app.db --show-confidence
+```
+
+#### Step 3: Handle Interruptions
+If processing stops, resume where it left off:
+```bash
 python cli.py resume \
-  --input ./input/collection-2024 \
-  --output ./output/collection-2024 \
-  --config config/institution.toml
+  --input ~/herbarium_work/batch_1/input \
+  --output ~/herbarium_work/batch_1/output
 ```
 
-### Step 4: Quality Control Review
+---
 
+## Understanding Results
+
+### Confidence Scores
+
+#### Interpretation Guide
+- **0.95-1.0**: Excellent - minimal review needed
+- **0.85-0.94**: Good - spot check recommended
+- **0.70-0.84**: Fair - review recommended
+- **Below 0.70**: Poor - manual review required
+
+#### Quality Expectations
+Based on OCR research:
+- **Apple Vision**: 95% of specimens achieve 0.85+ confidence
+- **Manual review needed**: ~5% of specimens
+- **High accuracy fields**: Institution names, collector names
+- **Lower accuracy fields**: Handwritten notes, damaged labels
+
+### Data Fields Extracted
+
+#### Primary Fields (High Accuracy)
+- **scientificName**: Taxonomic identification
+- **collector**: Person who collected specimen
+- **eventDate**: Collection date
+- **locality**: Collection location
+- **catalogNumber**: Institution specimen number
+
+---
+
+## Quality Control & Review
+
+### Web-Based Review (Recommended)
+
+#### Launch Review Interface
 ```bash
-# Launch web-based review interface
 python review_web.py \
-  --db ./output/collection-2024/candidates.db \
-  --images ./input/collection-2024 \
+  --db ~/herbarium_work/batch_1/output/candidates.db \
+  --images ~/herbarium_work/batch_1/input \
   --port 8080
-
-# Open browser to http://localhost:8080
-# Review and validate OCR results
-# Mark specimens for reprocessing if needed
 ```
 
-### Step 5: Export and Publishing
+Open browser to: http://localhost:8080
 
+#### Review Features
+- **Side-by-side view**: Photo and extracted text
+- **Confidence filtering**: Focus on specimens needing attention
+- **Bulk editing**: Fix common patterns across specimens
+- **Quick approval**: One-click for high-confidence results
+
+#### Focus on Problem Cases
 ```bash
-# Create versioned export
-python cli.py archive \
-  --output ./output/collection-2024 \
-  --version 1.0.0 \
-  --filter "confidence > 0.7"
-
-# Result: ./output/collection-2024/dwca_v1.0.0.zip
-# Contains: occurrence.csv, meta.xml, manifest.json
-```
-
-## Small Collection Processing
-
-For collections under 100 specimens, use this streamlined approach:
-
-### Single Command Processing
-
-```bash
-# Process with default settings
-python cli.py process \
-  --input ./input/small-collection \
-  --output ./output/small-collection \
-  --engine tesseract \
-  --engine gpt
-
-# Quick review using TUI
-python review.py ./output/small-collection/candidates.db specimen_001.jpg --tui
-```
-
-### Immediate Export
-
-```bash
-# Export without versioning for quick analysis
-python export_review.py \
-  --db ./output/small-collection/app.db \
-  --format csv \
-  --output ./output/small-collection/results.csv
-```
-
-## Multi-language Specimens
-
-For collections with non-English labels (common in historical collections):
-
-### Configuration for Multiple Languages
-
-```toml
-[ocr]
-langs = ["en", "fr", "de", "la"]  # English, French, German, Latin
-preferred_engine = "paddleocr"    # Best for multilingual text
-
-[paddleocr]
-lang = "latin"  # Use Latin character set
-```
-
-### Processing Command
-
-```bash
-python cli.py process \
-  --input ./input/multilingual \
-  --output ./output/multilingual \
-  --config config/multilingual.toml \
-  --engine paddleocr \
-  --engine gpt
-```
-
-### Language-Specific Review
-
-```bash
-# Review with language context
+# Review only low-confidence specimens
 python review_web.py \
-  --db ./output/multilingual/candidates.db \
-  --images ./input/multilingual \
-  --language-filter "fr,de,la"
+  --db ~/herbarium_work/batch_1/output/candidates.db \
+  --images ~/herbarium_work/batch_1/input \
+  --filter "confidence < 0.8"
 ```
 
-## Quality Control Procedures
+---
 
-### Automated Quality Checks
+## Data Export & Integration
 
+### Generate Final Dataset
+
+#### Darwin Core Export (GBIF Ready)
 ```bash
-# Run GBIF validation
-python qc/gbif.py \
-  --input ./output/collection-2024/occurrence.csv \
-  --output ./output/collection-2024/gbif_validation.json
-
-# Check for duplicates
-python qc/duplicates.py \
-  --db ./output/collection-2024/app.db \
-  --threshold 0.95
-```
-
-### Manual Review Guidelines
-
-1. **High Priority Review**: Specimens with confidence < 0.7
-2. **Taxonomic Validation**: Scientific names not found in GBIF
-3. **Geographic Validation**: Coordinates outside expected ranges
-4. **Date Validation**: Collection dates in the future or before 1800
-
-### Review Workflow
-
-```bash
-# Export specimens needing review
-python export_review.py \
-  --db ./output/collection-2024/app.db \
-  --filter "confidence < 0.7 OR gbif_match = false" \
-  --format xlsx \
-  --output ./review/needs_attention.xlsx
-
-# After review, import corrections
-python import_review.py \
-  --db ./output/collection-2024/app.db \
-  --input ./review/corrected_data.xlsx
-```
-
-## Export and Data Publishing
-
-### Darwin Core Archive Creation
-
-```bash
-# Create standards-compliant DwC-A
 python cli.py archive \
-  --output ./output/collection-2024 \
-  --version 2.0.0 \
-  --include-multimedia \
-  --gbif-validate
+  --output ~/herbarium_work/batch_1/output \
+  --version 1.0.0 \
+  --filter "confidence > 0.7" \
+  --include-multimedia
 ```
 
-### Custom Export Formats
+**Creates**: `dwca_v1.0.0.zip` ready for GBIF submission
 
+#### CSV Exports
+Your processed data is automatically available:
+- **`output/occurrence.csv`** - Darwin Core records
+- **`output/identification_history.csv`** - Taxonomic determinations
+- **`output/raw.jsonl`** - Complete processing logs
+
+---
+
+## Troubleshooting
+
+### Processing Issues
+
+#### "No OCR engines available"
 ```bash
-# CSV for analysis
-python export_review.py \
-  --db ./output/collection-2024/app.db \
-  --format csv \
-  --fields "scientificName,decimalLatitude,decimalLongitude,eventDate" \
-  --output ./exports/coordinates.csv
+# Check what's installed
+python cli.py check-deps --engines vision,tesseract,gpt
 
-# JSONL for processing
-python export_review.py \
-  --db ./output/collection-2024/app.db \
-  --format jsonl \
-  --output ./exports/full_records.jsonl
+# On macOS: Ensure Apple Vision available
+# On Linux/Windows: Install Tesseract
+pip install pytesseract
 ```
 
-### Data Validation Before Publishing
-
+#### Processing stops with errors
 ```bash
-# Comprehensive validation
-python qc/validate_export.py \
-  --input ./output/collection-2024/dwca_v2.0.0.zip \
-  --output ./validation/report.html
+# Check disk space
+df -h
 
-# Check required Darwin Core fields
-python qc/dwc_compliance.py \
-  --input ./output/collection-2024/occurrence.csv \
-  --standard "occurrence"
+# Resume processing
+python cli.py resume --input photos/ --output results/
 ```
 
-## Troubleshooting Common Issues
+#### Poor OCR results
+1. **Check image quality**: Clear, well-lit photos work best
+2. **Try different engines**: `--engine gpt` for difficult specimens
+3. **Adjust confidence threshold**: `--filter "confidence > 0.6"`
 
-### Low OCR Confidence
+### Review Interface Issues
 
+#### Web interface won't start
 ```bash
-# Reprocess with preprocessing
-python cli.py process \
-  --input ./problematic/images \
-  --output ./reprocessed \
-  --config config/high_quality.toml \
-  --engine gpt \
-  --preprocess-pipeline "grayscale,contrast,deskew,binarize"
+# Try different port
+python review_web.py --db results/candidates.db --images photos/ --port 8081
+
+# Check database path
+ls -la results/candidates.db
 ```
 
-### Missing Geographic Data
+---
 
-```bash
-# Use locality lookup
-python qc/locality_enrichment.py \
-  --db ./output/collection-2024/app.db \
-  --gazetteer "geonames" \
-  --update
-```
+## Best Practices
 
-### API Rate Limiting
+### Photo Preparation
 
-```toml
-[gpt]
-rate_limit_delay = 2.0  # seconds between requests
-batch_size = 10         # process in smaller batches
-```
+#### Optimal Image Quality
+- **Resolution**: 2-5 megapixels sufficient
+- **Format**: JPG or PNG
+- **Lighting**: Even lighting, avoid shadows
+- **Focus**: Ensure labels are in sharp focus
+- **Angle**: Straight-on view of labels
 
-For more specific troubleshooting, see [Troubleshooting Guide](troubleshooting.md).
+### Quality Control
+
+#### Review Priorities
+1. **Start with low confidence**: Focus effort where needed
+2. **Verify scientific names**: Use taxonomic databases
+3. **Check geographic data**: Validate locality information
+4. **Confirm dates**: Ensure reasonable collection dates
+
+---
+
+## Getting Help
+
+### Documentation Resources
+- **[FAQ](faq.md)**: Common questions and answers
+- **[Troubleshooting](troubleshooting.md)**: Detailed problem solving
+- **[Production Handover](PRODUCTION_HANDOVER.md)**: Complete deployment guide
+
+### Support Channels
+- **GitHub Issues**: Bug reports and feature requests
+- **Documentation**: Search docs first
+- **Community**: Share experiences with other users

@@ -36,7 +36,9 @@
       "Bash(else echo \"❌ No Claude API key\")",
       "Bash(fi)",
       "Bash(if [ -n \"$OPENAI_API_KEY\" ])",
-      "Bash(else echo \"❌ No OpenAI API key\")"
+      "Bash(else echo \"❌ No OpenAI API key\")",
+      "Bash(curl:*)",
+      "Bash(gh issue create:*)"
     ],
     "deny": [],
     "ask": []
