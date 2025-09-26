@@ -4,38 +4,80 @@
 # name = "pkg.module"
 # ``preferred_engine`` must correspond to a registered engine name.
 [ocr]
-# Apple Vision first (95% accuracy), fallback to cloud APIs for non-macOS
+# Apple Vision first (95% accuracy), comprehensive cloud API fallbacks
 preferred_engine = "vision"
-# Prioritized engine order based on research findings:
+# Prioritized engine order based on research findings and cost-effectiveness:
 # 1. Apple Vision (95% accuracy, $0 cost, macOS only)
-# 2. Cloud APIs (90-98% accuracy, API cost, all platforms)
-# 3. Tesseract removed (15% accuracy, not suitable for herbarium specimens)
-enabled_engines = ["vision", "gpt", "claude", "google"]
+# 2. Budget APIs: Google Vision, Azure Vision ($1-1.50/1000)
+# 3. Premium APIs: Claude, GPT-4o, Gemini ($2.50-15/1000)
+# 4. Ultra-premium: GPT-4 Vision ($50/1000)
+enabled_engines = ["vision", "google", "azure", "textract", "gemini", "claude", "gpt4o", "gpt"]
 confidence_threshold = 0.80
-# Require API fallback for non-macOS systems
+# Comprehensive cloud provider coverage
 require_api_fallback_on_windows = true
 # Accepts ISO 639-1 or ISO 639-2 codes; engines normalize as needed.
 langs = ["eng", "fra", "lat"]
 
 [gpt]
-fallback_threshold = 0.85
+# GPT-4 Vision (ultra-premium fallback)
+fallback_threshold = 0.95
 dry_run = false
-model = "gpt-4.1-mini"
+model = "gpt-4-vision-preview"
 prompt_dir = "prompts"
+cost_per_1000 = 50.0
 
-# Tesseract configuration removed - research shows 15% accuracy insufficient for herbarium specimens
-# Use Apple Vision (macOS) or cloud APIs (all platforms) instead
+[gpt4o]
+# GPT-4o Vision (faster, cheaper than GPT-4)
+fallback_threshold = 0.85
+model = "gpt-4o"
+prompt_dir = "prompts"
+cost_per_1000 = 2.5
 
 [claude]
 # Claude Vision API for high accuracy herbarium processing
 model = "claude-3-5-sonnet-20241022"
-fallback_threshold = 0.75
+fallback_threshold = 0.80
 botanical_context = true
+cost_per_1000 = 15.0
 
 [google]
-# Google Vision API fallback for Windows systems
+# Google Vision API - budget primary choice
 credentials_path = ".google-credentials.json"
 fallback_threshold = 0.70
+cost_per_1000 = 1.5
+
+[azure]
+# Microsoft Azure Computer Vision - Windows-optimized
+endpoint = "https://your-region.cognitiveservices.azure.com/"
+subscription_key_env = "AZURE_COMPUTER_VISION_SUBSCRIPTION_KEY"
+fallback_threshold = 0.70
+cost_per_1000 = 1.0
+# Features optimized for herbarium specimens
+features = ["read", "ocr"]
+detect_handwriting = true
+
+[textract]
+# AWS Textract - document analysis focused
+region = "us-east-1"
+fallback_threshold = 0.75
+cost_per_1000 = 1.5
+# Use document analysis for complex layouts
+analyze_document = true
+feature_types = ["TABLES", "FORMS", "SIGNATURES"]
+
+[gemini]
+# Google Gemini Vision - latest multimodal AI
+model = "gemini-pro-vision"
+fallback_threshold = 0.80
+cost_per_1000 = 2.5
+# Enhanced for scientific content
+safety_settings = "block_few"
+generation_config = {
+    "temperature" = 0.1,
+    "top_p" = 0.8,
+    "top_k" = 40,
+    "max_output_tokens" = 1024
+}
 
 [pipeline]
 steps = ["image_to_text", "text_to_dwc"]

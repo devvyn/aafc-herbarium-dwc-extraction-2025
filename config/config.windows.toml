@@ -2,38 +2,86 @@
 # Apple Vision not available - use cloud APIs with cost-effective fallback strategy
 
 [ocr]
-# Cloud API strategy for Windows systems
-# Prioritized by cost-effectiveness and accuracy for old hardware
-preferred_engine = "google"  # Most cost-effective cloud option
-enabled_engines = ["google", "gpt", "claude"]
+# Windows-optimized multi-cloud strategy
+# Prioritized by cost-effectiveness: Budget → Premium → Ultra-premium
+preferred_engine = "azure"  # Best Windows integration, lowest cost
+enabled_engines = ["azure", "google", "textract", "gemini", "gpt4o", "claude", "gpt"]
 confidence_threshold = 0.75
-# Process in smaller batches to manage API costs
+# Cost-optimized cascade: Azure → Google → Textract → Gemini → GPT-4o → Claude → GPT-4
 batch_size = 50
 cost_optimization = true
+# Automatic budget management
+daily_cost_limit = 50.0
+weekly_cost_limit = 200.0
 
-[gpt]
-# GPT-4 Vision for difficult specimens only
-model = "gpt-4-vision-preview"
-fallback_threshold = 0.90  # Only use for lowest confidence Google results
-dry_run = false
-cost_limit_per_batch = 20.0  # Max $20 per 50 specimens
-prompt_dir = "prompts"
+# Comprehensive Windows API Configuration
+# Cost-optimized cascade from cheapest to most expensive
 
-[claude]
-# Claude Vision for very difficult specimens
-model = "claude-3-5-sonnet-20241022"
-fallback_threshold = 0.95  # Only for most difficult cases
-botanical_context = true
-cost_limit_per_batch = 10.0  # Max $10 per 50 specimens
+[azure]
+# PRIMARY: Best Windows integration, lowest cost
+endpoint = "https://your-region.cognitiveservices.azure.com/"
+subscription_key_env = "AZURE_COMPUTER_VISION_SUBSCRIPTION_KEY"
+fallback_threshold = 0.70
+cost_per_1000 = 1.0
+features = ["read", "ocr"]
+detect_handwriting = true
+cost_limit_per_batch = 5.0  # Max $5 per 50 specimens
 
 [google]
-# Primary engine for Windows - most cost-effective
+# SECONDARY: Proven reliability
 credentials_path = ".google-credentials.json"
-# Features optimized for old hardware
-use_document_text_detection = true  # Better for herbarium labels
+fallback_threshold = 0.75
+cost_per_1000 = 1.5
+use_document_text_detection = true
 enable_handwriting_detection = true
 language_hints = ["en", "la", "fr"]
-cost_per_1000 = 1.50  # Budget tracking
+cost_limit_per_batch = 7.5  # Max $7.50 per 50 specimens
+
+[textract]
+# TERTIARY: AWS integration, document analysis
+region = "us-east-1"
+fallback_threshold = 0.80
+cost_per_1000 = 1.5
+analyze_document = true
+feature_types = ["TABLES", "FORMS"]
+cost_limit_per_batch = 7.5  # Max $7.50 per 50 specimens
+
+[gemini]
+# PREMIUM: Latest Google AI
+model = "gemini-pro-vision"
+fallback_threshold = 0.85
+cost_per_1000 = 2.5
+safety_settings = "block_few"
+generation_config = {
+    "temperature" = 0.1,
+    "top_p" = 0.8,
+    "max_output_tokens" = 1024
+}
+cost_limit_per_batch = 12.5  # Max $12.50 per 50 specimens
+
+[gpt4o]
+# HIGH-PREMIUM: OpenAI's fastest
+model = "gpt-4o"
+fallback_threshold = 0.88
+cost_per_1000 = 2.5
+prompt_dir = "prompts"
+cost_limit_per_batch = 12.5  # Max $12.50 per 50 specimens
+
+[claude]
+# ULTRA-PREMIUM: Highest accuracy
+model = "claude-3-5-sonnet-20241022"
+fallback_threshold = 0.92
+botanical_context = true
+cost_per_1000 = 15.0
+cost_limit_per_batch = 37.5  # Max $37.50 per 50 specimens
+
+[gpt]
+# EMERGENCY: Most expensive fallback
+model = "gpt-4-vision-preview"
+fallback_threshold = 0.95  # Only for most difficult cases
+cost_per_1000 = 50.0
+prompt_dir = "prompts"
+cost_limit_per_batch = 125.0  # Max $125 per 50 specimens
 
 [pipeline]
 steps = ["image_to_text", "text_to_dwc"]
@@ -66,10 +114,14 @@ weekly_api_limit = 200.0    # Max $200/week
 warn_at_80_percent = true   # Warn at 80% budget usage
 auto_stop_at_100_percent = true
 
-# Cost estimates (subject to API pricing changes)
-google_cost_per_image = 0.0015    # ~$1.50/1000 images
-gpt_cost_per_image = 0.05         # ~$50/1000 images
-claude_cost_per_image = 0.015     # ~$15/1000 images
+# Cost estimates (subject to API pricing changes) - comprehensive coverage
+azure_cost_per_image = 0.001      # ~$1.00/1000 images
+google_cost_per_image = 0.0015     # ~$1.50/1000 images
+textract_cost_per_image = 0.0015   # ~$1.50/1000 images
+gemini_cost_per_image = 0.0025     # ~$2.50/1000 images
+gpt4o_cost_per_image = 0.0025      # ~$2.50/1000 images
+claude_cost_per_image = 0.015      # ~$15.00/1000 images
+gpt_cost_per_image = 0.05          # ~$50.00/1000 images
 
 [processing]
 retry_limit = 2  # Reduced retries to save API costs
