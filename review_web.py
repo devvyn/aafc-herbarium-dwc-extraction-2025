@@ -110,7 +110,7 @@ class ReviewHandler(BaseHTTPRequestHandler):
 
     def _serve_candidates(self, image: str) -> None:
         conn: sqlite3.Connection = self.server.ctx["conn"]
-        cands = fetch_candidates(conn, image)
+        cands = fetch_candidates_sqlite(conn, image)
         payload: Dict[str, object] = {
             "image": image,
             "candidates": [c.model_dump() for c in cands],
@@ -129,7 +129,7 @@ class ReviewHandler(BaseHTTPRequestHandler):
         choice = params.get("candidate", [""])[0]
         engine, value = choice.split("|", 1) if "|" in choice else ("", "")
         conn: sqlite3.Connection = self.server.ctx["conn"]
-        cands = fetch_candidates(conn, image)
+        cands = fetch_candidates_sqlite(conn, image)
         match = next((c for c in cands if c.value == value and c.engine == engine), None)
         if not match:
             self._send_headers(404, "application/json")

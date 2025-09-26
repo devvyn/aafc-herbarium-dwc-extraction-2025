@@ -57,7 +57,7 @@ def web_server():
         create_test_images_dir(images_dir)
 
         # Start server in thread
-        with sqlite3.connect(db_path) as conn:
+        with sqlite3.connect(db_path, check_same_thread=False) as conn:
             server = ReviewServer(
                 ("localhost", 0),  # Use any available port
                 ReviewHandler,
