@@ -2,18 +2,18 @@
 
 Convert your herbarium specimen photos into structured scientific data.
 
-## Quick Start: Digitize Your Specimens in 3 Steps
+## Quick Start: Extract Data from Specimen Images
 
-Got specimen photos? Get Darwin Core data in 3 simple steps:
+Got herbarium photos? Get structured data in 3 simple steps:
 
 ```bash
 # 1. Install (one time setup)
 ./bootstrap.sh
 
-# 2. Process your photos (automated OCR extraction)
+# 2. Extract data from photos (OCR processing)
 python cli.py process --input photos/ --output results/
 
-# 3. Review and export data (quality control)
+# 3. Review and export (optional quality control)
 python review_web.py --db results/candidates.db --images photos/
 ```
 
