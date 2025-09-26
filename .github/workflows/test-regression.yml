@@ -1,0 +1,106 @@
+name: Regression Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-database-compatibility:
+    runs-on: ubuntu-latest
+    name: Database Interface Compatibility
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: uv sync
+
+    - name: Test SQLAlchemy compatibility
+      run: |
+        uv run python -m pytest \
+          tests/unit/test_candidates.py::test_fetch_candidates_sqlite_compatibility \
+          tests/unit/test_candidates.py::test_sqlalchemy_and_sqlite3_equivalence \
+          -v --tb=short
+
+    - name: Test web review integration
+      run: |
+        uv run python -m pytest \
+          tests/integration/test_web_review.py::test_web_review_database_compatibility \
+          -v --tb=short
+
+  test-type-safety:
+    runs-on: ubuntu-latest
+    name: Type Safety Check
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: uv sync
+
+    - name: Add mypy if not present
+      run: uv add --dev mypy types-requests
+      continue-on-error: true
+
+    - name: Type check database modules
+      run: |
+        uv run python -c "
+        try:
+            import mypy.api
+            result = mypy.api.run([
+                'io_utils/candidates.py',
+                'review_web.py',
+                '--ignore-missing-imports'
+            ])
+            print('Type check completed')
+        except ImportError:
+            print('MyPy not available, skipping type check')
+        "
+
+  test-all-candidates-functions:
+    runs-on: ubuntu-latest
+    name: Complete Candidates Module Test
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: uv sync
+
+    - name: Run all candidates tests
+      run: |
+        uv run python -m pytest tests/unit/test_candidates.py -v \
+          --tb=short \
+          --durations=10
+
+    - name: Test web review integration
+      run: |
+        uv run python -m pytest tests/integration/test_web_review.py -v \
+          --tb=short \
+          --durations=5

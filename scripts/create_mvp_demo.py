@@ -15,7 +15,6 @@ import time
 from pathlib import Path
 from datetime import datetime
 import subprocess
-import statistics
 
 def run_command(cmd: list, description: str) -> dict:
     """Run command and capture results with timing."""
@@ -212,7 +211,7 @@ def generate_stakeholder_summary(demo_results: dict, output_dir: Path):
         else:
             summary_content += f"- ❌ **{filename}**: Not generated\n"
 
-    summary_content += f"""
+    summary_content += """
 ## 📊 Stakeholder Recommendations
 
 """
