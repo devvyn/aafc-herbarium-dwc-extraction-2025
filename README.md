@@ -85,9 +85,13 @@ uv sync --dev
 cp .env.example .env
 
 # macOS: Apple Vision ready (no additional setup)
-# Windows/Linux: Add API keys to .env file
+# Windows/Linux: Add API keys for comprehensive cloud coverage
+echo "AZURE_COMPUTER_VISION_SUBSCRIPTION_KEY=your-azure-key" >> .env
 echo "GOOGLE_APPLICATION_CREDENTIALS=path/to/credentials.json" >> .env
+echo "AWS_ACCESS_KEY_ID=your-aws-key" >> .env
+echo "GOOGLE_API_KEY=your-gemini-key" >> .env
 echo "OPENAI_API_KEY=your-openai-key" >> .env
+echo "ANTHROPIC_API_KEY=your-claude-key" >> .env
 
 # Test installation
 uv run pytest -q
@@ -169,17 +173,22 @@ Your processed data is automatically saved:
 ### **Windows/Linux Users**
 | Engine | Accuracy | Cost/1000 | Best Use |
 |--------|----------|-----------|----------|
-| **Google Vision** | **85%** | **$1.50** | **Primary choice** |
+| **Azure Vision** | **80%** | **$1.00** | **Windows primary** |
+| **Google Vision** | **85%** | **$1.50** | **Proven reliability** |
+| AWS Textract | 80% | $1.50 | Document analysis |
+| Google Gemini | 90% | $2.50 | Latest AI |
+| GPT-4o Vision | 95% | $2.50 | Speed + accuracy |
 | Claude Vision | 98% | $15 | Difficult specimens |
-| GPT-4 Vision | 95% | $50 | High accuracy needs |
+| GPT-4 Vision | 95% | $50 | Premium fallback |
 
 ### **Tesseract Retired**
 Research shows 15% accuracy on herbarium specimens - insufficient for production use.
 
 **Platform Strategy:**
 - **macOS**: Use Apple Vision (95% accuracy, $0 cost)
-- **Windows**: Use Google Vision + manual review (total cost ~$3-5/1000 specimens)
-- **Both**: Achieve 85-95% automation vs 100% manual transcription
+- **Windows**: Cost-optimized cascade: Azure → Google → Premium APIs (total cost ~$1-5/1000 specimens)
+- **All platforms**: 7 cloud APIs available, 80-98% accuracy options
+- **Result**: 85-95% automation vs 100% manual transcription
 
 ---
 

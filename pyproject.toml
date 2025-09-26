@@ -19,10 +19,13 @@ dependencies = [
     "boto3>=1.40.39",
     "requests>=2.32.5",
     # Apple Vision (macOS native) - no dependencies
-    # Cloud APIs for Windows/Linux
+    # Cloud APIs for comprehensive provider coverage
     "anthropic>=0.68.0",        # Claude Vision API
-    "openai>=1.109.1",          # GPT-4 Vision API
+    "openai>=1.109.1",          # GPT-4 Vision + GPT-4o API
     "google-cloud-vision>=3.10.2",  # Google Vision API
+    "google-generativeai>=0.8.0",   # Google Gemini Vision API
+    "azure-cognitiveservices-vision-computervision>=0.9.0",  # Microsoft Azure Vision
+    # AWS Textract uses existing boto3 dependency
 ]
 
 [project.scripts]
