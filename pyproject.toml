@@ -18,11 +18,11 @@ dependencies = [
     "pygsheets",
     "boto3>=1.40.39",
     "requests>=2.32.5",
-    "pytesseract>=0.3.13",
-    "opencv-python>=4.11.0.86",
-    "anthropic>=0.68.0",
-    "openai>=1.109.1",
-    "google-cloud-vision>=3.10.2",
+    # Apple Vision (macOS native) - no dependencies
+    # Cloud APIs for Windows/Linux
+    "anthropic>=0.68.0",        # Claude Vision API
+    "openai>=1.109.1",          # GPT-4 Vision API
+    "google-cloud-vision>=3.10.2",  # Google Vision API
 ]
 
 [project.scripts]

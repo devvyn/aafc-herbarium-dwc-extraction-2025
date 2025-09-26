@@ -38,7 +38,8 @@
       "Bash(if [ -n \"$OPENAI_API_KEY\" ])",
       "Bash(else echo \"❌ No OpenAI API key\")",
       "Bash(curl:*)",
-      "Bash(gh issue create:*)"
+      "Bash(gh issue create:*)",
+      "Bash(gh issue close:*)"
     ],
     "deny": [],
     "ask": []

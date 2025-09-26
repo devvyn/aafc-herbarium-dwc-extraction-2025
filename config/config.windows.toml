@@ -1,0 +1,99 @@
+# Windows 11 Configuration for Herbarium OCR
+# Apple Vision not available - use cloud APIs with cost-effective fallback strategy
+
+[ocr]
+# Cloud API strategy for Windows systems
+# Prioritized by cost-effectiveness and accuracy for old hardware
+preferred_engine = "google"  # Most cost-effective cloud option
+enabled_engines = ["google", "gpt", "claude"]
+confidence_threshold = 0.75
+# Process in smaller batches to manage API costs
+batch_size = 50
+cost_optimization = true
+
+[gpt]
+# GPT-4 Vision for difficult specimens only
+model = "gpt-4-vision-preview"
+fallback_threshold = 0.90  # Only use for lowest confidence Google results
+dry_run = false
+cost_limit_per_batch = 20.0  # Max $20 per 50 specimens
+prompt_dir = "prompts"
+
+[claude]
+# Claude Vision for very difficult specimens
+model = "claude-3-5-sonnet-20241022"
+fallback_threshold = 0.95  # Only for most difficult cases
+botanical_context = true
+cost_limit_per_batch = 10.0  # Max $10 per 50 specimens
+
+[google]
+# Primary engine for Windows - most cost-effective
+credentials_path = ".google-credentials.json"
+# Features optimized for old hardware
+use_document_text_detection = true  # Better for herbarium labels
+enable_handwriting_detection = true
+language_hints = ["en", "la", "fr"]
+cost_per_1000 = 1.50  # Budget tracking
+
+[pipeline]
+steps = ["image_to_text", "text_to_dwc"]
+# No preprocessing - cloud APIs handle image optimization
+
+[dwc]
+schema = "dwc-abcd"
+schema_uri = "http://rs.tdwg.org/dwc/terms/"
+schema_files = ["dwc.xsd", "abcd.xsd"]
+use_official_schemas = false
+preferred_official_schemas = ["dwc_simple", "abcd_206"]
+
+[system]
+# Optimizations for old Windows 11 hardware
+max_concurrent_requests = 2  # Limit API calls to avoid overwhelming system
+memory_conservation = true
+temp_file_cleanup = true
+progress_saving_interval = 10  # Save progress frequently
+
+[quality]
+duplicate_threshold = 0.80
+low_confidence_threshold = 0.70
+require_manual_review = true  # Flag all low confidence for review
+export_confidence_scores = true
+
+[cost_management]
+# Budget controls for research assistants
+daily_api_limit = 50.0      # Max $50/day across all APIs
+weekly_api_limit = 200.0    # Max $200/week
+warn_at_80_percent = true   # Warn at 80% budget usage
+auto_stop_at_100_percent = true
+
+# Cost estimates (subject to API pricing changes)
+google_cost_per_image = 0.0015    # ~$1.50/1000 images
+gpt_cost_per_image = 0.05         # ~$50/1000 images
+claude_cost_per_image = 0.015     # ~$15/1000 images
+
+[processing]
+retry_limit = 2  # Reduced retries to save API costs
+timeout_seconds = 30
+resume_on_failure = true
+checkpoint_frequency = 25  # Save progress every 25 specimens
+
+[review]
+# Streamlined review for cost-conscious workflows
+auto_approve_high_confidence = true  # confidence > 0.90
+flag_for_review = true              # confidence < 0.75
+batch_review_interface = true       # Efficient bulk review
+export_review_summaries = true
+
+[export]
+# Multiple formats for Windows institutional integration
+formats = ["csv", "xlsx", "json"]
+include_confidence_scores = true
+include_cost_breakdown = true
+darwincore_compliance = true
+gbif_ready = true
+
+# Windows-specific paths (adjust as needed)
+[paths]
+temp_dir = "C:/temp/herbarium_ocr"
+output_dir = "C:/Users/%USERNAME%/Documents/herbarium_results"
+backup_dir = "C:/Users/%USERNAME%/Documents/herbarium_backups"

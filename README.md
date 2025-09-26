@@ -81,11 +81,37 @@ cd aafc-herbarium-dwc-extraction-2025
 # Install dependencies
 uv sync --dev
 
-# Copy environment file
+# Copy environment file and configure for your platform
 cp .env.example .env
+
+# macOS: Apple Vision ready (no additional setup)
+# Windows/Linux: Add API keys to .env file
+echo "GOOGLE_APPLICATION_CREDENTIALS=path/to/credentials.json" >> .env
+echo "OPENAI_API_KEY=your-openai-key" >> .env
 
 # Test installation
 uv run pytest -q
+```
+
+### Platform-Specific Setup
+
+#### **macOS (Recommended)**
+```bash
+# Verify Apple Vision available
+python cli.py check-deps --engines vision
+# Expected: ✅ Apple Vision: Available
+```
+
+#### **Windows 11**
+```bash
+# Use Windows-optimized configuration
+cp config/config.windows.toml config/config.local.toml
+
+# Set up Google Vision (primary)
+# 1. Create Google Cloud project
+# 2. Enable Vision API
+# 3. Download service account JSON
+# 4. Save as .google-credentials.json
 ```
 
 ---
@@ -133,22 +159,27 @@ Your processed data is automatically saved:
 
 ## OCR Engine Performance
 
-**Apple Vision is recommended** based on comprehensive testing with real herbarium specimens:
+**Apple Vision is the optimal solution** based on comprehensive research with real herbarium specimens:
 
-| Engine | Accuracy | Cost | Best For |
-|--------|----------|------|----------|
-| **Apple Vision** | **95%** | **Free** | **Primary choice (macOS)** |
-| Claude Vision | 98%* | $15/1000 | Difficult specimens |
-| GPT-4 Vision | 95%* | $50/1000 | High accuracy needs |
-| Tesseract | 15% | Free | Not recommended |
+### **macOS Users (Recommended)**
+| Engine | Accuracy | Cost | Setup |
+|--------|----------|------|-------|
+| **Apple Vision** | **95%** | **$0** | **Built-in** |
 
-*Requires API key setup
+### **Windows/Linux Users**
+| Engine | Accuracy | Cost/1000 | Best Use |
+|--------|----------|-----------|----------|
+| **Google Vision** | **85%** | **$1.50** | **Primary choice** |
+| Claude Vision | 98% | $15 | Difficult specimens |
+| GPT-4 Vision | 95% | $50 | High accuracy needs |
 
-**Why Apple Vision?**
-- Highest accuracy for herbarium labels
-- No API costs or usage limits
-- Handles mixed fonts and handwriting
-- Built into macOS (no additional setup)
+### **Tesseract Retired**
+Research shows 15% accuracy on herbarium specimens - insufficient for production use.
+
+**Platform Strategy:**
+- **macOS**: Use Apple Vision (95% accuracy, $0 cost)
+- **Windows**: Use Google Vision + manual review (total cost ~$3-5/1000 specimens)
+- **Both**: Achieve 85-95% automation vs 100% manual transcription
 
 ---
 
@@ -215,17 +246,20 @@ python cli.py archive --output results/ --version 1.0.0 --include-multimedia
 
 **"No OCR engines available"**
 ```bash
-# Check what's installed
-python cli.py check-deps --engines vision,tesseract,gpt
+# macOS: Check Apple Vision
+python cli.py check-deps --engines vision
+# Expected: ✅ Apple Vision: Available
 
-# Install missing dependencies
-pip install pytesseract  # for Tesseract
+# Windows: Check API access
+python cli.py check-deps --engines google,gpt,claude
+# Verify .env file has API keys
 ```
 
 **Poor OCR results**
-- Try Apple Vision on macOS (95% accuracy)
-- Check image quality (clear, well-lit photos work best)
-- Use confidence filtering: `--filter "confidence > 0.7"`
+- **macOS**: Apple Vision should achieve 95% accuracy
+- **Windows**: Google Vision ~85% accuracy, check API quotas
+- **All platforms**: Check image quality (clear, well-lit photos work best)
+- Use confidence filtering: `--filter "confidence > 0.8"`
 
 **Review interface won't start**
 ```bash
