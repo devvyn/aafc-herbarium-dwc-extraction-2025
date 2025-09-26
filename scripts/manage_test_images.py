@@ -8,7 +8,6 @@ enabling reproducible testing, documentation, and development workflows.
 import argparse
 import json
 import sys
-import tempfile
 from pathlib import Path
 from typing import Dict, List, Optional
 from urllib.parse import urlparse

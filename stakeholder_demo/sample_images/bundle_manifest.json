@@ -1,0 +1,13 @@
+{
+  "collection": "validation",
+  "description": "Comprehensive validation set for quality assessment",
+  "created_at": "2025-09-25",
+  "images": [],
+  "categories": {
+    "readable": [],
+    "minimal": [],
+    "unlabeled": [],
+    "poor": [],
+    "multilingual": []
+  }
+}
