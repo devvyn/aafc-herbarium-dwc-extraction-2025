@@ -96,10 +96,18 @@ When creating a release, **all steps must be completed** to prevent broken CHANG
 
 ## AI Assistant Operating Notes
 - Audit the repository for additional `AGENTS.md` files before modifying any code or documentation so that the most specific
-  instructions are always applied.
+  instructions are always applied. More specific directories (e.g., `./dwc/AGENTS.md`) override parent directories when both exist.
 - Prefer incremental, reviewable changes: stage only the files that are necessary for the current task and avoid sweeping
-  refactors without prior coordination.
+  refactors without prior coordination. This aligns with the "Human-in-the-loop Generative Development" approach above.
 - Record tooling or workflow limitations (e.g., unavailable browsers or external services) in pull request descriptions and
   final status reports so reviewers understand any gaps in validation.
+
+  Example format:
+  ```
+  ## Limitations Encountered
+  - Unable to run browser tests: Headless browser not available in CI environment
+  - Skipped API integration test: External service requires credentials not present
+  ```
 - When environment constraints prevent running an expected command, document the limitation and provide suggested follow-up
-  actions for human collaborators.
+  actions for human collaborators. If constraints cannot be resolved with available tools, escalate to human reviewers with
+  clear context about what was attempted and what remains to be done.
