@@ -72,12 +72,12 @@ fallback_threshold = 0.80
 cost_per_1000 = 2.5
 # Enhanced for scientific content
 safety_settings = "block_few"
-generation_config = {
-    "temperature" = 0.1,
-    "top_p" = 0.8,
-    "top_k" = 40,
-    "max_output_tokens" = 1024
-}
+
+[gemini.generation_config]
+temperature = 0.1
+top_p = 0.8
+top_k = 40
+max_output_tokens = 1024
 
 [pipeline]
 steps = ["image_to_text", "text_to_dwc"]
