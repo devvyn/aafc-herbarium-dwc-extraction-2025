@@ -4,17 +4,31 @@ Convert your herbarium specimen photos into structured scientific data.
 
 ## Quick Start: Extract Data from Specimen Images
 
-Got herbarium photos? Get structured data in 3 simple steps:
+Got herbarium photos? Choose your interface and get structured data:
 
+### 🚀 **Easy Interactive Start**
 ```bash
 # 1. Install (one time setup)
 ./bootstrap.sh
 
-# 2. Extract data from photos (OCR processing)
-python cli.py process --input photos/ --output results/
+# 2. Launch interface selector
+python herbarium_ui.py
+# Choose: TUI, Web Dashboard, or Quick Trial
+```
 
-# 3. Review and export (optional quality control)
-python review_web.py --db results/candidates.db --images photos/
+### ⚡ **Direct Interface Options**
+```bash
+# Rich Terminal Interface (TUI) - Interactive experience
+python herbarium_ui.py --tui
+
+# Web Dashboard - Visual monitoring with live updates
+python herbarium_ui.py --web
+
+# Quick 5-image demo - Test the system
+python herbarium_ui.py --trial
+
+# Traditional CLI - Scriptable processing
+python cli.py process --input photos/ --output results/
 ```
 
 **Your data is now ready** in `results/occurrence.csv` for GBIF, institutional databases, or research.
@@ -31,15 +45,47 @@ python review_web.py --db results/candidates.db --images photos/
 
 ---
 
+## User Interfaces
+
+Choose the interface that best fits your workflow:
+
+### 🖥️ **Rich Terminal Interface (TUI)**
+Interactive terminal experience with real-time progress tracking
+- ✅ Menu-driven navigation and configuration wizards
+- ✅ Live progress bars and processing statistics  
+- ✅ Visual error reporting and engine usage charts
+- ✅ Perfect for command-line users and server environments
+
+### 🌐 **Web Dashboard**
+Modern web interface with live updates and team collaboration
+- ✅ Real-time WebSocket updates during processing
+- ✅ Interactive charts and visual statistics
+- ✅ Multi-user support for team environments
+- ✅ Responsive design for desktop and mobile
+
+### ⚡ **Enhanced CLI**
+Traditional command-line with optional progress tracking
+- ✅ Fully scriptable and automatable
+- ✅ Integrates with existing workflows
+- ✅ Optional real-time progress feedback
+- ✅ Backward compatible with all existing scripts
+
+### 🔄 **Quick Trial**
+Fast demonstration with 5 sample images
+- ✅ No configuration needed
+- ✅ Tests full processing pipeline
+- ✅ Perfect for first-time users and demos
+
 ## What This Tool Does
 
 **Converts specimen photos → structured botanical data**
 
-- **Extracts text** from specimen labels using advanced OCR
+- **Extracts text** from specimen labels using advanced OCR (95% accuracy with Apple Vision)
 - **Identifies key information**: scientific names, collectors, dates, locations
 - **Follows international standards**: Darwin Core format for biodiversity databases
-- **Provides quality control**: review interface to verify and correct results
+- **Provides quality control**: multiple review interfaces to verify and correct results
 - **Exports clean data**: ready for GBIF, museum databases, or research projects
+- **Real-time monitoring**: track progress, errors, and statistics during processing
 
 ### Example: Photo → Data
 

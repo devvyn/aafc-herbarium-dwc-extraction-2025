@@ -55,7 +55,7 @@ def main():
 
     # Process with Apple Vision
     results_dir = Path("trial_results")
-    print(f"\n🔄 Processing with Apple Vision OCR...")
+    print("\n🔄 Processing with Apple Vision OCR...")
 
     start_time = time.time()
 
@@ -72,7 +72,7 @@ def main():
 
         # Check results
         if (results_dir / "app.db").exists():
-            print(f"\n🎉 SUCCESS! Trial data ready for review:")
+            print("\n🎉 SUCCESS! Trial data ready for review:")
             print(f"📊 Database: {results_dir}/app.db")
             print(f"🌐 Launch review: python review_web.py --db {results_dir}/candidates.db --images {images_dir}/")
 

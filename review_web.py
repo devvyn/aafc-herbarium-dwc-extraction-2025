@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Dict, List
 from urllib.parse import parse_qs, unquote
 
-from io_utils.candidates import Candidate, Decision, fetch_candidates, record_decision
+from io_utils.candidates import Candidate, Decision, fetch_candidates_sqlite, record_decision
 
 
 def get_commit_hash() -> str:
@@ -81,7 +81,7 @@ class ReviewHandler(BaseHTTPRequestHandler):
 
     def _serve_review(self, image: str) -> None:
         conn: sqlite3.Connection = self.server.ctx["conn"]
-        cands: List[Candidate] = fetch_candidates(conn, image)
+        cands: List[Candidate] = fetch_candidates_sqlite(conn, image)
         options = "".join(
             f'<label><input type="radio" name="candidate" value="{c.engine}|{c.value}">'  # noqa: E501
             f"{c.engine} ({c.confidence:.2f}): {c.value}</label><br>"
@@ -110,7 +110,7 @@ class ReviewHandler(BaseHTTPRequestHandler):
 
     def _serve_candidates(self, image: str) -> None:
         conn: sqlite3.Connection = self.server.ctx["conn"]
-        cands = fetch_candidates(conn, image)
+        cands = fetch_candidates_sqlite(conn, image)
         payload: Dict[str, object] = {
             "image": image,
             "candidates": [c.model_dump() for c in cands],
@@ -129,7 +129,7 @@ class ReviewHandler(BaseHTTPRequestHandler):
         choice = params.get("candidate", [""])[0]
         engine, value = choice.split("|", 1) if "|" in choice else ("", "")
         conn: sqlite3.Connection = self.server.ctx["conn"]
-        cands = fetch_candidates(conn, image)
+        cands = fetch_candidates_sqlite(conn, image)
         match = next((c for c in cands if c.value == value and c.engine == engine), None)
         if not match:
             self._send_headers(404, "application/json")

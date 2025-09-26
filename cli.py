@@ -39,7 +39,7 @@ from io_utils.database import (
     upsert_processing_state,
 )
 from dwc import configure_terms, configure_mappings
-from dwc.archive import create_archive, create_versioned_bundle
+from dwc.archive import create_archive
 from engines.errors import EngineError
 from preprocess import preprocess_image
 
@@ -439,6 +439,13 @@ def process_cli(
     available. If the commit hash cannot be determined (e.g., not running
     inside a git repository), ``git_commit`` will be ``None``.
     """
+    # Import progress tracker
+    try:
+        from progress_tracker import global_tracker, track_processing
+        use_progress = True
+    except ImportError:
+        use_progress = False
+
     cfg = setup_run(output, config, enabled_engines)
 
     run_id = datetime.now(timezone.utc).isoformat()
@@ -454,7 +461,20 @@ def process_cli(
     cand_session = init_candidate_db(output / "candidates.db")
     app_conn = init_app_db(output / "app.db")
     retry_limit = cfg.get("processing", {}).get("retry_limit", 3)
-    for img_path in iter_images(input_dir):
+
+    # Count total images for progress tracking
+    image_list = list(iter_images(input_dir))
+    total_images = len(image_list)
+
+    # Start progress tracking
+    if use_progress:
+        global_tracker.start_processing(total_images, {"engine": enabled_engines})
+
+    for img_path in image_list:
+        # Update progress tracker
+        if use_progress:
+            global_tracker.image_started(img_path)
+
         event, dwc_row, ident_rows = process_image(
             img_path,
             cfg,
@@ -465,6 +485,23 @@ def process_cli(
             retry_limit,
             resume,
         )
+
+        # Update progress based on result
+        if use_progress:
+            if event is None:
+                global_tracker.image_skipped(img_path, "Resume mode - already processed")
+            elif event.get("errors"):
+                error_msg = event["errors"][0] if event["errors"] else "Unknown error"
+                global_tracker.image_failed(img_path, error_msg)
+            else:
+                engine = event.get("engine", "unknown")
+                confidence = event.get("dwc_confidence")
+                if isinstance(confidence, dict) and confidence:
+                    avg_conf = sum(confidence.values()) / len(confidence)
+                else:
+                    avg_conf = confidence if isinstance(confidence, (int, float)) else None
+                global_tracker.image_completed(img_path, engine, avg_conf)
+
         if event is None:
             continue
         events.append(event)
@@ -482,6 +519,10 @@ def process_cli(
     write_outputs(output, events, dwc_rows, ident_history_rows, meta, resume)
     cand_session.close()
     app_conn.close()
+
+    # Complete progress tracking
+    if use_progress:
+        global_tracker.processing_complete()
 
     logging.info("Processed %d images. Output written to %s", len(events), output)
 
