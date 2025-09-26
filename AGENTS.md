@@ -93,3 +93,13 @@ When creating a release, **all steps must be completed** to prevent broken CHANG
 - No sensitive data is handled in this repository.
 - Default image format is JPEG unless otherwise specified.
 - Set `GITHUB_TOKEN` before running scripts that interact with the GitHub API.
+
+## AI Assistant Operating Notes
+- Audit the repository for additional `AGENTS.md` files before modifying any code or documentation so that the most specific
+  instructions are always applied.
+- Prefer incremental, reviewable changes: stage only the files that are necessary for the current task and avoid sweeping
+  refactors without prior coordination.
+- Record tooling or workflow limitations (e.g., unavailable browsers or external services) in pull request descriptions and
+  final status reports so reviewers understand any gaps in validation.
+- When environment constraints prevent running an expected command, document the limitation and provide suggested follow-up
+  actions for human collaborators.
