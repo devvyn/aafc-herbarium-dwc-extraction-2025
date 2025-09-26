@@ -78,6 +78,31 @@ Repository Root
 - GitHub issue linking (`#123`) required for traceability
 - Roadmap synchronization after issue resolution
 
+## Quick-start Alignment Checklist
+
+Use this checklist when a new human or automated contributor joins mid-stream so context survives narrow windows:
+
+1. **Confirm scope** – skim this outline, then jump to the scoped `AGENTS.md` files that match the task (code, docs, or DwC modules).
+2. **Sync roadmap** – review the active entry in `docs/roadmap.md` and note any open questions or blockers for handoff.
+3. **State assumptions** – log current decisions, TODOs, and outstanding QA in the working document or issue thread for the next collaborator.
+4. **Reference QA gates** – explicitly note which checks (e.g., `ruff`, `pytest`, DwC validators) have run so successors avoid duplication.
+5. **Queue human review** – flag any steps requiring curator sign-off in `HUMAN_WORK_LIST.md` or the relevant issue to keep human-in-the-loop commitments visible.
+
+## Handoff Notes Template
+
+When switching between Claude, Codex, or human partners, append a short checklist to the issue or PR description using the following structure:
+
+```
+Scope: <docs | code | dwc | mixed>
+Instructions consulted: [/AGENTS.md](../AGENTS.md), [/docs/AGENTS.md](AGENTS.md), [/dwc/AGENTS.md](../dwc/AGENTS.md)
+Current roadmap item: <link to docs/roadmap.md section or issue>
+QA status: ruff ✅ / pytest ✅ / other tools (list)
+Next actions: <bullet list of remaining steps or questions>
+Human review needed: <yes/no + pointer to HUMAN_WORK_LIST.md entry>
+```
+
+This lightweight template mirrors the repository’s commit and release conventions, helping collaborators realign without rereading the full documentation stack.
+
 ## Key Principles for Agents
 
 1. **Separation of Concerns**: Pipeline vs main database separation
