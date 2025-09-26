@@ -22,20 +22,27 @@ Strategic priorities for the herbarium OCR to Darwin Core toolkit.
   - **Academic Value**: Provides standardized research methodology for herbarium digitization quality assessment
   - **Documentation**: [REPRODUCIBLE_IMAGES_SUMMARY.md](../REPRODUCIBLE_IMAGES_SUMMARY.md)
 
-## Immediate Priorities (2 Months Remaining)
+## Immediate Priorities - Stakeholder Focused
 
-**Context**: Real herbarium work with 2,800 photos captured, 2-month contract completion deadline.
+**Context**: System ready for production deployment, stakeholders need tangible results demonstration.
 
-### Phase 1: Production Processing with Apple Vision (Weeks 1-2)
-- **Process 2,800 captured photos** using Apple Vision OCR (95% accuracy)
-- **Generate review-ready datasets** with minimal manual correction needed
-- **Deploy production OCR pipeline** based on research findings
+### Phase 1: MVP Dataset & Stakeholder Demonstration (Week 1)
+- **✅ MVP demonstration script ready** - Process 50-100 specimens for stakeholder review
+- **✅ Stakeholder progress report** - For Dr. Chrystel Olivier and Dr. Julia Leeson
+- **✅ Production system validated** - 95% accuracy on real specimens
+- **Ready for deployment** - 2,800 specimens processable immediately
 
-### Phase 2: Successor Handover (Weeks 3-8)
-- **Streamline review workflows** for efficient correction process
-- **SharePoint integration** for institutional data transfer
-- **Complete handover documentation** and training materials
-- **Future-proof automation** for continued digitization
+### Phase 2: Full Production Deployment (Weeks 2-3)
+- **Process 2,800 captured photos** using validated Apple Vision pipeline
+- **Quality control review** with Dr. Julia Leeson (Herbarium Manager)
+- **Darwin Core data delivery** - GBIF-ready institutional dataset
+- **Complete processing documentation** with audit trail
+
+### Phase 3: Institutional Integration (Weeks 4-6)
+- **Database integration** - Transfer to institutional collection systems
+- **Staff training completion** - Handover to successor workflows
+- **Long-term sustainability** - Ongoing digitization procedures
+- **Success metrics validation** - Final project evaluation
 
 See [HANDOVER_PRIORITIES.md](HANDOVER_PRIORITIES.md) for detailed 8-week plan.
 
