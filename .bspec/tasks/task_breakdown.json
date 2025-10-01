@@ -1,0 +1,17 @@
+{
+    "generated_from": "implementation_plan.md",
+    "generated_at": "2025-09-28T00:52:11Z",
+    "tasks": [
+        {
+            "id": "task-001",
+            "title": "Setup project structure",
+            "description": "Initialize project directories and configuration files",
+            "priority": "high",
+            "estimated_hours": 2,
+            "dependencies": [],
+            "status": "pending"
+        }
+    ],
+    "total_estimated_hours": 2,
+    "critical_path": ["task-001"]
+}
