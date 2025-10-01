@@ -32,6 +32,93 @@ This project promotes **collaborative development** between humans and AI agents
 
 This collaborative approach ensures technical solutions actually serve institutional and research needs.
 
+## Feature Implementation Workflow
+
+This project uses the `.specify` framework for structured feature development. Follow this complete workflow for new features:
+
+### Phase 1: Specification & Clarification
+
+```bash
+# 1. Create feature specification
+/specify <feature description>
+# Creates feature branch, initializes spec.md with structured requirements
+
+# 2. Resolve ambiguities
+/clarify
+# Interactive Q&A to clarify missing decisions and update spec
+```
+
+**Example**: `/specify Add batch OCR processing with progress tracking and error recovery`
+
+### Phase 2: Planning & Task Decomposition
+
+```bash
+# 3. Generate technical plan
+/plan
+# Creates detailed technical design in plan.md
+
+# 4. Generate actionable tasks
+/tasks
+# Creates dependency-ordered tasks.md for implementation
+
+# 5. Analyze design consistency
+/analyze
+# Cross-validates spec, plan, and tasks for consistency
+```
+
+### Phase 3: Implementation & Deployment
+
+```bash
+# 6. Execute implementation
+/implement
+# Processes each task sequentially, writes code and tests
+
+# 7. Deploy feature
+/deploy
+# Handles deployment with dependency resolution
+```
+
+### Workflow Benefits
+
+- **Structured Requirements**: Clear specifications prevent scope creep
+- **Design Validation**: Cross-artifact analysis catches inconsistencies early
+- **Dependency Management**: Task ordering prevents implementation blockers
+- **Quality Gates**: Built-in validation at each phase
+- **Traceability**: Requirements → Design → Implementation → Deployment
+
+### Integration with Testing
+
+The workflow integrates with our testing standards:
+- Specifications include testable acceptance criteria
+- Plans define testing strategies
+- Implementation phase includes test creation
+- Each task completion triggers validation
+
+For advanced patterns and coordination with the meta-project system, see the `.specify/` directory documentation.
+
+### Retroactive Specifications
+
+This project has undergone systematic retroactive specification analysis to document major features developed before formal specification processes were established. Key findings:
+
+**Major Features Analyzed**:
+- **Apple Vision OCR Integration** (v0.3.0) - 95% accuracy breakthrough
+- **Modern UI/UX System** (Current) - Complete interface transformation
+- **Darwin Core Archive Export** (v0.2.0) - Institutional compliance system
+
+**Key Lessons Learned**:
+- Research-driven development produces superior outcomes
+- Architecture decisions need explicit documentation
+- Performance requirements should be specified upfront
+- Migration strategies must be planned for breaking changes
+
+**Specification Checkpoints**: Going forward, specifications are required for:
+- Features requiring >3 days development effort
+- Architecture changes affecting >2 modules
+- New external dependencies or critical libraries
+- Data format or schema changes
+
+See `.specify/retro-specs/` for complete retroactive analysis and future specification strategy.
+
 ## Testing and linting
 
 Run the full test suite and linter before committing changes.

@@ -1,0 +1,42 @@
+# AAFC-SRDC Herbarium Project KB Context
+# Work project context
+
+workspace: "AAFC-SRDC Saskatoon"
+
+contexts:
+  - herbarium_specimen_digitization
+  - darwin_core_extraction
+  - ocr_optimization
+  - apple_vision_processing
+  - scientific_data_validation
+  - specimen_photography_workflows
+
+people:
+  - me: "Devvyn Murphy"
+  - supervisor: "[Supervisor Name]"
+  - organization: "AAFC-SRDC Saskatoon Research Centre"
+  - org_alt_name: "Agriculture and Agri-Food Canada"
+
+policies:
+  - "Public employee policies (AAFC)"
+  - "Data sensitivity: Public scientific data"
+  - "Specimen data: Publicly accessible biodiversity records"
+  - "No confidentiality concerns at current work level"
+  - "Publicly accessible policies online"
+
+clues:
+  - "herbarium"
+  - "specimen"
+  - "Darwin Core"
+  - "AAFC"
+  - "SRDC"
+  - "OCR"
+  - "biodiversity"
+  - "agriculture canada"
+
+notes: |
+  Scientific data processing for herbarium specimen digitization.
+  Work involves OCR optimization, Darwin Core field extraction,
+  and Apple Vision API integration for specimen label transcription.
+
+  Data is public scientific biodiversity records - no sensitivity concerns.
