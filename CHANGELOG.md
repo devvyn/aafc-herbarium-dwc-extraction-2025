@@ -2,6 +2,57 @@
 
 ## [Unreleased]
 
+### Added - Storage Abstraction Layer (2025-10-04)
+- 🏗️ **Storage Backend Architecture** — Pluggable storage layer decoupled from core extraction logic
+  - **ImageLocator Protocol** (`src/io_utils/locator.py`) — Storage-agnostic interface for image access
+  - **LocalFilesystemLocator** — Traditional directory-based storage backend
+  - **S3ImageLocator** — AWS S3 and S3-compatible storage (MinIO) backend
+  - **CachingImageLocator** — Transparent pass-through caching decorator with LRU eviction
+  - **Factory Pattern** — Configuration-driven backend instantiation (`locator_factory.py`)
+
+- 📦 **Storage Backends Supported**
+  - **Local Filesystem** — Direct directory access (default, backward compatible)
+  - **AWS S3** — Cloud object storage with automatic credential handling
+  - **MinIO** — Self-hosted S3-compatible storage via custom endpoint
+  - **Future Ready** — Easy to add HTTP, Azure Blob, Google Cloud Storage
+
+- 🔄 **Transparent Caching System**
+  - **Automatic Caching** — Remote images cached locally on first access
+  - **LRU Eviction** — Configurable cache size limit with least-recently-used eviction
+  - **Cache Management** — Statistics (`get_cache_stats()`), manual clearing
+  - **SHA256 Keys** — Robust cache keys handling special characters and long names
+
+- ⚙️ **Configuration Support**
+  - **TOML Configuration** — `[storage]` section in `config/config.default.toml`
+  - **Example Configs** — `config/config.s3-cached.toml` for S3 with caching
+  - **Backward Compatible** — Omit `[storage]` section to use local filesystem
+  - **Environment Aware** — AWS credentials via environment or explicit config
+
+- 🧪 **Comprehensive Testing**
+  - **18 Passing Tests** — `tests/unit/test_locators.py` covering all components
+  - **LocalFilesystemLocator** — 11 tests for local storage operations
+  - **CachingImageLocator** — 7 tests for caching behavior and eviction
+  - **Edge Cases** — Missing files, invalid paths, cache size limits
+
+- 📚 **Complete Documentation**
+  - **Architecture Guide** — `docs/STORAGE_ABSTRACTION.md` with patterns and examples
+  - **Configuration Guide** — Storage backend configuration templates
+  - **Migration Guide** — Phase 1 complete (core abstractions), Phase 2 deferred (CLI integration)
+  - **Release Process** — `docs/RELEASE_PROCESS.md` for versioning and release guidelines
+
+### Technical Implementation - Storage Abstraction
+- **Protocol-Based Design** — Duck typing via `Protocol`, not abstract base classes
+- **Decorator Pattern** — Caching as transparent wrapper, not baked into backends
+- **Strategy Pattern** — Pluggable backends selected at runtime
+- **Lazy Imports** — boto3 only imported when S3 backend needed
+- **Performance Optimized** — `get_local_path()` optimization for direct filesystem access
+
+### Backward Compatibility
+- ✅ **No Breaking Changes** — Existing local filesystem workflows unaffected
+- ✅ **Optional Feature** — Storage abstraction activated via configuration
+- ✅ **CLI Unchanged** — Current `cli.py` works perfectly with local filesystem
+- ✅ **Deferred Integration** — CLI migration to ImageLocator deferred to future release
+
 ### Added - Modern UI/UX System (2025-09-26)
 - 🖥️ **Rich Terminal User Interface (TUI)** — Professional interactive terminal experience
   - Real-time progress tracking with animated progress bars and live statistics
