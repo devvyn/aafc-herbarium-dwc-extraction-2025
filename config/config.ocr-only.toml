@@ -1,0 +1,34 @@
+# OCR-Only Configuration
+# Skips text_to_dwc step to avoid API key requirements
+# Use scripts/extract_dwc_from_ocr.py afterward to extract Darwin Core fields
+
+[pipeline]
+# Only run OCR, skip Darwin Core extraction
+steps = ["image_to_text"]
+
+[ocr]
+# Apple Vision - free, 95% accuracy, macOS only
+preferred_engine = "vision"
+enabled_engines = ["vision"]
+confidence_threshold = 0.80
+langs = ["eng", "fra", "lat"]
+
+[preprocess]
+# Skip preprocessing for faster processing
+pipeline = []
+
+[dwc]
+# Darwin Core config (for future extraction step)
+schema = "dwc-abcd"
+assume_country_if_missing = "Canada"
+strict_minimal_fields = ["catalogNumber", "scientificName", "eventDate", "recordedBy", "locality"]
+flag_if_missing_minimal = true
+
+[qc]
+# QC settings (not used in OCR-only mode)
+dupes = ["catalog", "sha256"]
+low_confidence_flag = true
+gbif.enabled = false
+
+[processing]
+retry_limit = 3

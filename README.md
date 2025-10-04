@@ -53,6 +53,20 @@ Every feature now follows systematic specification practices:
 ```
 [**Full Activation Guide →**](.specify/ACTIVATION_GUIDE.md) | [**30-Second Quick Start →**](.specify/QUICK_START.md)
 
+### 🧪 **Testing: Slash Command Validation**
+Test infrastructure validates all slash commands work correctly:
+```bash
+# Run slash command validation tests
+pytest tests/slash_commands/ -v
+
+# Run unit tests for models
+pytest tests/unit/test_models.py -v
+
+# Generate test reports
+pytest tests/slash_commands/test_validation.py --html=report.html
+```
+**Test Results**: Dual format (YAML + Markdown) for human review and automation
+
 ---
 
 ## User Interfaces
