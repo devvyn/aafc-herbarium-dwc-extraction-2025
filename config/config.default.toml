@@ -82,6 +82,36 @@ max_output_tokens = 1024
 [pipeline]
 steps = ["image_to_text", "text_to_dwc"]
 
+[storage]
+# Storage backend configuration (OPTIONAL)
+# If omitted, uses local filesystem with --input directory
+# backend = "local"  # Options: "local", "s3", "minio", "http"
+
+# Local filesystem configuration (default if no backend specified)
+# base_path = "/path/to/images"  # Base directory for images
+
+# Caching configuration (for remote backends)
+# cache_enabled = true
+# cache_dir = "/tmp/herbarium-image-cache"
+# cache_max_size_mb = 1000  # Optional maximum cache size
+
+# S3 backend configuration (uncomment to use AWS S3)
+# [storage.s3]
+# bucket = "my-herbarium-images"
+# prefix = "specimens/"  # Optional S3 key prefix
+# region = "us-east-1"
+# access_key_id = "..."  # Optional (uses AWS credentials if omitted)
+# secret_access_key = "..."  # Optional (uses AWS credentials if omitted)
+
+# MinIO backend configuration (S3-compatible object storage)
+# [storage.minio]
+# endpoint = "http://localhost:9000"
+# bucket = "herbarium-images"
+# prefix = "specimens/"  # Optional prefix
+# access_key = "minioadmin"
+# secret_key = "minioadmin"
+# region = "us-east-1"  # Usually not needed for MinIO
+
 [preprocess]
 pipeline = ["grayscale", "deskew", "binarize", "resize"]
 binarize_method = "adaptive"  # "otsu" or "adaptive"

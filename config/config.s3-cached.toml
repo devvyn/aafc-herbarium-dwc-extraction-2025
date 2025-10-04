@@ -1,0 +1,51 @@
+# Example configuration for S3 storage with transparent local caching
+#
+# This configuration demonstrates the storage abstraction layer:
+# - Images stored in AWS S3
+# - Transparent pass-through caching to local filesystem
+# - Core extraction logic unchanged
+#
+# Usage:
+#   python cli.py process \
+#     --output output/ \
+#     --config config/config.s3-cached.toml
+#
+# Benefits:
+# - No need to download entire S3 bucket upfront
+# - Automatically caches images on first access
+# - Reuses cached images on subsequent runs
+# - Configurable cache size limit
+# - Works with MinIO, AWS S3, or any S3-compatible storage
+
+[storage]
+# Storage backend: "s3" for AWS S3 or S3-compatible services
+backend = "s3"
+
+# Enable transparent local caching
+cache_enabled = true
+cache_dir = "/tmp/herbarium-image-cache"  # Change to your preferred cache location
+cache_max_size_mb = 2000  # Maximum 2GB cache (optional, omit for unlimited)
+
+[storage.s3]
+# S3 bucket configuration
+bucket = "devvyn.aafc-srdc.herbarium"
+prefix = "images/"  # Optional: S3 key prefix (e.g., "herbarium/batch1/")
+region = "us-east-1"
+
+# AWS credentials (optional if using AWS CLI credentials or IAM role)
+# access_key_id = "YOUR_ACCESS_KEY"
+# secret_access_key = "YOUR_SECRET_KEY"
+
+# Pipeline configuration
+[pipeline]
+# OCR only (no Darwin Core extraction)
+steps = ["image_to_text"]
+
+[ocr]
+# Apple Vision - free, high accuracy, macOS only
+preferred_engine = "vision"
+enabled_engines = ["vision"]
+confidence_threshold = 0.80
+
+[processing]
+retry_limit = 3
