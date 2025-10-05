@@ -29,6 +29,15 @@ from io_utils.candidates import (
     init_db as init_candidate_db,
     insert_candidate,
 )
+from io_utils.ocr_cache import (
+    init_db as init_ocr_cache_db,
+    get_cached_ocr,
+    cache_ocr_result,
+    record_run,
+    complete_run,
+    record_lineage,
+    get_cache_stats,
+)
 from io_utils.database import (
     Specimen,
     ProcessingState,
@@ -131,6 +140,7 @@ def process_image(
     run_id: str,
     dupe_catalog: Dict[str, int],
     cand_session: Session,
+    cache_session: Session,
     app_conn,
     retry_limit: int,
     resume: bool,
@@ -201,41 +211,63 @@ def process_image(
                 preferred = available[0]
 
             if step == "image_to_text":
-                kwargs: Dict[str, Any] = {}
-                lang_hints, primary_lang = _prepare_ocr_languages(preferred, raw_langs)
-                if lang_hints:
-                    kwargs["langs"] = lang_hints
-                if preferred == "gpt":
-                    gpt_cfg = cfg.get("gpt", {})
-                    kwargs.update(
-                        model=gpt_cfg.get("model", "gpt-4"),
-                        dry_run=gpt_cfg.get("dry_run", False),
-                        prompt_dir=prompt_dir,
-                    )
-                elif preferred == "tesseract":
-                    t_cfg = cfg.get("tesseract", {})
-                    kwargs.update(
-                        oem=t_cfg.get("oem", 1),
-                        psm=t_cfg.get("psm", 3),
-                        extra_args=t_cfg.get("extra_args", []),
-                    )
+                # Check cache first
+                specimen_sha = compute_sha256(img_path)
+                cached = get_cached_ocr(cache_session, specimen_sha, preferred)
+
+                if cached and not cached.error:
+                    # Use cached result
+                    text = cached.extracted_text
+                    confidences = [cached.confidence]
+                    avg_conf = cached.confidence
+                    record_lineage(cache_session, run_id, specimen_sha, "cached", cache_hit=True)
+                else:
+                    # Run OCR
+                    kwargs: Dict[str, Any] = {}
+                    lang_hints, primary_lang = _prepare_ocr_languages(preferred, raw_langs)
                     if lang_hints:
                         kwargs["langs"] = lang_hints
-                    if t_cfg.get("model_paths"):
-                        kwargs["model_paths"] = t_cfg["model_paths"]
-                elif preferred == "paddleocr":
-                    p_cfg = cfg.get("paddleocr", {})
-                    language = p_cfg.get("lang")
-                    if language:
-                        try:
-                            language = to_iso2(language)
-                        except ValueError as exc:
-                            raise ValueError(f"Invalid [paddleocr].lang value: {exc}") from exc
-                    elif primary_lang:
-                        language = primary_lang
-                    kwargs["lang"] = language or "en"
-                text, confidences = dispatch(step, image=proc_path, engine=preferred, **kwargs)
-                avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
+                    if preferred == "gpt":
+                        gpt_cfg = cfg.get("gpt", {})
+                        kwargs.update(
+                            model=gpt_cfg.get("model", "gpt-4"),
+                            dry_run=gpt_cfg.get("dry_run", False),
+                            prompt_dir=prompt_dir,
+                        )
+                    elif preferred == "tesseract":
+                        t_cfg = cfg.get("tesseract", {})
+                        kwargs.update(
+                            oem=t_cfg.get("oem", 1),
+                            psm=t_cfg.get("psm", 3),
+                            extra_args=t_cfg.get("extra_args", []),
+                        )
+                        if lang_hints:
+                            kwargs["langs"] = lang_hints
+                        if t_cfg.get("model_paths"):
+                            kwargs["model_paths"] = t_cfg["model_paths"]
+                    elif preferred == "paddleocr":
+                        p_cfg = cfg.get("paddleocr", {})
+                        language = p_cfg.get("lang")
+                        if language:
+                            try:
+                                language = to_iso2(language)
+                            except ValueError as exc:
+                                raise ValueError(f"Invalid [paddleocr].lang value: {exc}") from exc
+                        elif primary_lang:
+                            language = primary_lang
+                        kwargs["lang"] = language or "en"
+                    text, confidences = dispatch(step, image=proc_path, engine=preferred, **kwargs)
+                    avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
+
+                    # Cache the result
+                    cache_ocr_result(
+                        cache_session,
+                        specimen_sha,
+                        preferred,
+                        text,
+                        avg_conf,
+                    )
+                    record_lineage(cache_session, run_id, specimen_sha, "completed", cache_hit=False)
                 insert_candidate(
                     cand_session,
                     run_id,
@@ -263,10 +295,13 @@ def process_image(
             elif step == "text_to_dwc":
                 gpt_cfg = cfg.get("gpt", {})
                 dwc_cfg = cfg.get("dwc", {})
+                # Use rule-based extraction by default (free tier)
+                # Override: Set dwc.preferred_engine="gpt" to use GPT extraction
+                dwc_engine = dwc_cfg.get("preferred_engine", "rules")
                 dwc_data, field_conf = dispatch(
                     step,
                     text=text or "",
-                    engine=preferred,
+                    engine=dwc_engine,
                     model=gpt_cfg.get("model", "gpt-4"),
                     dry_run=gpt_cfg.get("dry_run", False),
                     prompt_dir=prompt_dir,
@@ -460,7 +495,11 @@ def process_cli(
     dupe_catalog: Dict[str, int] = {}
     cand_session = init_candidate_db(output / "candidates.db")
     app_conn = init_app_db(output / "app.db")
+    cache_session = init_ocr_cache_db(output / "ocr_cache.db")
     retry_limit = cfg.get("processing", {}).get("retry_limit", 3)
+
+    # Record this processing run
+    record_run(cache_session, run_id, cfg)
 
     # Count total images for progress tracking
     image_list = list(iter_images(input_dir))
@@ -481,6 +520,7 @@ def process_cli(
             run_id,
             dupe_catalog,
             cand_session,
+            cache_session,
             app_conn,
             retry_limit,
             resume,
@@ -524,7 +564,17 @@ def process_cli(
     if use_progress:
         global_tracker.processing_complete()
 
-    logging.info("Processed %d images. Output written to %s", len(events), output)
+    # Mark run as complete and log cache stats
+    complete_run(cache_session, run_id)
+    cache_stats = get_cache_stats(cache_session, run_id)
+    logging.info(
+        "Processed %d images. Output written to %s | Cache stats: %d hits, %d new OCR, %.1f%% hit rate",
+        len(events),
+        output,
+        cache_stats["cache_hits"],
+        cache_stats["new_ocr"],
+        cache_stats["cache_hit_rate"] * 100,
+    )
 
 
 try:  # optional dependency
