@@ -169,11 +169,18 @@ class LabelPatternAnalyzer:
 ## Active Feedback from Chat Agent
 
 ### Technical Review Queue
-**Last Updated**: [No feedback yet]
-**Review Context**: [What Chat agent was analyzing]
-**Feedback**: [Specific technical, scientific, or architectural feedback]
-**Implementation Notes**: [Suggested approaches or considerations]
-**Priority**: [immediate/session/background]
+**Last Updated**: 2025-10-01 Work Session
+**Review Context**: OCR engine selection, memory optimization, and scientific validation thresholds
+**Feedback**: 
+- **OCR Architecture**: Apple Vision as primary engine + brand-agnostic remote API fallback (ChatGPT Vision available, $10 budget)
+- **Memory Assessment**: 2GB/1000 images (2MB per specimen) acceptable for production scale
+- **Quality Standards**: Stakeholders prioritize production data volume over perfect accuracy - rough data at scale has value
+**Implementation Notes**: 
+- Implement Apple Vision as default OCR engine
+- Design remote API fallback system with brand-agnostic interface
+- Budget ChatGPT Vision calls for gap-filling where Apple Vision fails
+- Focus on throughput optimization over accuracy tuning
+**Priority**: immediate
 
 ### Scientific Validation Status
 **Last Updated**: [No validation yet]

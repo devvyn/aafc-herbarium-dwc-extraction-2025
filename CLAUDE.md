@@ -101,9 +101,9 @@ uv run python -m pytest tests/  # Unit testing
 ## Review Requests for Chat Agent
 
 ### Current Technical Questions
-- [ ] **OCR Engine Selection**: Should we prioritize speed vs accuracy for the MVP demo?
-- [ ] **Memory Optimization**: Current approach uses 2GB for 1000 images - acceptable for production?
-- [ ] **Scientific Validation**: Is 92% taxonomic accuracy sufficient for AAFC requirements?
+- [x] **OCR Engine Selection**: Apple Vision primary + remote API calls for gaps ✅
+- [x] **Memory Optimization**: 2GB/1000 images acceptable for production ✅  
+- [x] **Scientific Validation**: Production data volume prioritized over perfect accuracy ✅
 
 ### Completed Reviews
 - [x] **Darwin Core Mapping**: Field mapping validated by scientific team ✅

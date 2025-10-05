@@ -1,0 +1,25 @@
+{
+  "total_records": 2885,
+  "successful_extractions": 2702,
+  "failed_extractions": 0,
+  "empty_ocr_text": 183,
+  "field_coverage": {
+    "scientificName": 2343,
+    "country": 2229,
+    "stateProvince": 2229,
+    "basisOfRecord": 2702,
+    "specimen_id": 2702,
+    "image": 2702,
+    "ocr_engine": 2702,
+    "ocr_confidence": 2702,
+    "extraction_method": 2702,
+    "institutionCode": 1790,
+    "collectionCode": 1790,
+    "eventDate": 1836,
+    "catalogNumber": 915,
+    "recordedBy": 296,
+    "locality": 372
+  },
+  "start_time": "2025-10-04T15:41:53.583127",
+  "end_time": "2025-10-04T15:41:53.671231"
+}
