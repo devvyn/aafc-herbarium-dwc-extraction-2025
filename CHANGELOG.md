@@ -2,7 +2,9 @@
 
 ## [Unreleased]
 
-### Added - Storage Abstraction Layer (2025-10-04)
+## [1.0.0-beta.2] - 2025-10-04
+
+### Added - Storage Abstraction Layer
 - 🏗️ **Storage Backend Architecture** — Pluggable storage layer decoupled from core extraction logic
   - **ImageLocator Protocol** (`src/io_utils/locator.py`) — Storage-agnostic interface for image access
   - **LocalFilesystemLocator** — Traditional directory-based storage backend
@@ -288,7 +290,9 @@
 - :bug: handle missing git commit metadata
 - :bug: correct mapper schema override
 
-[Unreleased]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.0.0-beta.2...HEAD
+[1.0.0-beta.2]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.0.0-alpha.1...v1.0.0-beta.2
+[1.0.0-alpha.1]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.3.0...v1.0.0-alpha.1
 [0.3.0]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.1.4...v0.2.0
 [0.1.4]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v0.1.3...v0.1.4
