@@ -29,6 +29,25 @@ This toolkit extracts Darwin Core data from herbarium specimen images using OCR 
 
 ## Shared Authority Implementation
 
+### Git Commit Protocol (CRITICAL)
+
+**Rule**: Commit and push every 30-45 minutes of development work or after completing any significant feature.
+
+**When to commit**:
+- ✅ After implementing a new feature or module
+- ✅ After fixing a bug or passing new tests
+- ✅ Before starting a risky refactor
+- ✅ After creating important documentation
+- ✅ Every 30-45 minutes during active development
+
+**Commit checklist**:
+1. `git status` - Review changes
+2. `git add <files>` - Stage relevant changes (exclude test directories)
+3. `git commit -m "..."` - Write clear commit message
+4. `git push` - Push to GitHub immediately
+
+**Why**: GitHub is the safe storage. Local work can be lost to crashes, context limits, or session ends. Frequent commits = no wipeout moments.
+
 ### Technical Implementation (Agent Authority)
 ```bash
 # Core development workflows - agent autonomous
@@ -36,6 +55,9 @@ uv run ruff check src/          # Code quality
 uv run python cli.py --test     # Integration testing
 uv run python -m pytest tests/  # Unit testing
 ./test-regression.sh             # Regression validation
+
+# Regular commits (every 30-45 min)
+git add <files> && git commit -m "..." && git push
 ```
 
 ### Scientific Validation (Human Authority)
