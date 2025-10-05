@@ -81,6 +81,15 @@ def fetch_images_to_cache(manifest_path: Path, cache_dir: Path) -> tuple[int, in
             print(f"  ⚠️ Failed to fetch: {sha256[:16]}...")
 
     print(f"✅ Fetch complete: {fetched} new, {total - fetched} already cached")
+
+    # Clean up s3-kit's hierarchical cache to avoid duplicate processing
+    # (iter_images uses rglob which would find files in both locations)
+    print("🧹 Cleaning up hierarchical cache subdirectories...")
+    import shutil
+    for subdir in cache_dir.iterdir():
+        if subdir.is_dir():
+            shutil.rmtree(subdir)
+
     return total, fetched
 
 
