@@ -498,6 +498,12 @@ def process_cli(
     cache_session = init_ocr_cache_db(output / "ocr_cache.db")
     retry_limit = cfg.get("processing", {}).get("retry_limit", 3)
 
+    # Incremental write configuration
+    WRITE_BUFFER_SIZE = 100  # Flush every 100 specimens
+    events_buffer: List[Dict[str, Any]] = []
+    dwc_buffer: List[Dict[str, Any]] = []
+    ident_buffer: List[Dict[str, Any]] = []
+
     # Record this processing run
     record_run(cache_session, run_id, cfg)
 
@@ -544,10 +550,37 @@ def process_cli(
 
         if event is None:
             continue
+
+        # Add to buffers
         events.append(event)
+        events_buffer.append(event)
         if dwc_row:
             dwc_rows.append(dwc_row)
-        ident_history_rows.extend(ident_rows)
+            dwc_buffer.append(dwc_row)
+        if ident_rows:
+            ident_history_rows.extend(ident_rows)
+            ident_buffer.extend(ident_rows)
+
+        # Flush buffers when threshold reached
+        if len(events_buffer) >= WRITE_BUFFER_SIZE:
+            write_jsonl(output, events_buffer, append=True)
+            if dwc_buffer:
+                write_dwc_csv(output, dwc_buffer, append=True)
+            if ident_buffer:
+                write_identification_history_csv(output, ident_buffer, append=True)
+
+            # Clear buffers
+            events_buffer.clear()
+            dwc_buffer.clear()
+            ident_buffer.clear()
+
+    # Flush remaining buffered data
+    if events_buffer:
+        write_jsonl(output, events_buffer, append=True)
+    if dwc_buffer:
+        write_dwc_csv(output, dwc_buffer, append=True)
+    if ident_buffer:
+        write_identification_history_csv(output, ident_buffer, append=True)
 
     meta = {
         "run_id": run_id,
@@ -556,7 +589,8 @@ def process_cli(
         "config": cfg,
     }
 
-    write_outputs(output, events, dwc_rows, ident_history_rows, meta, resume)
+    # Write metadata (manifest.json)
+    write_manifest(output, meta)
     cand_session.close()
     app_conn.close()
 
