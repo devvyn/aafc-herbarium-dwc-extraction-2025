@@ -207,3 +207,23 @@ marimo/_lsp/
 __marimo__/
 .DS_Store
 engines/vision_swift/.build/
+
+# Project-specific ignores
+
+# Processing runs - keep them out of repo except specified ones
+/full_dataset_processing/run_*/
+!/full_dataset_processing/run_20250930_181456/
+
+# Temporary test/experiment directories
+/test_ocr_run/
+/test-results/
+/aafc_full_dataset/
+
+# macOS duplicate files (Finder creates these)
+* 2.*
+* 2
+
+# Temporary markdown files
+*-temp.md
+*-draft.md
+*-scratch.md
