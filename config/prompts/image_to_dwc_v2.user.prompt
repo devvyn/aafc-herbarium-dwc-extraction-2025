@@ -1,0 +1,18 @@
+Extract Darwin Core fields from this herbarium specimen image.
+
+KEY DISTINCTIONS:
+1. catalogNumber vs recordNumber:
+   - catalogNumber = TOP of sheet (institutional ID)
+   - recordNumber = BOTTOM label (collector's field number, often near "COLL. No:")
+
+2. locality vs habitat:
+   - locality = PLACE NAME (Saskatchewan Landing, Beaver River crossing, etc.)
+   - habitat = ECOSYSTEM TYPE (native prairie, swampy area, fescue prairie, etc.)
+
+3. Look for these label keywords:
+   - COLL: or COLL. No: → recordNumber
+   - DET: or Det. → identifiedBy
+   - HABITAT: or HAB: → habitat
+   - ELEVATION: or ELEV: → minimumElevationInMeters
+
+Return JSON with all 16 Darwin Core fields, even if some have empty values.

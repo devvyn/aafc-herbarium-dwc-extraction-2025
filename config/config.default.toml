@@ -11,7 +11,7 @@ preferred_engine = "vision"
 # 2. Budget APIs: Google Vision, Azure Vision ($1-1.50/1000)
 # 3. Premium APIs: Claude, GPT-4o, Gemini ($2.50-15/1000)
 # 4. Ultra-premium: GPT-4 Vision ($50/1000)
-enabled_engines = ["vision", "google", "azure", "textract", "gemini", "claude", "gpt4o", "gpt"]
+enabled_engines = ["vision", "google", "azure", "textract", "gemini", "claude", "gpt4o", "gpt4omini", "gpt"]
 confidence_threshold = 0.80
 # Comprehensive cloud provider coverage
 require_api_fallback_on_windows = true
@@ -32,6 +32,14 @@ fallback_threshold = 0.85
 model = "gpt-4o"
 prompt_dir = "prompts"
 cost_per_1000 = 2.5
+
+[gpt4omini]
+# GPT-4o-mini Vision (cost-effective, good accuracy)
+fallback_threshold = 0.85
+model = "gpt-4o-mini"
+prompt_dir = "prompts"
+cost_per_1000 = 0.15
+# Note: Images use ~33x more tokens, effective cost similar to gpt-4o
 
 [claude]
 # Claude Vision API for high accuracy herbarium processing

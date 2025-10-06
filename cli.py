@@ -234,6 +234,22 @@ def process_image(
                             dry_run=gpt_cfg.get("dry_run", False),
                             prompt_dir=prompt_dir,
                         )
+                    elif preferred == "gpt4o":
+                        gpt4o_cfg = cfg.get("gpt4o", {})
+                        kwargs.update(
+                            model=gpt4o_cfg.get("model", "gpt-4o"),
+                            dry_run=gpt4o_cfg.get("dry_run", False),
+                            prompt_dir=prompt_dir,
+                        )
+                        preferred = "gpt"  # Use gpt engine with gpt-4o model
+                    elif preferred == "gpt4omini":
+                        gpt4omini_cfg = cfg.get("gpt4omini", {})
+                        kwargs.update(
+                            model=gpt4omini_cfg.get("model", "gpt-4o-mini"),
+                            dry_run=gpt4omini_cfg.get("dry_run", False),
+                            prompt_dir=prompt_dir,
+                        )
+                        preferred = "gpt"  # Use gpt engine with gpt-4o-mini model
                     elif preferred == "tesseract":
                         t_cfg = cfg.get("tesseract", {})
                         kwargs.update(
