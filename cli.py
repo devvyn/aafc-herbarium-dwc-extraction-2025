@@ -332,19 +332,34 @@ def process_image(
                         ident.setdefault("occurrenceID", dwc_data.get("occurrenceID", ""))
                         ident_history_rows.append(ident)
             elif step == "image_to_dwc":
-                gpt_cfg = cfg.get("gpt", {})
                 instructions = pipeline_cfg.get("image_to_dwc_instructions")
                 if instructions is None:
                     raise ValueError(
                         "Missing pipeline.image_to_dwc_instructions for image_to_dwc step"
                     )
+
+                # Determine which config to use based on preferred engine
+                if preferred == "gpt4omini":
+                    gpt_cfg = cfg.get("gpt4omini", {})
+                    model = gpt_cfg.get("model", "gpt-4o-mini")
+                    engine_name = "gpt"  # Use gpt engine with gpt4omini model
+                elif preferred == "gpt4o":
+                    gpt_cfg = cfg.get("gpt4o", {})
+                    model = gpt_cfg.get("model", "gpt-4o")
+                    engine_name = "gpt"  # Use gpt engine with gpt4o model
+                else:
+                    gpt_cfg = cfg.get("gpt", {})
+                    model = gpt_cfg.get("model", "gpt-4")
+                    engine_name = preferred
+
                 dwc_data, field_conf = dispatch(
                     step,
                     image=proc_path,
                     instructions=instructions,
-                    engine=preferred,
-                    model=gpt_cfg.get("model", "gpt-4"),
+                    engine=engine_name,
+                    model=model,
                     dry_run=gpt_cfg.get("dry_run", False),
+                    prompt_dir=prompt_dir,
                 )
                 ident_history = dwc_data.pop("identificationHistory", [])
                 event["dwc"] = dwc_data

@@ -1,0 +1,30 @@
+# GPT-4o-mini configuration override
+# Use direct image-to-DWC extraction with vision model
+
+[pipeline]
+steps = ["image_to_dwc"]
+image_to_dwc_instructions = "image_to_dwc_v2"
+
+[image_to_dwc]
+preferred_engine = "gpt"
+enabled_engines = ["gpt"]
+# Model will be set to gpt-4o-mini via gpt4omini config below
+
+[ocr]
+preferred_engine = "gpt4omini"
+enabled_engines = ["gpt4omini", "gpt"]
+
+[gpt]
+# Use gpt-4o-mini model for all GPT tasks
+model = "gpt-4o-mini"
+dry_run = false
+fallback_threshold = 0.85
+prompt_dir = "prompts"
+cost_per_1000 = 0.15
+
+[gpt4omini]
+# GPT-4o-mini Vision (cost-effective, good accuracy)
+fallback_threshold = 0.85
+model = "gpt-4o-mini"
+prompt_dir = "prompts"
+cost_per_1000 = 0.15
