@@ -43,7 +43,8 @@
       "Bash(else echo \"No raw.jsonl yet\")",
       "Bash(/usr/bin/grep \"200 OK\")",
       "Bash(/usr/bin/grep \"429\")",
-      "WebFetch(domain:platform.openai.com)"
+      "WebFetch(domain:platform.openai.com)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

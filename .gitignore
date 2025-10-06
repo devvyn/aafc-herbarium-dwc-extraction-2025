@@ -218,6 +218,8 @@ engines/vision_swift/.build/
 /test_ocr_run/
 /test-results/
 /aafc_full_dataset/
+/test_20_specimens/
+/full_dataset_processing/gpt4omini_*/
 
 # macOS duplicate files (Finder creates these)
 * 2.*
