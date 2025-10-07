@@ -123,14 +123,27 @@ def parse_batch_response(response: Dict) -> Optional[Dict]:
         dwc = {}
         dwc_confidence = {}
 
-        for field, value in data.items():
-            if isinstance(value, dict):
-                dwc[field] = value.get("value", "")
-                dwc_confidence[field] = float(value.get("confidence", 0.0))
-            elif isinstance(value, str):
-                # Fallback for non-structured response
-                dwc[field] = value
-                dwc_confidence[field] = 0.5  # Default confidence
+        # Check if this is OCR-first format with PASS_2 structure
+        if "PASS_2" in data or "pass_2" in data or "PASS 2" in data:
+            # Extract from PASS_2 nested structure
+            pass_2_data = data.get("PASS_2") or data.get("pass_2") or data.get("PASS 2", {})
+            for field, value in pass_2_data.items():
+                if isinstance(value, dict):
+                    dwc[field] = value.get("value", "")
+                    dwc_confidence[field] = float(value.get("confidence", 0.0))
+                elif isinstance(value, str):
+                    dwc[field] = value
+                    dwc_confidence[field] = 0.5
+        else:
+            # Standard format (few-shot, CoT)
+            for field, value in data.items():
+                if isinstance(value, dict):
+                    dwc[field] = value.get("value", "")
+                    dwc_confidence[field] = float(value.get("confidence", 0.0))
+                elif isinstance(value, str):
+                    # Fallback for non-structured response
+                    dwc[field] = value
+                    dwc_confidence[field] = 0.5  # Default confidence
 
         # Create extraction record
         extraction = {

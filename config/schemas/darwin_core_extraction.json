@@ -1,0 +1,206 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Darwin Core Herbarium Extraction",
+  "description": "Darwin Core standard fields for herbarium specimen data extraction",
+  "properties": {
+    "catalogNumber": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Institutional catalog number, usually 6 digits with leading zeros"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Confidence score for this extraction"
+        }
+      },
+      "required": ["value", "confidence"]
+    },
+    "scientificName": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Scientific name including authority (e.g., 'Stipa viridula Trin.')"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "required": ["value", "confidence"]
+    },
+    "eventDate": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Collection date in ISO 8601 format (YYYY-MM-DD)",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "required": ["value", "confidence"]
+    },
+    "recordedBy": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Name(s) of field collector(s)"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "required": ["value", "confidence"]
+    },
+    "recordNumber": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Collector's field number"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "required": ["value", "confidence"]
+    },
+    "locality": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Geographic place name (not habitat description)"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "required": ["value", "confidence"]
+    },
+    "habitat": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Ecosystem or vegetation type (not place name)"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "required": ["value", "confidence"]
+    },
+    "stateProvince": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Province or state (Saskatchewan, Alberta, Manitoba, British Columbia)"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "required": ["value", "confidence"]
+    },
+    "country": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Country (typically 'Canada' for AAFC specimens)"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "required": ["value", "confidence"]
+    },
+    "minimumElevationInMeters": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Elevation in meters"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "required": ["value", "confidence"]
+    },
+    "identifiedBy": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Name of person who identified the specimen (not the collector)"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "required": ["value", "confidence"]
+    },
+    "identificationRemarks": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Comments about the identification"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "required": ["value", "confidence"]
+    },
+    "occurrenceRemarks": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Comments about the occurrence/specimen"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "required": ["value", "confidence"]
+    }
+  },
+  "additionalProperties": false
+}

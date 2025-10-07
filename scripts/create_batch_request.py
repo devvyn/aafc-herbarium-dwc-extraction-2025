@@ -80,7 +80,9 @@ def create_batch_request(
     image_path: Path,
     sha256: str,
     messages: List[Dict[str, str]],
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-4o-mini",
+    use_structured_output: bool = False,
+    schema_path: Path = None
 ) -> Dict:
     """Create a single batch request for an image.
 
@@ -89,6 +91,8 @@ def create_batch_request(
         sha256: SHA256 hash of image (used as custom_id)
         messages: Prompt messages (system + user)
         model: OpenAI model name
+        use_structured_output: Use JSON Schema structured outputs
+        schema_path: Path to JSON schema file
 
     Returns:
         Batch request dict in OpenAI format
@@ -115,16 +119,36 @@ def create_batch_request(
         ]
     })
 
+    # Build request body
+    body = {
+        "model": model,
+        "messages": vision_messages,
+        "temperature": 0  # Best practice for data extraction
+    }
+
+    # Add response format
+    if use_structured_output and schema_path:
+        # Load JSON schema
+        with open(schema_path, "r") as f:
+            schema = json.load(f)
+        body["response_format"] = {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "darwin_core_extraction",
+                "schema": schema,
+                "strict": True
+            }
+        }
+    else:
+        # Fallback to basic JSON mode
+        body["response_format"] = {"type": "json_object"}
+
     # Create batch request
     return {
         "custom_id": f"specimen-{sha256}",
         "method": "POST",
         "url": "/v1/chat/completions",
-        "body": {
-            "model": model,
-            "messages": vision_messages,
-            "response_format": {"type": "json_object"}
-        }
+        "body": body
     }
 
 
@@ -167,6 +191,17 @@ def main():
         type=int,
         help="Limit number of images to process (for testing)"
     )
+    parser.add_argument(
+        "--structured-output",
+        action="store_true",
+        help="Use JSON Schema structured outputs (enforces field names)"
+    )
+    parser.add_argument(
+        "--schema",
+        type=Path,
+        default=Path("config/schemas/darwin_core_extraction.json"),
+        help="Path to JSON schema file"
+    )
 
     args = parser.parse_args()
 
@@ -200,6 +235,16 @@ def main():
 
     print(f"\nFound {len(image_files)} images in {args.input}")
 
+    # Display configuration
+    print(f"\n📋 Configuration:")
+    print(f"   Model: {args.model}")
+    print(f"   Temperature: 0 (data extraction best practice)")
+    if args.structured_output:
+        print(f"   Response Format: JSON Schema (strict=True)")
+        print(f"   Schema: {args.schema}")
+    else:
+        print(f"   Response Format: JSON Object (basic mode)")
+
     # Create batch requests
     batch_input_path = args.output / "batch_input.jsonl"
     manifest_path = args.output / "image_manifest.json"
@@ -221,7 +266,9 @@ def main():
                     image_path,
                     sha256,
                     messages,
-                    args.model
+                    args.model,
+                    args.structured_output,
+                    args.schema if args.structured_output else None
                 )
 
                 # Write JSONL line
