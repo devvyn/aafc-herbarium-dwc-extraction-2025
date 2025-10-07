@@ -25,6 +25,12 @@ try:
 except ImportError:
     OpenAI = None
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 
 def download_batch_results(batch_id: str, output_dir: Path) -> Path:
     """Download batch results if not already present.

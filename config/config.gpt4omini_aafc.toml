@@ -1,0 +1,36 @@
+# GPT-4o-mini FREE TIER with AAFC-optimized prompts
+# Enhanced extraction: ~25+ Darwin Core fields
+# Cost: $0 (free tier, slow ~3 RPM)
+# Time: 15-20 hours for full dataset
+
+[pipeline]
+steps = ["image_to_dwc"]
+image_to_dwc_instructions = "image_to_dwc_v2_aafc"  # AAFC-optimized prompts
+
+[image_to_dwc]
+preferred_engine = "gpt"
+enabled_engines = ["gpt"]
+
+[ocr]
+preferred_engine = "gpt4omini"
+enabled_engines = ["gpt4omini", "gpt"]
+
+[gpt]
+# Use gpt-4o-mini model (FREE tier)
+model = "gpt-4o-mini"
+dry_run = false
+fallback_threshold = 0.85
+prompt_dir = "config/prompts"
+cost_per_1000 = 0.15
+
+[gpt4omini]
+# GPT-4o-mini Vision (FREE tier, AAFC-optimized)
+fallback_threshold = 0.85
+model = "gpt-4o-mini"
+prompt_dir = "config/prompts"
+cost_per_1000 = 0.15
+
+# Free tier limits: 3 RPM
+# Automatic rate limit handling with exponential backoff
+# Progress: ~180 specimens/hour
+# Total time: ~16 hours for 2,885 specimens

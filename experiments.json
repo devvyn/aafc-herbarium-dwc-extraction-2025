@@ -1,0 +1,44 @@
+{
+  "last_updated": "2025-10-06T22:48:51.878319",
+  "experiments": [
+    {
+      "name": "baseline_aafc",
+      "description": "Current AAFC-optimized prompts (submitted manually)",
+      "task": "image_to_dwc_v2_aafc",
+      "output_dir": "full_dataset_processing/gpt4omini_batch_test",
+      "batch_id": "batch_68e47d3796d08190b99e9e73fd5aca52",
+      "status": "submitted",
+      "cost": 0.03
+    },
+    {
+      "name": "few_shot",
+      "description": "Few-shot learning with 3 example extractions",
+      "task": "image_to_dwc_few_shot",
+      "output_dir": "full_dataset_processing/gpt4omini_batch_few_shot",
+      "batch_id": "batch_68e49bae521481908a0b32643a10537d",
+      "status": "submitted",
+      "cost": 0.03,
+      "submitted_at": "2025-10-06T22:48:46.776774"
+    },
+    {
+      "name": "chain_of_thought",
+      "description": "Chain-of-thought reasoning (identify sections first)",
+      "task": "image_to_dwc_cot",
+      "output_dir": "full_dataset_processing/gpt4omini_batch_cot",
+      "batch_id": "batch_68e49bb12da88190a2b1fc66b41582f3",
+      "status": "submitted",
+      "cost": 0.03,
+      "submitted_at": "2025-10-06T22:48:49.612644"
+    },
+    {
+      "name": "ocr_first",
+      "description": "Two-pass OCR strategy (extract text, then structure)",
+      "task": "image_to_dwc_ocr_first",
+      "output_dir": "full_dataset_processing/gpt4omini_batch_ocr_first",
+      "batch_id": "batch_68e49bb3a2a08190be062ce3750c6f33",
+      "status": "submitted",
+      "cost": 0.03,
+      "submitted_at": "2025-10-06T22:48:51.878203"
+    }
+  ]
+}

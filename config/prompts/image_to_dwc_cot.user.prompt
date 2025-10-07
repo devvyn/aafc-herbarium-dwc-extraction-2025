@@ -1,0 +1,16 @@
+Extract Darwin Core fields from this AAFC herbarium specimen image using step-by-step reasoning.
+
+Follow the chain-of-thought process:
+
+1. Identify major sections (TOP, SPECIMEN, LABEL, ANNOTATIONS)
+2. Extract catalogNumber from TOP (6-digit institutional ID)
+3. Locate collection label at BOTTOM
+4. Extract scientific name WITH authority
+5. Identify recordedBy (original field collector)
+6. Separate locality (place name) from habitat (ecosystem type)
+7. Parse and convert date to ISO 8601 (YYYY-MM-DD)
+8. Assign confidence scores based on clarity
+
+Think through each step explicitly. For ambiguous fields, explain your reasoning in the confidence score.
+
+Return JSON with all available Darwin Core fields.

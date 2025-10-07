@@ -1,0 +1,20 @@
+Extract Darwin Core fields from this AAFC herbarium specimen image using a two-pass OCR strategy.
+
+PASS 1: Extract all visible text with spatial locations
+- List everything you can read
+- Note where each text element is located (TOP, CENTER, BOTTOM-LABEL, ANNOTATIONS)
+- Don't interpret yet, just transcribe
+
+PASS 2: Structure the OCR text into Darwin Core fields
+- Map TOP text → catalogNumber (6-digit institutional ID)
+- Map BOTTOM-LABEL → scientific name, collector, date, locality, habitat
+- Map ANNOTATIONS → identification notes, remarks
+- Assign confidence based on text clarity in Pass 1
+
+Key mappings:
+- recordedBy = Original field collector (who collected it in nature)
+- locality = Geographic place name
+- habitat = Ecosystem/vegetation type
+- scientificName = Species + authority (Trin., Torr., Lag., etc.)
+
+Return JSON with all available Darwin Core fields.
