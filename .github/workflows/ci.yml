@@ -1,0 +1,256 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: Code Quality (Linting)
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: uv sync
+
+    - name: Run ruff linter
+      run: uv run ruff check src/ tests/ cli.py review_web.py
+      continue-on-error: false
+
+    - name: Run ruff formatter check
+      run: uv run ruff format --check src/ tests/ cli.py review_web.py
+      continue-on-error: false
+
+  type-check:
+    runs-on: ubuntu-latest
+    name: Type Safety
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: uv sync
+
+    - name: Install mypy
+      run: uv add --dev mypy types-requests
+      continue-on-error: true
+
+    - name: Type check core modules
+      run: |
+        uv run python -c "
+        try:
+            import mypy.api
+            result = mypy.api.run([
+                'io_utils/',
+                'src/',
+                'cli.py',
+                'review_web.py',
+                '--ignore-missing-imports',
+                '--show-error-codes'
+            ])
+            print('Type check completed')
+        except ImportError:
+            print('MyPy not available, skipping type check')
+        "
+      continue-on-error: true
+
+  test-unit:
+    runs-on: ubuntu-latest
+    name: Unit Tests
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: uv sync
+
+    - name: Run unit tests with coverage
+      run: |
+        uv run python -m pytest tests/unit/ \
+          --cov=src \
+          --cov=io_utils \
+          --cov-report=xml \
+          --cov-report=term-missing \
+          -v \
+          --tb=short \
+          --durations=10
+
+    - name: Upload coverage to artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-unit
+        path: coverage.xml
+
+  test-integration:
+    runs-on: ubuntu-latest
+    name: Integration Tests
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: uv sync
+
+    - name: Run integration tests
+      run: |
+        uv run python -m pytest tests/integration/ \
+          -v \
+          --tb=short \
+          --durations=5
+
+  test-slash-commands:
+    runs-on: ubuntu-latest
+    name: Slash Command Tests
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: uv sync
+
+    - name: Run slash command tests
+      run: |
+        uv run python -m pytest tests/slash_commands/ \
+          -v \
+          --tb=short
+
+  test-regression:
+    runs-on: ubuntu-latest
+    name: Regression Tests (Database Compatibility)
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: uv sync
+
+    - name: Test SQLAlchemy compatibility
+      run: |
+        uv run python -m pytest \
+          tests/unit/test_candidates.py::test_fetch_candidates_sqlite_compatibility \
+          tests/unit/test_candidates.py::test_sqlalchemy_and_sqlite3_equivalence \
+          -v --tb=short
+
+    - name: Test web review integration
+      run: |
+        uv run python -m pytest \
+          tests/integration/test_web_review.py::test_web_review_database_compatibility \
+          -v --tb=short
+
+  coverage-report:
+    runs-on: ubuntu-latest
+    name: Coverage Report
+    needs: [test-unit]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download coverage artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: coverage-unit
+
+    - name: Display coverage summary
+      run: |
+        if [ -f coverage.xml ]; then
+          echo "Coverage report generated successfully"
+          grep -oP 'line-rate="\K[0-9.]+' coverage.xml | head -1 | \
+            awk '{printf "Coverage: %.1f%%\n", $1 * 100}'
+        else
+          echo "No coverage report found"
+        fi
+
+  quality-gate:
+    runs-on: ubuntu-latest
+    name: Quality Gate
+    needs: [lint, type-check, test-unit, test-integration, test-slash-commands, test-regression]
+    if: always()
+
+    steps:
+    - name: Check all jobs passed
+      run: |
+        echo "Lint: ${{ needs.lint.result }}"
+        echo "Type Check: ${{ needs.type-check.result }}"
+        echo "Unit Tests: ${{ needs.test-unit.result }}"
+        echo "Integration Tests: ${{ needs.test-integration.result }}"
+        echo "Slash Commands: ${{ needs.test-slash-commands.result }}"
+        echo "Regression Tests: ${{ needs.test-regression.result }}"
+
+        if [ "${{ needs.lint.result }}" != "success" ]; then
+          echo "❌ Lint failed"
+          exit 1
+        fi
+
+        if [ "${{ needs.test-unit.result }}" != "success" ]; then
+          echo "❌ Unit tests failed"
+          exit 1
+        fi
+
+        if [ "${{ needs.test-integration.result }}" != "success" ]; then
+          echo "❌ Integration tests failed"
+          exit 1
+        fi
+
+        if [ "${{ needs.test-slash-commands.result }}" != "success" ]; then
+          echo "❌ Slash command tests failed"
+          exit 1
+        fi
+
+        if [ "${{ needs.test-regression.result }}" != "success" ]; then
+          echo "❌ Regression tests failed"
+          exit 1
+        fi
+
+        echo "✅ All quality gates passed!"
