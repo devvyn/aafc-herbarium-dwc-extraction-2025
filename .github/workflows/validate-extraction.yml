@@ -1,0 +1,205 @@
+name: Data Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'deliverables/**/*.jsonl'
+      - 'scripts/validate_extraction.py'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'deliverables/**/*.jsonl'
+      - 'scripts/validate_extraction.py'
+  workflow_dispatch:
+    inputs:
+      ground_truth:
+        description: 'Ground truth validation file'
+        required: false
+        default: 'deliverables/validation/human_validation.jsonl'
+      extraction:
+        description: 'Extraction results file'
+        required: false
+        default: 'deliverables/v1.0_vision_api_baseline.jsonl'
+
+jobs:
+  validate-v1-baseline:
+    runs-on: ubuntu-latest
+    name: Validate v1.0 Baseline (Vision API)
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: uv sync
+
+    - name: Validate v1.0 extraction results
+      id: validate
+      run: |
+        python scripts/validate_extraction.py \
+          deliverables/validation/human_validation.jsonl \
+          deliverables/v1.0_vision_api_baseline.jsonl
+      continue-on-error: true
+
+    - name: Upload validation metrics
+      uses: actions/upload-artifact@v3
+      with:
+        name: validation-metrics-v1
+        path: validation_metrics.json
+
+    - name: Display validation summary
+      run: |
+        if [ -f validation_metrics.json ]; then
+          echo "### Validation Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Extract key metrics
+          exact_rate=$(jq -r '.overall_exact_rate * 100' validation_metrics.json)
+          partial_rate=$(jq -r '.overall_partial_rate * 100' validation_metrics.json)
+          coverage_rate=$(jq -r '.overall_coverage_rate * 100' validation_metrics.json)
+
+          echo "| Metric | Rate |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Exact Match | ${exact_rate}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Partial Match | ${partial_rate}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Field Coverage | ${coverage_rate}% |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Field breakdown
+          echo "#### Field-by-Field Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Exact | Partial | Coverage |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|---------|----------|" >> $GITHUB_STEP_SUMMARY
+
+          for field in catalogNumber scientificName eventDate recordedBy locality stateProvince country; do
+            exact=$(jq -r ".exact_matches.${field}" validation_metrics.json)
+            partial=$(jq -r ".partial_matches.${field}" validation_metrics.json)
+            coverage=$(jq -r ".field_coverage.${field}" validation_metrics.json)
+            total=$(jq -r '.total_specimens' validation_metrics.json)
+
+            exact_pct=$(awk "BEGIN {printf \"%.1f\", ($exact/$total)*100}")
+            partial_pct=$(awk "BEGIN {printf \"%.1f\", ($partial/$total)*100}")
+            coverage_pct=$(awk "BEGIN {printf \"%.1f\", ($coverage/$total)*100}")
+
+            echo "| ${field} | ${exact_pct}% | ${partial_pct}% | ${coverage_pct}% |" >> $GITHUB_STEP_SUMMARY
+          done
+        fi
+
+    - name: Check quality gate
+      run: |
+        exact_rate=$(jq -r '.overall_exact_rate' validation_metrics.json)
+
+        # v1.0 baseline threshold: 7% exact match (empirical baseline)
+        # Future versions should target higher thresholds (50%+)
+        threshold=0.07
+
+        if (( $(echo "$exact_rate < $threshold" | bc -l) )); then
+          echo "❌ Validation failed: Exact match rate ${exact_rate} below threshold ${threshold}"
+          exit 1
+        else
+          echo "✅ Validation passed: Exact match rate ${exact_rate}"
+        fi
+
+  validate-custom:
+    runs-on: ubuntu-latest
+    name: Validate Custom Extraction
+    if: github.event_name == 'workflow_dispatch'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: uv sync
+
+    - name: Validate custom extraction
+      run: |
+        python scripts/validate_extraction.py \
+          ${{ github.event.inputs.ground_truth }} \
+          ${{ github.event.inputs.extraction }}
+
+    - name: Upload validation metrics
+      uses: actions/upload-artifact@v3
+      with:
+        name: validation-metrics-custom
+        path: validation_metrics.json
+
+  validate-future-extractions:
+    runs-on: ubuntu-latest
+    name: Validate New Extractions
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: uv sync
+
+    - name: Find extraction files
+      id: find_files
+      run: |
+        # Find all JSONL files in deliverables (exclude validation directory)
+        extraction_files=$(find deliverables -name "*.jsonl" -not -path "*/validation/*" | tr '\n' ' ')
+        echo "extraction_files=$extraction_files" >> $GITHUB_OUTPUT
+
+        if [ -z "$extraction_files" ]; then
+          echo "No extraction files found to validate"
+          echo "has_files=false" >> $GITHUB_OUTPUT
+        else
+          echo "Found extraction files: $extraction_files"
+          echo "has_files=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Validate all extractions
+      if: steps.find_files.outputs.has_files == 'true'
+      run: |
+        ground_truth="deliverables/validation/human_validation.jsonl"
+
+        if [ ! -f "$ground_truth" ]; then
+          echo "Warning: Ground truth file not found: $ground_truth"
+          exit 0
+        fi
+
+        for extraction_file in ${{ steps.find_files.outputs.extraction_files }}; do
+          echo "Validating: $extraction_file"
+
+          python scripts/validate_extraction.py \
+            "$ground_truth" \
+            "$extraction_file" || true
+
+          # Rename metrics file to include extraction name
+          if [ -f validation_metrics.json ]; then
+            base_name=$(basename "$extraction_file" .jsonl)
+            mv validation_metrics.json "validation_metrics_${base_name}.json"
+          fi
+        done
+
+    - name: Upload all validation metrics
+      if: steps.find_files.outputs.has_files == 'true'
+      uses: actions/upload-artifact@v3
+      with:
+        name: validation-metrics-all
+        path: validation_metrics_*.json
