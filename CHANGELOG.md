@@ -2,6 +2,91 @@
 
 ## [Unreleased]
 
+### In Progress - v2.0
+- 🔄 GPT-4o-mini direct extraction (16 Darwin Core fields)
+- 🔄 Agent orchestration framework
+- 🔄 GBIF publication workflow
+
+## [1.0.0] - 2025-10-06
+
+### 🎉 Production Release - AAFC Herbarium Dataset
+
+**Major Achievement:** Complete extraction of 2,885 herbarium specimens with Darwin Core metadata
+
+#### Added - v1.0 Deliverables
+- 📦 **Production Dataset** (`deliverables/v1.0_vision_api_baseline.jsonl`)
+  - 2,885 herbarium specimens extracted
+  - 7 Darwin Core fields: catalogNumber, scientificName, eventDate, recordedBy, locality, stateProvince, country
+  - Apple Vision API (FREE) + rules engine
+  - Total cost: $0
+
+- ✅ **Ground Truth Validation** (`deliverables/validation/human_validation.jsonl`)
+  - 20 specimens manually validated
+  - Documented accuracy baselines
+  - Quality metrics calculated
+
+- 📚 **Complete Documentation**
+  - Extraction methodology documented
+  - Quality limitations identified
+  - Upgrade path to v2.0 designed
+
+#### Added - Agent Orchestration Framework
+- 🤖 **Pipeline Composer Agent** (`agents/pipeline_composer.py`)
+  - Cost/quality/deadline optimization
+  - Engine capability registry (6 engines)
+  - Intelligent routing: FREE-first with paid fallback
+  - Progressive enhancement strategies
+  - Ensemble voting support for research-grade quality
+
+- 📋 **Data Publication Guide** (`docs/DATA_PUBLICATION_GUIDE.md`)
+  - GBIF/Canadensys publication workflow
+  - Darwin Core Archive export scripts
+  - CC0 licensing recommendations
+  - Deployment context strategies (Mac dev / Windows production)
+
+- ⚙️ **Enhanced Configuration**
+  - `config/config.gpt4omini.toml` - GPT-4o-mini direct extraction
+  - Layout-aware prompts (`config/prompts/image_to_dwc_v2.*.prompt`)
+  - Expanded 16-field Darwin Core schema
+
+#### Technical Improvements - v1.0
+- 🔧 **API Integration**
+  - Fixed OpenAI Chat Completions API format
+  - Prompt loading from files (system + user messages)
+  - JSON response format for structured extraction
+  - Model: gpt-4o-mini (cost-effective, layout-aware)
+
+- 🏗️ **Architecture**
+  - Plugin registry pattern (additive-only, zero conflicts)
+  - Config override pattern (branch-specific configurations)
+  - Parallel development enabled (v2-extraction + agent-orchestration branches)
+
+#### Quality Metrics - v1.0 Baseline
+- **Exact matches:** 0% (on 20-specimen validation)
+- **Partial matches:** ~10-15%
+- **ScientificName coverage:** 5.5% (159/2,885 specimens)
+- **CatalogNumber coverage:** 50%
+- **Known limitations:** OCR accuracy on handwritten labels, missing 9 fields
+
+#### v2.0 Preview (In Progress)
+- **16 Darwin Core fields** (9 additional: habitat, elevation, recordNumber, identifiedBy, etc.)
+- **Layout-aware extraction** (TOP vs BOTTOM label distinction)
+- **Expected quality:** ~70% accuracy (vs ~15% baseline)
+- **Cost:** $1.60 total or FREE overnight (15-20 hours)
+- **Agent-managed pipelines:** "Consider all means accessible in the world"
+
+### Changed - Documentation Overhaul
+- Updated README with v1.0 production status
+- Reorganized docs for clarity
+- Added deployment context considerations
+- Improved API setup instructions
+
+### Fixed
+- OpenAI API endpoint (responses.create → chat.completions.create)
+- Environment variable naming (OPENAI_KEY → OPENAI_API_KEY)
+- Model config passthrough for gpt4omini
+- Prompt loading in image_to_dwc engine
+
 ## [1.0.0-beta.2] - 2025-10-04
 
 ### Added - Storage Abstraction Layer
