@@ -7,7 +7,16 @@
       "Bash(else echo \"No raw.jsonl yet - extraction still initializing\")",
       "Bash(/usr/bin/grep -A 2 \"429\")",
       "Bash(git checkout:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(git push:*)",
+      "Bash(git tag -a v1.0.0 -m \"$(cat <<''EOF''\nAAFC Herbarium Darwin Core Extraction v1.0.0\n\nProduction Release - Complete Darwin Core extraction toolkit\n\nDELIVERABLES:\n- 2,885 herbarium specimens extracted\n- 7 Darwin Core fields (catalogNumber, scientificName, eventDate, recordedBy, locality, stateProvince, country)\n- Ground truth validation (20 specimens)\n- Complete documentation and GBIF publication workflow\n\nMETHOD:\n- Apple Vision API (FREE) + rules engine\n- Total cost: $0\n- Processing time: ~1 hour\n\nQUALITY:\n- Baseline accuracy: ~15% (5.5% scientificName coverage)\n- Known limitations documented\n- Manual review recommended before publication\n\nARCHITECTURE:\n- Agent orchestration framework\n- Pipeline composer with cost/quality optimization\n- Multi-engine support (Vision, GPT, Tesseract, Azure)\n- GBIF/Canadensys publication ready\n\nUPGRADE PATH:\n- v2.0 in progress: GPT-4o-mini extraction\n- 16 fields (9 additional)\n- ~70% expected accuracy\n- Layout-aware prompts\n\nSee CHANGELOG.md for complete details.\nEOF\n)\")",
+      "Bash(gh release create:*)",
+      "Bash(deliverables/v1.0_vision_api_baseline.jsonl )",
+      "Bash(deliverables/validation/human_validation.jsonl )",
+      "Bash(deliverables/README.md)",
+      "Bash(open https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/releases/tag/v1.0.0)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
