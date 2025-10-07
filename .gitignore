@@ -227,3 +227,16 @@ engines/vision_swift/.build/
 *-temp.md
 *-draft.md
 *-scratch.md
+
+# Experiment and test artifacts
+test_*/
+*_test/
+*_FAILED/
+validation_metrics.json
+
+# Environment backups (secrets)
+.env copy
+*.env.bak
+
+# Temporary processing runs (regenerable from batch IDs)
+full_dataset_processing/gpt4omini_aafc_free/
