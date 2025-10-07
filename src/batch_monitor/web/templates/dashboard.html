@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batch Monitor Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .timestamp {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+
+        .batch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .batch-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .batch-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+        }
+
+        .batch-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .batch-emoji {
+            font-size: 2em;
+            margin-right: 12px;
+        }
+
+        .batch-id {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #666;
+            flex: 1;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-validating { background: #ffeaa7; color: #fdcb6e; }
+        .status-in_progress { background: #74b9ff; color: #0984e3; }
+        .status-completed { background: #55efc4; color: #00b894; }
+        .status-failed { background: #ff7675; color: #d63031; }
+
+        .progress-section {
+            margin: 16px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 24px;
+            background: #f0f0f0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: white;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+
+        .progress-text {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 8px 16px;
+            margin-top: 16px;
+        }
+
+        .info-label {
+            color: #999;
+            font-size: 0.85em;
+            text-align: right;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 500;
+            font-size: 0.85em;
+        }
+
+        .error-message {
+            background: #ff7675;
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2em;
+            padding: 40px;
+        }
+
+        .complete-banner {
+            background: #55efc4;
+            color: #00b894;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Batch Monitor Dashboard</h1>
+        <div class="timestamp" id="timestamp">Connecting...</div>
+        <div id="content"></div>
+    </div>
+
+    <script>
+        const contentDiv = document.getElementById('content');
+        const timestampDiv = document.getElementById('timestamp');
+
+        // Get batch IDs from URL params or use auto-discovery
+        const urlParams = new URLSearchParams(window.location.search);
+        const batchIds = urlParams.get('batch_ids') || '';
+        const refresh = urlParams.get('refresh') || '30';
+
+        // Connect to SSE stream
+        const eventSource = new EventSource(`/stream?batch_ids=${batchIds}&refresh=${refresh}`);
+
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+
+            // Check for completion
+            if (data.complete) {
+                const banner = document.createElement('div');
+                banner.className = 'complete-banner';
+                banner.textContent = '✅ All batches complete!';
+                contentDiv.insertBefore(banner, contentDiv.firstChild);
+                eventSource.close();
+                return;
+            }
+
+            // Check for error
+            if (data.error) {
+                contentDiv.innerHTML = `<div class="error-message">❌ Error: ${data.error}</div>`;
+                eventSource.close();
+                return;
+            }
+
+            // Update timestamp
+            const timestamp = new Date(data.timestamp);
+            timestampDiv.textContent = `Last update: ${timestamp.toLocaleTimeString()}`;
+
+            // Render batch cards
+            const gridHtml = data.batches.map(batch => {
+                const etaText = batch.timing.eta_seconds
+                    ? `~${(batch.timing.eta_seconds / 60).toFixed(1)} min`
+                    : 'N/A';
+
+                const statusClass = `status-${batch.status.replace('_', '-')}`;
+
+                return `
+                    <div class="batch-card">
+                        <div class="batch-header">
+                            <span class="batch-emoji">${batch.status_emoji}</span>
+                            <div style="flex: 1;">
+                                <div class="batch-id">${batch.batch_id.substring(0, 24)}...</div>
+                                <span class="status-badge ${statusClass}">${batch.status}</span>
+                            </div>
+                        </div>
+
+                        <div class="progress-section">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${batch.progress.percentage}%">
+                                    ${batch.progress.percentage.toFixed(0)}%
+                                </div>
+                            </div>
+                            <div class="progress-text">
+                                ${batch.progress.completed} / ${batch.progress.total} completed
+                                ${batch.progress.failed > 0 ? `<span style="color: #d63031;">(${batch.progress.failed} failed)</span>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="info-grid">
+                            <div class="info-label">Elapsed:</div>
+                            <div class="info-value">${batch.timing.elapsed_minutes.toFixed(1)} min</div>
+
+                            ${batch.timing.eta_seconds ? `
+                                <div class="info-label">ETA:</div>
+                                <div class="info-value">${etaText}</div>
+                            ` : ''}
+
+                            ${batch.output_file_id ? `
+                                <div class="info-label">Output:</div>
+                                <div class="info-value" style="font-family: monospace; font-size: 0.75em;">
+                                    ${batch.output_file_id.substring(0, 20)}...
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            contentDiv.innerHTML = `<div class="batch-grid">${gridHtml}</div>`;
+        };
+
+        eventSource.onerror = function(error) {
+            contentDiv.innerHTML = '<div class="error-message">❌ Connection lost. Please refresh the page.</div>';
+            eventSource.close();
+        };
+
+        // Show loading state initially
+        contentDiv.innerHTML = '<div class="loading">⏳ Loading batch data...</div>';
+    </script>
+</body>
+</html>
