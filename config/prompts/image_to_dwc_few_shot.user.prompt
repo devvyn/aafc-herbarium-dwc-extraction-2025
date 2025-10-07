@@ -1,0 +1,12 @@
+Extract Darwin Core fields from this AAFC herbarium specimen image.
+
+Follow the pattern shown in the examples:
+1. Identify catalogNumber at TOP of sheet (6-digit institutional ID)
+2. Locate collection label at BOTTOM
+3. Extract scientific name WITH authority
+4. Identify recordedBy (field collector like J. Looman, A. C. Budd)
+5. Extract locality (place name) and habitat (ecosystem) separately
+6. Convert dates to ISO 8601 format (YYYY-MM-DD)
+7. Include confidence scores (0.0-1.0) for each field
+
+Return JSON with all available Darwin Core fields.
