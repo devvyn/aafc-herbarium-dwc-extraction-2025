@@ -1,0 +1,86 @@
+Extract Darwin Core fields from this AAFC herbarium specimen image.
+
+AAFC-SPECIFIC EXTRACTION PRIORITIES:
+
+1. **catalogNumber (TOP of sheet):**
+   - AAFC format: 6 digits with leading zeros (019121, 019570, 280522)
+   - Location: Stamped or typed at TOP of herbarium sheet
+   - Confidence boost: If you see 6-digit number at top = catalogNumber
+   - Common error: Don't confuse with collector's field number on label
+
+2. **scientificName (MUST include authority):**
+   - AAFC standard: Always includes taxonomic authority
+   - Examples: "Stipa viridula Trin.", "Bouteloua gracilis (HBK.) Lag.", "Festuca scabrella Torr."
+   - Common prairie genera: Stipa, Festuca, Bouteloua, Agropyron, Elymus, Senecio, Artemisia
+   - Watch for OCR errors in handwriting: "Festuca" not "Pestuue", "Stipa" not "Stlge"
+
+3. **catalogNumber vs recordNumber distinction:**
+   - catalogNumber = TOP (institutional, 6 digits) → 019121
+   - recordNumber = BOTTOM LABEL (collector's field number, often near "COLL. No:") → may be 2-4 digits
+
+4. **Saskatchewan prairie context:**
+   - Default country: "CANADA"
+   - Primary stateProvince: "Saskatchewan" (or "SASKATCHEWAN")
+   - Common localities: Saskatchewan Landing, Beaver River crossing, Swift Current, Val Marie
+   - Typical habitats: "native prairie", "fescue prairie", "mixed prairie", "coulee"
+
+5. **recordedBy = ORIGINAL FIELD COLLECTOR (CRITICAL DISTINCTION):**
+   - recordedBy is the person who collected the specimen IN THE FIELD from nature
+   - Usually on collection label with date and locality: "Collected by J. Looman"
+   - Common AAFC field collectors (1950s-1970s): J. Looman, A. C. Budd, W. P. Fraser
+   - **NOT** the person who accessioned it to the herbarium
+   - **NOT** the same as identifiedBy (who determined the species)
+   - **NOT** the same as recordEnteredBy (who cataloged it)
+   - If label says "det. J. Looman" without collection info, J. Looman is identifiedBy, NOT recordedBy
+
+6. **Label keyword mapping:**
+   - COLL: or COLL. No: → recordNumber
+   - DET: or Det. → identifiedBy
+   - HABITAT: or HAB: → habitat
+   - ELEVATION: or ELEV: → minimumElevationInMeters
+
+7. **locality vs habitat distinction:**
+   - locality = GEOGRAPHIC PLACE NAME (Saskatchewan Landing, Beaver River crossing, etc.)
+   - habitat = ECOSYSTEM/VEGETATION TYPE (native prairie, swampy area, fescue prairie, etc.)
+
+8. **Comprehensive note extraction:**
+   - occurrenceRemarks: ALL marginal notes, observations, abundance notes, collector comments
+     * Examples: "abundant", "rare", "growing with Artemisia", "south-facing slope"
+   - identificationRemarks: ALL determination notes, verification stamps, revisions
+     * Examples: "verified by A.C. Budd", "det. J. Looman 1970", "originally Festuca ovina"
+   - fieldNotes: Complete field notes if present on label
+   - **DO NOT IGNORE:** Small handwritten notes, stamps, annotations, verification dates
+
+9. **Specimen characteristics to capture:**
+   - reproductiveCondition: Flowering, fruiting, sterile, in bud (if noted)
+   - establishmentMeans: Native, introduced, cultivated (prairie species usually native)
+   - associatedTaxa: Other species mentioned ("growing with...", "among...")
+   - individualCount: Number if noted ("3 plants", "several specimens")
+   - lifeStage: Seedling, mature, etc. (if noted)
+   - sex: Male/female for dioecious species
+
+10. **Institutional fields (if visible):**
+    - institutionCode: "AAFC"
+    - collectionCode: "SRDC" or herbarium code
+    - basisOfRecord: "PreservedSpecimen"
+
+11. **Coordinate metadata (if coordinates present):**
+    - geodeticDatum: "WGS84" (modern) or "NAD27" (older records)
+    - coordinateUncertaintyInMeters: If noted
+
+QUALITY CHECKS:
+- ✅ catalogNumber has 6 digits with leading zeros
+- ✅ scientificName includes authority (Trin., Pursh, Torr., Lag.)
+- ✅ stateProvince is "Saskatchewan" (not "SK" abbreviation)
+- ✅ habitat describes ecosystem, not location
+- ✅ recordNumber is from label, not top of sheet
+- ✅ ALL marginal notes captured in occurrenceRemarks or identificationRemarks
+- ✅ Verification stamps and annotations extracted
+
+**COMPREHENSIVE EXTRACTION PRIORITY:**
+Capture EVERYTHING on the label - all notes, annotations, stamps, marginal writing.
+If uncertain where to put information, use occurrenceRemarks or identificationRemarks.
+Better to extract too much than to miss important specimen notes.
+
+Return JSON with ALL Darwin Core fields (~25+ fields total), even if many have empty values.
+Set confidence 0.0 for missing/illegible fields.
