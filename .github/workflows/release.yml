@@ -1,0 +1,182 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    name: Create GitHub Release
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Extract version from tag
+      id: version
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+    - name: Extract release notes from CHANGELOG
+      id: changelog
+      run: |
+        VERSION=${{ steps.version.outputs.version }}
+
+        # Try to extract release notes from CHANGELOG.md
+        if [ -f CHANGELOG.md ]; then
+          # Extract section for this version
+          sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d' > release_notes.md
+
+          if [ -s release_notes.md ]; then
+            echo "Found release notes in CHANGELOG.md"
+            cat release_notes.md
+          else
+            echo "No specific release notes found for version $VERSION"
+            echo "Release ${{ steps.version.outputs.tag }}" > release_notes.md
+          fi
+        else
+          echo "CHANGELOG.md not found"
+          echo "Release ${{ steps.version.outputs.tag }}" > release_notes.md
+        fi
+
+    - name: Check for deliverables
+      id: deliverables
+      run: |
+        DELIVERABLES=""
+
+        if [ -f "deliverables/v${{ steps.version.outputs.version }}_vision_api_baseline.jsonl" ]; then
+          DELIVERABLES="$DELIVERABLES deliverables/v${{ steps.version.outputs.version }}_vision_api_baseline.jsonl"
+        fi
+
+        if [ -f "deliverables/validation/human_validation.jsonl" ]; then
+          DELIVERABLES="$DELIVERABLES deliverables/validation/human_validation.jsonl"
+        fi
+
+        if [ -f "deliverables/README.md" ]; then
+          DELIVERABLES="$DELIVERABLES deliverables/README.md"
+        fi
+
+        # Check for any JSONL files in deliverables directory
+        if [ -d "deliverables" ]; then
+          find deliverables -name "*.jsonl" -o -name "*.csv" -o -name "*.zip" > found_deliverables.txt
+          if [ -s found_deliverables.txt ]; then
+            echo "Found deliverables:"
+            cat found_deliverables.txt
+          fi
+        fi
+
+        echo "deliverables=$DELIVERABLES" >> $GITHUB_OUTPUT
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: Release ${{ steps.version.outputs.tag }}
+        body_path: release_notes.md
+        files: |
+          deliverables/**/*.jsonl
+          deliverables/**/*.csv
+          deliverables/**/*.zip
+          deliverables/README.md
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  validate-release:
+    runs-on: ubuntu-latest
+    name: Validate Release
+    needs: create-release
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: uv sync
+
+    - name: Run test suite
+      run: |
+        uv run python -m pytest tests/unit/ tests/integration/ -v --tb=short
+      continue-on-error: false
+
+    - name: Verify deliverables integrity
+      run: |
+        # Check JSONL files are valid JSON Lines
+        if [ -d "deliverables" ]; then
+          for jsonl_file in $(find deliverables -name "*.jsonl"); do
+            echo "Validating $jsonl_file"
+
+            # Check file is not empty
+            if [ ! -s "$jsonl_file" ]; then
+              echo "❌ $jsonl_file is empty"
+              exit 1
+            fi
+
+            # Validate JSON Lines format
+            python -c "
+import json
+import sys
+
+with open('$jsonl_file', 'r') as f:
+    line_count = 0
+    for i, line in enumerate(f, 1):
+        line_count = i
+        try:
+            json.loads(line)
+        except json.JSONDecodeError as e:
+            print(f'❌ Invalid JSON on line {i}: {e}')
+            sys.exit(1)
+
+    print(f'✅ {line_count} valid JSON lines in $jsonl_file')
+            "
+          done
+
+          echo "✅ All deliverables validated"
+        else
+          echo "⚠️  No deliverables directory found"
+        fi
+
+  announce-release:
+    runs-on: ubuntu-latest
+    name: Announce Release
+    needs: [create-release, validate-release]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Extract version from tag
+      id: version
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+    - name: Display release summary
+      run: |
+        echo "🎉 Release ${{ steps.version.outputs.tag }} created successfully!"
+        echo ""
+        echo "Release URL: https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }}"
+        echo ""
+
+        if [ -d "deliverables" ]; then
+          echo "📦 Deliverables included:"
+          find deliverables -type f | while read file; do
+            size=$(du -h "$file" | cut -f1)
+            echo "  - $file ($size)"
+          done
+        fi
