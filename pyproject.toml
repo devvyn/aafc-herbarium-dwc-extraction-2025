@@ -32,6 +32,7 @@ dependencies = [
     "jinja2>=3.1.6",
     "rich>=13.0.0",
     "rich-pixels>=3.0.1",
+    "flask>=3.1.2",
 ]
 
 [project.scripts]
