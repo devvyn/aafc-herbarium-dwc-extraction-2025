@@ -1,0 +1,136 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Herbarium Data Provenance Fragment",
+  "description": "Immutable provenance record for specimen data processing chain",
+  "type": "object",
+  "required": [
+    "fragment_id",
+    "fragment_type",
+    "timestamp",
+    "source",
+    "process",
+    "output"
+  ],
+  "properties": {
+    "fragment_id": {
+      "type": "string",
+      "description": "Unique identifier for this provenance fragment (UUID or hash)",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "fragment_type": {
+      "type": "string",
+      "enum": ["camera_capture", "image_processing", "ocr_extraction", "validation", "publication"],
+      "description": "Stage in the processing pipeline"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of processing"
+    },
+    "source": {
+      "type": "object",
+      "description": "Input to this processing stage",
+      "required": ["type", "identifier"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["raw_image", "processed_image", "manifest", "extraction_result"]
+        },
+        "identifier": {
+          "type": "string",
+          "description": "Content hash (SHA256) or manifest reference"
+        },
+        "location": {
+          "type": "string",
+          "description": "Storage location (S3 key, file path, etc.)"
+        },
+        "previous_fragment_id": {
+          "type": "string",
+          "description": "Link to previous provenance fragment in chain"
+        }
+      }
+    },
+    "process": {
+      "type": "object",
+      "description": "Processing operation details",
+      "required": ["operation", "agent"],
+      "properties": {
+        "operation": {
+          "type": "string",
+          "description": "Type of processing performed"
+        },
+        "agent": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["human", "automated", "ai_model"]
+            },
+            "identifier": {
+              "type": "string",
+              "description": "Who/what performed the operation (username, model ID, etc.)"
+            }
+          }
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Processing parameters (model, temperature, prompts, etc.)",
+          "additionalProperties": true
+        },
+        "batch_id": {
+          "type": "string",
+          "description": "OpenAI Batch API ID (if applicable)"
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "description": "Processing output details",
+      "required": ["type", "identifier"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["darwin_core_record", "processed_image", "validation_result", "manifest"]
+        },
+        "identifier": {
+          "type": "string",
+          "description": "Content hash of output"
+        },
+        "location": {
+          "type": "string",
+          "description": "Storage location of output"
+        },
+        "quality_metrics": {
+          "type": "object",
+          "description": "Quality/confidence metrics for this output",
+          "additionalProperties": true
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional context (institutional, regulatory, scientific)",
+      "properties": {
+        "institution": {
+          "type": "string",
+          "description": "Institution code (e.g., AAFC, DAO)"
+        },
+        "project": {
+          "type": "string",
+          "description": "Project or collection identifier"
+        },
+        "compliance": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Compliance frameworks (e.g., GBIF, DwC, Federal Data Governance)"
+        },
+        "purpose": {
+          "type": "string",
+          "description": "Scientific purpose or research context"
+        }
+      }
+    }
+  }
+}

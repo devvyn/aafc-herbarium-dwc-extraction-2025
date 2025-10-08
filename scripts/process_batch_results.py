@@ -20,6 +20,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
+# Add src to path for provenance module
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
 try:
     from openai import OpenAI
 except ImportError:
@@ -30,6 +33,8 @@ try:
     load_dotenv()
 except ImportError:
     pass
+
+from provenance import create_extraction_fragment, write_provenance_fragments
 
 
 def download_batch_results(batch_id: str, output_dir: Path) -> Path:
@@ -264,11 +269,25 @@ def main():
     print(f"\n📂 Input: {input_file}")
     print(f"📂 Output: {output_dir}")
 
+    # Load batch metadata for provenance
+    batch_id = args.batch_id
+    if not batch_id:
+        # Try to load from batch_info.json
+        batch_info_path = output_dir / "batch_info.json"
+        if batch_info_path.exists():
+            with open(batch_info_path) as f:
+                batch_info = json.load(f)
+                batch_id = batch_info.get("id", "unknown")
+        else:
+            batch_id = "unknown"
+
     # Process results
     print(f"\n🔄 Processing batch responses...")
+    print(f"📋 Batch ID: {batch_id}")
 
     extractions = []
     errors = []
+    provenance_fragments = []
 
     with open(input_file, "r", encoding="utf-8") as f:
         for i, line in enumerate(f, 1):
@@ -285,6 +304,16 @@ def main():
 
                     if "error" in extraction:
                         errors.append(extraction)
+                    else:
+                        # Create provenance fragment for successful extraction
+                        fragment = create_extraction_fragment(
+                            image_sha256=extraction["sha256"],
+                            darwin_core_data=extraction["dwc"],
+                            batch_id=batch_id,
+                            model=extraction.get("engine_version", "gpt-4o-mini"),
+                            confidence_scores=extraction.get("dwc_confidence", {})
+                        )
+                        provenance_fragments.append(fragment)
 
                 if i % 100 == 0:
                     print(f"  Processed {i} responses...")
@@ -294,6 +323,7 @@ def main():
                 continue
 
     print(f"\n✅ Processed {len(extractions)} responses")
+    print(f"📋 Created {len(provenance_fragments)} provenance fragments")
 
     # Write extractions
     output_path = output_dir / "raw.jsonl"
@@ -304,6 +334,15 @@ def main():
     print(f"\n💾 Saved extractions:")
     print(f"   {output_path}")
     print(f"   {len(extractions):,} records")
+
+    # Write provenance fragments (immutable lineage records)
+    if provenance_fragments:
+        provenance_path = output_dir / "provenance.jsonl"
+        write_provenance_fragments(provenance_fragments, provenance_path)
+        print(f"\n🔗 Saved provenance chain:")
+        print(f"   {provenance_path}")
+        print(f"   {len(provenance_fragments):,} fragments (scientific lineage)")
+
 
     # Write errors if any
     if errors:
