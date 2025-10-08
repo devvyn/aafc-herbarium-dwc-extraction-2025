@@ -196,6 +196,12 @@ def main():
         help="Limit number of images to process (for testing)"
     )
     parser.add_argument(
+        "--offset",
+        type=int,
+        default=0,
+        help="Skip first N images (for batch splitting)"
+    )
+    parser.add_argument(
         "--structured-output",
         action="store_true",
         help="Use JSON Schema structured outputs (enforces field names)"
@@ -237,13 +243,19 @@ def main():
         sys.exit(1)
 
     # Find all image files
-    image_files = sorted(args.input.glob("*.jpg"))
+    all_image_files = sorted(args.input.glob("*.jpg"))
+    total_available = len(all_image_files)
 
+    # Apply offset and limit for batch splitting
+    image_files = all_image_files[args.offset:]
     if args.limit:
         image_files = image_files[:args.limit]
-        print(f"⚠️  Processing limited to {args.limit} images for testing")
 
-    print(f"\nFound {len(image_files)} images in {args.input}")
+    if args.offset > 0 or args.limit:
+        print(f"\n⚠️  Batch slice: offset={args.offset}, limit={args.limit}")
+        print(f"   Processing specimens {args.offset + 1} to {args.offset + len(image_files)} of {total_available}")
+
+    print(f"\nFound {len(image_files)} images to process")
 
     # Display configuration
     print(f"\n📋 Configuration:")
