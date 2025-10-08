@@ -82,7 +82,8 @@ def create_batch_request(
     messages: List[Dict[str, str]],
     model: str = "gpt-4o-mini",
     use_structured_output: bool = False,
-    schema_path: Path = None
+    schema_path: Path = None,
+    temperature: float = None
 ) -> Dict:
     """Create a single batch request for an image.
 
@@ -122,9 +123,12 @@ def create_batch_request(
     # Build request body
     body = {
         "model": model,
-        "messages": vision_messages,
-        "temperature": 0  # Best practice for data extraction
+        "messages": vision_messages
     }
+
+    # Only set temperature if explicitly provided
+    if temperature is not None:
+        body["temperature"] = temperature
 
     # Add response format
     if use_structured_output and schema_path:
@@ -202,6 +206,12 @@ def main():
         default=Path("config/schemas/darwin_core_extraction.json"),
         help="Path to JSON schema file"
     )
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=None,
+        help="Temperature setting (0-2). If not set, uses OpenAI default (1.0)"
+    )
 
     args = parser.parse_args()
 
@@ -238,7 +248,10 @@ def main():
     # Display configuration
     print(f"\n📋 Configuration:")
     print(f"   Model: {args.model}")
-    print(f"   Temperature: 0 (data extraction best practice)")
+    if args.temperature is not None:
+        print(f"   Temperature: {args.temperature}")
+    else:
+        print(f"   Temperature: default (1.0)")
     if args.structured_output:
         print(f"   Response Format: JSON Schema (strict=True)")
         print(f"   Schema: {args.schema}")
@@ -268,7 +281,8 @@ def main():
                     messages,
                     args.model,
                     args.structured_output,
-                    args.schema if args.structured_output else None
+                    args.schema if args.structured_output else None,
+                    args.temperature
                 )
 
                 # Write JSONL line
