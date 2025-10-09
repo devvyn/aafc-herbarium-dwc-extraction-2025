@@ -2,7 +2,7 @@
 
 **Production-ready toolkit for extracting Darwin Core metadata from herbarium specimen images**
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/releases)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 
@@ -44,37 +44,46 @@ python cli.py process --input photos/ --output results/
 python review_web.py --db results/candidates.db --images photos/
 ```
 
-## 📦 Current Release: v1.0.0
+## 📦 Current Release: v1.1.0
 
-**Production dataset:** 2,885 herbarium specimens extracted
-**Method:** Apple Vision API (FREE) + rules engine
-**Darwin Core fields:** 7 core terms
-**Cost:** $0
+**Multi-Provider Extraction with FREE Tier Support**
 
-### v1.0 Deliverables
+### What's New in v1.1.0
 
-📁 **Dataset:** `deliverables/v1.0_vision_api_baseline.jsonl`
-📊 **Validation:** 20-specimen ground truth sample
-📈 **Quality metrics:** Documented accuracy baselines
-📚 **Documentation:** Complete extraction methodology
+🌐 **OpenRouter Integration**
+- Access to 400+ vision models via unified API
+- FREE tier support (Qwen 2.5 VL 72B, Llama Vision, Gemini)
+- Better quality than paid baseline at zero cost
 
-See [deliverables/README.md](deliverables/README.md) for details.
+🔬 **Scientific Provenance System**
+- Git-based version tracking for reproducibility
+- SHA256 content-addressed data lineage
+- Complete system metadata capture
+- Immutable provenance fragments
 
-### ⚡ v2.0 Coming Soon (In Progress)
+📊 **Production Results**
+- 2,885 herbarium specimens processed
+- 100% scientificName coverage (FREE models)
+- 98% baseline quality (OpenAI GPT-4o-mini)
+- $0 cost with open-source models
 
-**Enhanced extraction** with GPT-4o-mini:
-- 🔢 **16 Darwin Core fields** (9 additional: habitat, elevation, recordNumber, etc.)
-- 🎯 **Layout-aware prompts** (TOP vs BOTTOM label distinction)
-- 📊 **Expected quality:** ~70% accuracy (vs ~15% baseline)
-- 💰 **Cost:** $1.60 total or FREE overnight (15-20 hours)
+📚 **Documentation**
+- Complete pattern guide: [docs/SCIENTIFIC_PROVENANCE_PATTERN.md](docs/SCIENTIFIC_PROVENANCE_PATTERN.md)
+- Working examples: `examples/provenance_example.py`
+- Multi-provider scripts: `scripts/extract_openrouter.py`
 
-**Agent orchestration framework:** "Consider all means accessible"
-- 🤖 **Pipeline composer** with cost/quality optimization
-- 💸 **FREE-first routing** with paid fallback strategies
-- 🔬 **Ensemble voting** for research-grade quality
-- 📈 **Progressive enhancement** (free baseline + selective paid)
+### Why This Matters
 
-See [agents/README.md](agents/README.md) for architecture details.
+**Architectural shift:**
+- **From**: Single provider, paid, queue-limited
+- **To**: Multi-provider, FREE option, unlimited scale
+
+**Research impact:**
+- Enables zero-cost extraction at production scale
+- Removes financial barrier to herbarium digitization
+- Full reproducibility for scientific publication
+
+See [CHANGELOG.md](CHANGELOG.md) for complete release notes.
 
 ## 🔧 Installation
 
@@ -275,8 +284,8 @@ ruff check . --fix
 
 ## 🔖 Version History
 
-**Current:** v1.0.0 (October 2025)
-**Previous:** v1.0.0-beta.2 (Storage abstraction layer)
+**Current:** v1.1.0 (October 2025) - Multi-provider extraction with FREE tier support
+**Previous:** v1.0.0 (October 2025) - Production baseline with Apple Vision API
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
