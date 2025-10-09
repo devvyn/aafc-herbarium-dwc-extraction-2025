@@ -103,7 +103,7 @@ python scripts/export_dwc_archive.py --input results/ --output dwc-archive/
 | OpenAI GPT-4o-mini | 98% | $10.55 | Baseline |
 | **OpenRouter FREE** | **100%** | **$0.00** | **Winner** :trophy: |
 
-[:octicons-tag-24: View release notes](about/changelog.md)
+[:octicons-tag-24: View release notes](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/blob/main/CHANGELOG.md)
 
 ---
 
@@ -148,7 +148,7 @@ graph TD
     G --> H[GBIF Export]
 ```
 
-[:octicons-book-24: Learn more about architecture](developer-guide/architecture.md)
+_Architecture documentation coming soon_
 
 ---
 
@@ -169,7 +169,7 @@ graph TD
 !!! success "Key Finding"
     FREE open-source models (Qwen 2.5 VL 72B) outperform paid commercial APIs (GPT-4o-mini) for herbarium extraction.
 
-[:octicons-graph-24: View quality analysis](research/quality.md)
+_Quality analysis documentation coming soon_
 
 ---
 
@@ -191,7 +191,7 @@ graph TD
 
     Processing workflows, review interface, GBIF export
 
-    [:octicons-arrow-right-24: User guide](user-guide/workflow.md)
+    _Documentation coming soon_
 
 -   :material-flask: __Research__
 
@@ -199,7 +199,7 @@ graph TD
 
     Methodology, quality analysis, cost comparisons
 
-    [:octicons-arrow-right-24: Research docs](research/methodology.md)
+    _Documentation coming soon_
 
 -   :material-code-braces: __Developer Guide__
 
@@ -207,7 +207,7 @@ graph TD
 
     Architecture, API reference, contributing
 
-    [:octicons-arrow-right-24: Developer docs](developer-guide/architecture.md)
+    _Documentation coming soon_
 
 </div>
 
@@ -245,7 +245,7 @@ graph TD
 - Complete provenance for scientific publication
 - Ready for Canadensys IPT upload
 
-[:octicons-arrow-right-24: View case study](research/methodology.md#aafc-use-case)
+_Case study documentation coming soon_
 
 ---
 
@@ -258,7 +258,7 @@ We welcome contributions! This project demonstrates:
 - Zero-cost production workflows
 - Institutional digitization at scale
 
-[:octicons-git-pull-request-24: Contributing guide](developer-guide/contributing.md)
+[:octicons-git-pull-request-24: Contributing guide](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/blob/main/CONTRIBUTING.md)
 
 ---
 
@@ -266,7 +266,7 @@ We welcome contributions! This project demonstrates:
 
 MIT License - Free for research, commercial, and institutional use
 
-[:octicons-law-24: View license](about/license.md)
+[:octicons-law-24: View license](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/blob/main/LICENSE)
 
 ---
 
@@ -274,7 +274,7 @@ MIT License - Free for research, commercial, and institutional use
 
 - [:material-github: GitHub Repository](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025)
 - [:material-bug: Report Issues](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues)
-- [:material-notebook: Changelog](about/changelog.md)
+- [:material-notebook: Changelog](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/blob/main/CHANGELOG.md)
 - [:material-account-group: TDWG Darwin Core](https://dwc.tdwg.org/)
 - [:material-earth: GBIF](https://www.gbif.org)
 
