@@ -240,3 +240,31 @@ validation_metrics.json
 
 # Temporary processing runs (regenerable from batch IDs)
 full_dataset_processing/gpt4omini_aafc_free/
+
+# === Repository Cleanup (2025-10-09) ===
+# Research and experimental artifacts - keep code clean
+
+# All experimental processing directories (except published datasets)
+/full_dataset_processing/*
+!/full_dataset_processing/README.md
+!/full_dataset_processing/.gitkeep
+!/full_dataset_processing/published/
+
+# Batch processing temporary files
+batch_history.jsonl
+batch_monitor_history.jsonl
+batch_output.jsonl
+coordination-status-*.json
+
+# OpenRouter test and production directories
+openrouter_test_*/
+openrouter_full_*/
+
+# Example code - keep provenance examples, exclude rest
+examples/AAFC-SRDC/
+examples/schema_mapping_demo.py
+examples/.DS_Store
+
+# Temporary coordination files
+*.coordination.json
+*-status.json
