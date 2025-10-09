@@ -5,6 +5,13 @@
 [![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Documentation](https://img.shields.io/badge/docs-online-brightgreen.svg)](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/)
+
+---
+
+> **📚 [View Full Documentation](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/)** - Complete guides, tutorials, and API reference
+
+---
 
 ## 🎯 What This Does
 
@@ -221,23 +228,19 @@ See [docs/DATA_PUBLICATION_GUIDE.md](docs/DATA_PUBLICATION_GUIDE.md) for complet
 
 ## 📚 Documentation
 
-### Getting Started
-- [Quick Start Guide](README.md#quick-start)
-- [Installation](README.md#installation)
-- [API Setup](API_SETUP_QUICK.md)
+### **[📖 View Full Documentation Site](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/)**
 
-### Advanced Topics
+**Complete guides, tutorials, and reference:**
+- 🚀 [Getting Started](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/getting-started/installation/) - Installation and quick start
+- 📖 [User Guide](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/user-guide/workflow/) - Processing workflows and GBIF export
+- 🔬 [Research](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/research/methodology/) - Methodology and quality analysis
+- 💻 [Developer Guide](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/developer-guide/architecture/) - Architecture and API reference
+
+**Legacy documentation** (being migrated to docs site):
 - [Agent Orchestration Framework](agents/README.md)
 - [Data Publication Strategy](docs/DATA_PUBLICATION_GUIDE.md)
-- [Scientific Provenance Pattern](docs/SCIENTIFIC_PROVENANCE_PATTERN.md) ⭐ **NEW**
-- [Configuration Guide](docs/configuration.md)
-- [Development Guide](docs/development.md)
-
-### Reference
-- [API Documentation](docs/api_reference.md)
-- [Database Schema](docs/database_schema.md)
-- [Troubleshooting](docs/troubleshooting.md)
-- [FAQ](docs/faq.md)
+- [Scientific Provenance Pattern](docs/SCIENTIFIC_PROVENANCE_PATTERN.md) ⭐
+- [API Setup Guide](API_SETUP_QUICK.md)
 
 ## 🔄 Processing Workflow
 
