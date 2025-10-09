@@ -220,6 +220,7 @@ See [docs/DATA_PUBLICATION_GUIDE.md](docs/DATA_PUBLICATION_GUIDE.md) for complet
 ### Advanced Topics
 - [Agent Orchestration Framework](agents/README.md)
 - [Data Publication Strategy](docs/DATA_PUBLICATION_GUIDE.md)
+- [Scientific Provenance Pattern](docs/SCIENTIFIC_PROVENANCE_PATTERN.md) ⭐ **NEW**
 - [Configuration Guide](docs/configuration.md)
 - [Development Guide](docs/development.md)
 
