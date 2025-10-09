@@ -5,11 +5,11 @@
 [![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![Documentation](https://img.shields.io/badge/docs-online-brightgreen.svg)](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/)
+[![Documentation](https://img.shields.io/badge/docs-online-brightgreen.svg)](https://aafc.devvyn.ca)
 
 ---
 
-> **📚 [View Full Documentation](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/)** - Complete guides, tutorials, and API reference
+> **📚 [View Full Documentation](https://aafc.devvyn.ca)** - Complete guides, tutorials, and API reference
 
 ---
 
@@ -228,13 +228,13 @@ See [docs/DATA_PUBLICATION_GUIDE.md](docs/DATA_PUBLICATION_GUIDE.md) for complet
 
 ## 📚 Documentation
 
-### **[📖 View Full Documentation Site](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/)**
+### **[📖 View Full Documentation Site](https://aafc.devvyn.ca)**
 
 **Complete guides, tutorials, and reference:**
-- 🚀 [Getting Started](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/getting-started/installation/) - Installation and quick start
-- 📖 [User Guide](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/user-guide/workflow/) - Processing workflows and GBIF export
-- 🔬 [Research](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/research/methodology/) - Methodology and quality analysis
-- 💻 [Developer Guide](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/developer-guide/architecture/) - Architecture and API reference
+- 🚀 [Getting Started](https://aafc.devvyn.ca/getting-started/installation/) - Installation and quick start
+- 📖 [User Guide](https://aafc.devvyn.ca/user-guide/workflow/) - Processing workflows and GBIF export
+- 🔬 [Research](https://aafc.devvyn.ca/research/methodology/) - Methodology and quality analysis
+- 💻 [Developer Guide](https://aafc.devvyn.ca/developer-guide/architecture/) - Architecture and API reference
 
 **Legacy documentation** (being migrated to docs site):
 - [Agent Orchestration Framework](agents/README.md)
