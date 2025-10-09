@@ -160,6 +160,8 @@ python cli.py process --input photos/ --output results/ --batch-size 10
 
 ## Next Steps
 
-- [:octicons-arrow-right-24: Quick Start Guide](quick-start.md) - Run your first extraction
-- [:octicons-arrow-right-24: Configuration](configuration.md) - Customize extraction settings
-- [:octicons-arrow-right-24: Multi-Provider Options](../user-guide/providers.md) - Choose best provider for your needs
+After installation, you can:
+
+- **Run your first extraction** - Use the Quick Install example above
+- **Explore sample code** - Check `examples/` directory in the repository
+- **Review documentation** - See the [GitHub README](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025) for complete usage guide
