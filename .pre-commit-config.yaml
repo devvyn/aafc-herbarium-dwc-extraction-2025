@@ -1,0 +1,38 @@
+# Pre-commit hooks for documentation quality
+# Industry best practice: "Shift-left" validation (catch issues before CI)
+#
+# Install: pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # MkDocs link validation (catches broken internal links)
+  # Note: Only validates nav-linked pages (orphaned docs files are OK for now)
+  - repo: local
+    hooks:
+      - id: mkdocs-validate
+        name: Validate MkDocs links
+        entry: bash -c 'OUTPUT=$(uv run mkdocs build --site-dir /tmp/mkdocs-validate-$$ 2>&1) && rm -rf /tmp/mkdocs-validate-$$ && echo "$OUTPUT" | grep -E "^WARNING.*Doc file .*(index|getting-started).*contains a link" && exit 1 || exit 0'
+        language: system
+        pass_filenames: false
+        files: ^(docs/(index|getting-started).*\.md|mkdocs\.yml)$
+        description: Validates links in nav pages (index.md, getting-started/*)
+
+  # Python code quality (existing tools)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # General file hygiene
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        exclude: ^(mkdocs\.yml|\.github/workflows/.*)$
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
