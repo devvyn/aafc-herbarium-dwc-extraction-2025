@@ -28,7 +28,7 @@ s3_source = ImageSourceConfig.from_config({
     'region': 'ca-central-1'
 })
 
-# Local source  
+# Local source
 local_source = ImageSourceConfig.from_config({
     'type': 'local',
     'base_path': './image_cache'
@@ -77,7 +77,7 @@ type = "local"
 base_path = "./image_cache"
 
 [[source.sources]]
-type = "s3"  
+type = "s3"
 bucket = "devvyn.aafc-srdc.herbarium"
 region = "ca-central-1"
 prefix = "images"
@@ -155,7 +155,7 @@ The `quick_trial_run.py` script now uses the configurable image source system:
 
 ```bash
 # Uses default S3 configuration
-python quick_trial_run.py
+python scripts/quick_trial_run.py
 
 # To use a different configuration, modify the script or create a custom version
 ```
@@ -186,7 +186,7 @@ download_images_with_source(urls, "./output", source)
 See `config/image_source_examples.toml` for complete examples:
 
 - **s3_only**: Direct S3 access
-- **local_only**: Local filesystem only  
+- **local_only**: Local filesystem only
 - **local_first**: Local cache with S3 fallback
 - **development**: Multi-tier development setup
 - **production**: Production-ready configuration
@@ -268,7 +268,7 @@ python test_image_source.py
 
 This tests:
 - SHA256 extraction from URLs
-- S3 source functionality  
+- S3 source functionality
 - Local source functionality
 - Multi-source fallback behavior
 
@@ -277,7 +277,7 @@ This tests:
 ### ImageSource Classes
 
 - `S3ImageSource`: S3 bucket access
-- `LocalImageSource`: Local filesystem access  
+- `LocalImageSource`: Local filesystem access
 - `MultiImageSource`: Multiple sources with fallback
 - `ImageSourceConfig`: Configuration factory
 

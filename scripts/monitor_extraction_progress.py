@@ -23,7 +23,7 @@ import time
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 
 def count_extractions(output_dir: Path) -> int:
@@ -102,7 +102,7 @@ def analyze_field_coverage(output_dir: Path, limit: int = None) -> Dict:
         coverage[field] = {
             "count": count,
             "percentage": (count / total * 100) if total > 0 else 0,
-            "avg_confidence": field_confidence_sums[field] / count if count > 0 else 0
+            "avg_confidence": field_confidence_sums[field] / count if count > 0 else 0,
         }
 
     return coverage
@@ -124,7 +124,9 @@ def estimate_completion(current: int, total: int, rate: Optional[float]) -> Opti
         return f"{minutes_left / 1440:.1f} days"
 
 
-def display_progress(output_dir: Path, total_specimens: int = 2885, validate_against: Optional[Path] = None):
+def display_progress(
+    output_dir: Path, total_specimens: int = 2885, validate_against: Optional[Path] = None
+):
     """Display extraction progress dashboard."""
     count = count_extractions(output_dir)
     rate = get_extraction_rate(output_dir, window_minutes=5)
@@ -152,25 +154,25 @@ def display_progress(output_dir: Path, total_specimens: int = 2885, validate_aga
         if est_time:
             print(f"⏱️  Estimated completion: {est_time}")
     else:
-        print(f"\n⚡ Extraction rate: Calculating...")
+        print("\n⚡ Extraction rate: Calculating...")
 
     # Field coverage (top 10)
     if coverage:
-        print(f"\n📋 Field Coverage (sample of last 100):")
-        sorted_fields = sorted(
-            coverage.items(),
-            key=lambda x: x[1]["percentage"],
-            reverse=True
-        )[:10]
+        print("\n📋 Field Coverage (sample of last 100):")
+        sorted_fields = sorted(coverage.items(), key=lambda x: x[1]["percentage"], reverse=True)[
+            :10
+        ]
 
         for field, stats in sorted_fields:
-            print(f"   {field:<25} {stats['percentage']:>6.1f}% (conf: {stats['avg_confidence']:.2f})")
+            print(
+                f"   {field:<25} {stats['percentage']:>6.1f}% (conf: {stats['avg_confidence']:.2f})"
+            )
 
     # Validation (if ground truth provided)
     if validate_against and validate_against.exists():
         # Quick validation on recent extractions
         # TODO: Implement incremental validation
-        print(f"\n✅ Validation: Available (run full validation manually)")
+        print("\n✅ Validation: Available (run full validation manually)")
 
     # Output files
     raw_file = output_dir / "raw.jsonl"
@@ -183,36 +185,17 @@ def display_progress(output_dir: Path, total_specimens: int = 2885, validate_aga
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Monitor ongoing extraction progress"
+    parser = argparse.ArgumentParser(description="Monitor ongoing extraction progress")
+    parser.add_argument("--output", type=Path, required=True, help="Extraction output directory")
+    parser.add_argument(
+        "--total", type=int, default=2885, help="Total specimens to extract (default: 2885)"
+    )
+    parser.add_argument("--validate", type=Path, help="Ground truth JSONL for validation")
+    parser.add_argument(
+        "--once", action="store_true", help="Show status once and exit (no continuous monitoring)"
     )
     parser.add_argument(
-        "--output",
-        type=Path,
-        required=True,
-        help="Extraction output directory"
-    )
-    parser.add_argument(
-        "--total",
-        type=int,
-        default=2885,
-        help="Total specimens to extract (default: 2885)"
-    )
-    parser.add_argument(
-        "--validate",
-        type=Path,
-        help="Ground truth JSONL for validation"
-    )
-    parser.add_argument(
-        "--once",
-        action="store_true",
-        help="Show status once and exit (no continuous monitoring)"
-    )
-    parser.add_argument(
-        "--interval",
-        type=int,
-        default=60,
-        help="Update interval in seconds (default: 60)"
+        "--interval", type=int, default=60, help="Update interval in seconds (default: 60)"
     )
 
     args = parser.parse_args()
@@ -229,7 +212,7 @@ def main():
             # Continuous monitoring
             print(f"📡 Monitoring extraction: {args.output}")
             print(f"⏱️  Update interval: {args.interval}s")
-            print(f"\nPress Ctrl+C to stop\n")
+            print("\nPress Ctrl+C to stop\n")
 
             while True:
                 display_progress(args.output, args.total, args.validate)
@@ -244,7 +227,7 @@ def main():
                 time.sleep(args.interval)
 
     except KeyboardInterrupt:
-        print(f"\n\n⏸️  Monitoring stopped by user")
+        print("\n\n⏸️  Monitoring stopped by user")
         count = count_extractions(args.output)
         print(f"📊 Current progress: {count:,} / {args.total:,} specimens")
 

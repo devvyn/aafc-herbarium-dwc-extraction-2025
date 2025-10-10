@@ -55,9 +55,7 @@ def capture_git_provenance() -> dict:
     try:
         # Capture commit hash (primary identifier)
         commit = subprocess.check_output(
-            ["git", "rev-parse", "HEAD"],
-            text=True,
-            stderr=subprocess.DEVNULL
+            ["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL
         ).strip()
         git_info["git_commit"] = commit
         git_info["git_commit_short"] = commit[:7]
@@ -65,9 +63,7 @@ def capture_git_provenance() -> dict:
         # Capture branch (context)
         try:
             branch = subprocess.check_output(
-                ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-                text=True,
-                stderr=subprocess.DEVNULL
+                ["git", "rev-parse", "--abbrev-ref", "HEAD"], text=True, stderr=subprocess.DEVNULL
             ).strip()
             if branch != "HEAD":  # Not in detached HEAD state
                 git_info["git_branch"] = branch
@@ -77,9 +73,7 @@ def capture_git_provenance() -> dict:
         # Flag uncommitted changes (critical for reproducibility!)
         try:
             result = subprocess.check_output(
-                ["git", "status", "--porcelain"],
-                text=True,
-                stderr=subprocess.DEVNULL
+                ["git", "status", "--porcelain"], text=True, stderr=subprocess.DEVNULL
             ).strip()
             git_info["git_dirty"] = bool(result)
 
@@ -233,8 +227,7 @@ def validate_reproducibility(manifest_path: Path) -> tuple[bool, list[str]]:
     manifest_python = manifest.get("system", {}).get("python_version")
     if manifest_python and manifest_python != current_python:
         warnings.append(
-            f"Python version mismatch: "
-            f"current={current_python}, manifest={manifest_python}"
+            f"Python version mismatch: " f"current={current_python}, manifest={manifest_python}"
         )
 
     is_valid = len(warnings) == 0
@@ -255,6 +248,7 @@ def track_provenance(version: str):
             # Accessible via function.git_info attribute
             ...
     """
+
     def decorator(func):
         def wrapper(*args, **kwargs):
             # Capture provenance at entry
@@ -292,10 +286,7 @@ if __name__ == "__main__":
     print("\n=== Full Manifest ===")
     manifest = create_manifest(
         version="1.0.0",
-        custom_metadata={
-            "specimen_count": 2885,
-            "export_type": "Darwin Core Archive"
-        }
+        custom_metadata={"specimen_count": 2885, "export_type": "Darwin Core Archive"},
     )
     print(json.dumps(manifest, indent=2))
 

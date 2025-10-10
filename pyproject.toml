@@ -65,6 +65,7 @@ config = [
 dev = [
     "mkdocs-git-revision-date-localized-plugin>=1.4.7",
     "mkdocs-material>=9.6.21",
+    "pre-commit>=4.3.0",
     "pytest>=8.4.1",
     "pytest-cov>=6.0.0",
     "pyyaml>=6.0.3",

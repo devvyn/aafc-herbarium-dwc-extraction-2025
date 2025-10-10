@@ -8,13 +8,15 @@ import sys
 import re
 from io_utils.image_source import ImageSourceConfig, DEFAULT_S3_CONFIG
 
+
 def extract_sha256_from_url(url: str) -> str:
     """Extract SHA256 hash from S3 URL."""
     # Extract from URLs like: .../images/00/0e/000e426d6ed12c347a937c47f568088a8daa32cdea3127d90f1eca5653831c84.jpg
-    match = re.search(r'/([0-9a-f]{64})\.jpg$', url)
+    match = re.search(r"/([0-9a-f]{64})\.jpg$", url)
     if match:
         return match.group(1)
     raise ValueError(f"Could not extract SHA256 from URL: {url}")
+
 
 def download_images_with_source(urls, output_dir, image_source=None):
     """Download images using configurable image source."""
@@ -46,10 +48,12 @@ def download_images_with_source(urls, output_dir, image_source=None):
 
     return downloaded
 
+
 # Legacy function for backward compatibility
 def download_s3_images(urls, output_dir):
     """Download images from S3 URLs (legacy interface)."""
     return download_images_with_source(urls, output_dir)
+
 
 def main():
     # Get URLs from config file
@@ -64,9 +68,9 @@ def main():
 
     # Collect URLs from different categories
     urls = []
-    for category in ['readable_specimens', 'minimal_specimens', 'poor_specimens']:
-        if category in config.get('test_images', {}):
-            urls.extend(config['test_images'][category][:5])  # 5 from each category
+    for category in ["readable_specimens", "minimal_specimens", "poor_specimens"]:
+        if category in config.get("test_images", {}):
+            urls.extend(config["test_images"][category][:5])  # 5 from each category
 
     print(f"🚀 Quick Trial Run - Processing {len(urls)} specimens")
     print("📁 This will create trial_images/ and trial_results/")
@@ -89,12 +93,22 @@ def main():
     start_time = time.time()
 
     try:
-        result = subprocess.run([
-            'python', 'cli.py', 'process',
-            '--input', str(images_dir),
-            '--output', str(results_dir),
-            '--engine', 'vision'
-        ], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            [
+                "python",
+                "cli.py",
+                "process",
+                "--input",
+                str(images_dir),
+                "--output",
+                str(results_dir),
+                "--engine",
+                "vision",
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
 
         processing_time = time.time() - start_time
         print(f"✅ Processing completed in {processing_time:.1f}s")
@@ -111,12 +125,15 @@ def main():
         print("\n🌐 Ready to launch review interface:")
         print(f"python review_web.py --db {results_dir}/candidates.db --images {images_dir}/")
         print("\nOr check processing with:")
-        print(f"python -c \"import sqlite3; conn=sqlite3.connect('{results_dir}/app.db'); print('Specimens:', conn.execute('SELECT COUNT(*) FROM specimens').fetchone()[0])\"")
+        print(
+            f"python -c \"import sqlite3; conn=sqlite3.connect('{results_dir}/app.db'); print('Specimens:', conn.execute('SELECT COUNT(*) FROM specimens').fetchone()[0])\""
+        )
 
         return 0
     else:
         print("❌ No database created - check processing")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

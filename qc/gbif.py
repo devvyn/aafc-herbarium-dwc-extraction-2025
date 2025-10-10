@@ -109,9 +109,7 @@ class GbifLookup:
             occurrence_search_endpoint=gbif_cfg.get(
                 "occurrence_search_endpoint", DEFAULT_OCCURRENCE_SEARCH_ENDPOINT
             ),
-            suggest_endpoint=gbif_cfg.get(
-                "suggest_endpoint", DEFAULT_SUGGEST_ENDPOINT
-            ),
+            suggest_endpoint=gbif_cfg.get("suggest_endpoint", DEFAULT_SUGGEST_ENDPOINT),
             timeout=gbif_cfg.get("timeout", DEFAULT_TIMEOUT),
             retry_attempts=gbif_cfg.get("retry_attempts", DEFAULT_RETRY_ATTEMPTS),
             backoff_factor=gbif_cfg.get("backoff_factor", DEFAULT_BACKOFF_FACTOR),
@@ -141,11 +139,13 @@ class GbifLookup:
                     self._logger.warning(f"GBIF API error on attempt {attempt + 1}: {e}")
 
                 if attempt < self.retry_attempts - 1:
-                    sleep_time = self.backoff_factor * (2 ** attempt)
+                    sleep_time = self.backoff_factor * (2**attempt)
                     time.sleep(sleep_time)
 
         if self._logger:
-            self._logger.error(f"GBIF API failed after {self.retry_attempts} attempts: {last_exception}")
+            self._logger.error(
+                f"GBIF API failed after {self.retry_attempts} attempts: {last_exception}"
+            )
         return None
 
     def _request_json(self, url: str) -> Any | None:
@@ -305,8 +305,7 @@ class GbifLookup:
             if all(v is not None for v in [orig_lat, orig_lng, gbif_lat, gbif_lng]):
                 try:
                     distance = self._calculate_distance(
-                        float(orig_lat), float(orig_lng),
-                        float(gbif_lat), float(gbif_lng)
+                        float(orig_lat), float(orig_lng), float(gbif_lat), float(gbif_lng)
                     )
                     metadata["gbif_distance_km"] = distance
 
@@ -328,7 +327,6 @@ class GbifLookup:
 
         return updated, metadata
 
-
     def _calculate_distance(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         """Calculate the great circle distance between two points in kilometers.
 
@@ -342,7 +340,7 @@ class GbifLookup:
         # Haversine formula
         dlat = lat2 - lat1
         dlon = lon2 - lon1
-        a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+        a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
         c = 2 * math.asin(math.sqrt(a))
 
         # Radius of earth in kilometers

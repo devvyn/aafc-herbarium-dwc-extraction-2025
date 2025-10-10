@@ -1,6 +1,6 @@
 # AAFC Herbarium Deployment Package
-**Version**: 1.0  
-**Date**: 2025-10-01  
+**Version**: 1.0
+**Date**: 2025-10-01
 **Context**: AAFC-SRDC Saskatoon Research Centre
 
 ## Package Contents
@@ -135,7 +135,7 @@ aafc-herbarium-dwc-extraction-2025/
 
 ---
 
-**Package Version**: 1.0  
-**Last Updated**: 2025-10-01  
-**Work Session**: code-37834-aafc-work-session  
+**Package Version**: 1.0
+**Last Updated**: 2025-10-01
+**Work Session**: code-37834-aafc-work-session
 **Accountability**: Logged to .kb-context/work-sessions.log

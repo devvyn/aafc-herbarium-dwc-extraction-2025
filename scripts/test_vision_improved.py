@@ -5,9 +5,9 @@ import json
 import shutil
 from pathlib import Path
 
-print("="*70)
+print("=" * 70)
 print("Testing Vision API with Expanded Schema v2.0")
-print("="*70)
+print("=" * 70)
 
 # Load validated specimens
 validation_file = Path("full_dataset_processing/run_20251005_151758/human_validation.jsonl")
@@ -23,7 +23,7 @@ cache_dir = Path("/tmp/imgcache")
 copied = 0
 
 for val in validations:
-    sha = val['sha256']
+    sha = val["sha256"]
     src = cache_dir / f"{sha}.jpg"
     if src.exists():
         dst = test_dir / f"{sha}.jpg"
@@ -40,16 +40,16 @@ output_dir.mkdir(parents=True, exist_ok=True)
 print(f"\n{'='*70}")
 print("NEXT STEP: Run extraction with NEW prompts")
 print(f"{'='*70}")
-print(f"\nCommand:")
+print("\nCommand:")
 print(f"  python cli.py process --input {test_dir} --output {output_dir} --engine vision")
 
 print(f"\n{'='*70}")
 print("After running, compare results:")
 print(f"{'='*70}")
-print(f"  1. OLD extraction: full_dataset_processing/run_20251005_151758/raw.jsonl")
+print("  1. OLD extraction: full_dataset_processing/run_20251005_151758/raw.jsonl")
 print(f"  2. NEW extraction: {output_dir}/raw.jsonl")
 print(f"  3. Ground truth: {validation_file}")
-print(f"\nUse: python analyze_vision_improvement.py")
+print("\nUse: python analyze_vision_improvement.py")
 
 print(f"\n{'='*70}")
 print("NOTE: Vision API currently only supports 7 fields via rules engine")

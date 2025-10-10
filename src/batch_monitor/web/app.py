@@ -120,7 +120,7 @@ def create_app(history_file: Path = None) -> Flask:
                     # Check if all complete
                     if all(s.is_complete for s in statuses):
                         # Send completion message
-                        yield f'data: {{"complete": true}}\n\n'
+                        yield 'data: {"complete": true}\n\n'
                         break
 
                     # Wait before next update

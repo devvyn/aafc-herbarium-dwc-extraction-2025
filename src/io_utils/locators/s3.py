@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 from pathlib import Path
 from typing import Iterator, Optional
 
-from ..locator import ImageLocator, ImageMetadata
+from ..locator import ImageMetadata
 
 
 class S3ImageLocator:
@@ -136,7 +136,9 @@ class S3ImageLocator:
             return ImageMetadata(
                 identifier=identifier,
                 size_bytes=response.get("ContentLength"),
-                last_modified=response.get("LastModified").timestamp() if response.get("LastModified") else None,
+                last_modified=response.get("LastModified").timestamp()
+                if response.get("LastModified")
+                else None,
                 content_type=response.get("ContentType"),
                 source_uri=f"s3://{self.bucket}/{key}",
             )
@@ -179,7 +181,7 @@ class S3ImageLocator:
                 if any(key.lower().endswith(ext) for ext in image_extensions):
                     # Return identifier relative to self.prefix
                     if key.startswith(self.prefix):
-                        identifier = key[len(self.prefix):]
+                        identifier = key[len(self.prefix) :]
                         yield identifier
 
     def get_local_path(self, identifier: str) -> Optional[Path]:

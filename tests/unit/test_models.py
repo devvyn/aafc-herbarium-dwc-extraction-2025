@@ -1,6 +1,5 @@
 """Unit tests for data models."""
 
-import pytest
 from datetime import datetime
 from src.test_harness.models import (
     TestCommand,
@@ -8,7 +7,7 @@ from src.test_harness.models import (
     TestStatus,
     TestReport,
     OutputArtifact,
-    OutputFormat
+    OutputFormat,
 )
 from pathlib import Path
 
@@ -19,9 +18,7 @@ class TestTestCommand:
     def test_creation(self):
         """Test TestCommand creation."""
         cmd = TestCommand(
-            name="/specify",
-            parameters=["arg1", "arg2"],
-            expected_behavior="Creates spec.md"
+            name="/specify", parameters=["arg1", "arg2"], expected_behavior="Creates spec.md"
         )
         assert cmd.name == "/specify"
         assert cmd.parameters == ["arg1", "arg2"]
@@ -29,11 +26,7 @@ class TestTestCommand:
 
     def test_str_representation(self):
         """Test string representation."""
-        cmd = TestCommand(
-            name="/plan",
-            parameters=[],
-            expected_behavior="Creates plan"
-        )
+        cmd = TestCommand(name="/plan", parameters=[], expected_behavior="Creates plan")
         assert str(cmd) == "TestCommand(/plan)"
 
 
@@ -49,7 +42,7 @@ class TestValidationResult:
             execution_time_seconds=1.5,
             stdout="output",
             stderr="",
-            artifacts_created=["spec.md"]
+            artifacts_created=["spec.md"],
         )
         assert result.passed is True
 
@@ -62,7 +55,7 @@ class TestValidationResult:
             execution_time_seconds=1.5,
             stdout="",
             stderr="error",
-            artifacts_created=[]
+            artifacts_created=[],
         )
         assert result.passed is False
 
@@ -75,7 +68,7 @@ class TestValidationResult:
             execution_time_seconds=2.0,
             stdout="",
             stderr="",
-            artifacts_created=[]
+            artifacts_created=[],
         )
         assert isinstance(result.timestamp, datetime)
 
@@ -94,7 +87,7 @@ class TestTestReport:
             execution_time_seconds=1.0,
             stdout="",
             stderr="",
-            artifacts_created=[]
+            artifacts_created=[],
         )
 
         result2 = ValidationResult(
@@ -104,7 +97,7 @@ class TestTestReport:
             execution_time_seconds=2.0,
             stdout="",
             stderr="error",
-            artifacts_created=[]
+            artifacts_created=[],
         )
 
         report.add_result(result1)
@@ -121,25 +114,29 @@ class TestTestReport:
 
         # Add 3 passing, 1 failing
         for _ in range(3):
-            report.add_result(ValidationResult(
+            report.add_result(
+                ValidationResult(
+                    command_name="/test",
+                    status=TestStatus.PASS,
+                    exit_code=0,
+                    execution_time_seconds=1.0,
+                    stdout="",
+                    stderr="",
+                    artifacts_created=[],
+                )
+            )
+
+        report.add_result(
+            ValidationResult(
                 command_name="/test",
-                status=TestStatus.PASS,
-                exit_code=0,
+                status=TestStatus.FAIL,
+                exit_code=1,
                 execution_time_seconds=1.0,
                 stdout="",
                 stderr="",
-                artifacts_created=[]
-            ))
-
-        report.add_result(ValidationResult(
-            command_name="/test",
-            status=TestStatus.FAIL,
-            exit_code=1,
-            execution_time_seconds=1.0,
-            stdout="",
-            stderr="",
-            artifacts_created=[]
-        ))
+                artifacts_created=[],
+            )
+        )
 
         assert report.pass_rate == 75.0
 
@@ -160,7 +157,7 @@ class TestOutputArtifact:
             size_bytes=1024,
             checksum="abc123",
             human_readable=True,
-            machine_toolable=True
+            machine_toolable=True,
         )
         assert artifact.format == OutputFormat.YAML
         assert artifact.file_path == Path("test.yaml")

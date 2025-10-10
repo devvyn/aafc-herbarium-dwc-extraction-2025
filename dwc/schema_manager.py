@@ -10,7 +10,6 @@ import json
 
 from .schema import (
     SchemaInfo,
-    SchemaType,
     fetch_official_schemas,
     load_schema_terms_from_official_sources,
     validate_schema_compatibility,
@@ -55,7 +54,7 @@ class SchemaManager:
         """Load schema metadata from cache."""
         if self._metadata_file.exists():
             try:
-                with open(self._metadata_file, 'r') as f:
+                with open(self._metadata_file, "r") as f:
                     return json.load(f)
             except (json.JSONDecodeError, IOError) as e:
                 self.logger.warning(f"Failed to load schema metadata: {e}")
@@ -64,7 +63,7 @@ class SchemaManager:
     def _save_metadata(self, metadata: Dict[str, Any]) -> None:
         """Save schema metadata to cache."""
         try:
-            with open(self._metadata_file, 'w') as f:
+            with open(self._metadata_file, "w") as f:
                 json.dump(metadata, f, indent=2, default=str)
         except IOError as e:
             self.logger.warning(f"Failed to save schema metadata: {e}")
@@ -72,7 +71,7 @@ class SchemaManager:
     def _should_update_schemas(self) -> bool:
         """Check if schemas should be updated based on cache age."""
         metadata = self._load_metadata()
-        last_update_str = metadata.get('last_update')
+        last_update_str = metadata.get("last_update")
 
         if not last_update_str:
             return True
@@ -92,32 +91,25 @@ class SchemaManager:
         Returns:
             Dictionary of available schemas
         """
-        if (
-            force_update
-            or self._schemas is None
-            or self._should_update_schemas()
-        ):
+        if force_update or self._schemas is None or self._should_update_schemas():
             self.logger.info("Updating schemas from official sources")
-            self._schemas = fetch_official_schemas(
-                use_cache=True,
-                cache_dir=self.cache_dir
-            )
+            self._schemas = fetch_official_schemas(use_cache=True, cache_dir=self.cache_dir)
 
             if self._schemas:
                 # Update metadata
                 metadata = {
-                    'last_update': datetime.now().isoformat(),
-                    'schemas': {
+                    "last_update": datetime.now().isoformat(),
+                    "schemas": {
                         name: {
-                            'name': schema.name,
-                            'version': schema.version,
-                            'namespace': schema.namespace,
-                            'term_count': len(schema.terms),
-                            'schema_type': schema.schema_type.value,
-                            'source_url': schema.source_url,
+                            "name": schema.name,
+                            "version": schema.version,
+                            "namespace": schema.namespace,
+                            "term_count": len(schema.terms),
+                            "schema_type": schema.schema_type.value,
+                            "source_url": schema.source_url,
                         }
                         for name, schema in self._schemas.items()
-                    }
+                    },
                 }
                 self._save_metadata(metadata)
                 self._last_update = datetime.now()
@@ -161,9 +153,7 @@ class SchemaManager:
         return load_schema_terms_from_official_sources(schema_names)
 
     def validate_terms(
-        self,
-        terms: List[str],
-        target_schemas: Optional[List[str]] = None
+        self, terms: List[str], target_schemas: Optional[List[str]] = None
     ) -> Dict[str, List[str]]:
         """Validate terms against target schemas.
 
@@ -183,7 +173,7 @@ class SchemaManager:
         self,
         schema_names: Optional[List[str]] = None,
         include_fuzzy: bool = True,
-        similarity_threshold: float = 0.6
+        similarity_threshold: float = 0.6,
     ) -> Dict[str, str]:
         """Generate automatic mappings from schemas.
 
@@ -206,7 +196,7 @@ class SchemaManager:
         self,
         schema_names: Optional[List[str]] = None,
         include_fuzzy: bool = True,
-        similarity_threshold: float = 0.6
+        similarity_threshold: float = 0.6,
     ) -> None:
         """Configure dynamic mappings based on schemas.
 
@@ -225,7 +215,7 @@ class SchemaManager:
         self,
         unmapped_fields: List[str],
         target_schemas: Optional[List[str]] = None,
-        similarity_threshold: float = 0.6
+        similarity_threshold: float = 0.6,
     ) -> Dict[str, List[str]]:
         """Suggest mappings for unmapped fields.
 
@@ -240,14 +230,10 @@ class SchemaManager:
         if target_schemas is None:
             target_schemas = self.preferred_schemas
 
-        return suggest_mapping_improvements(
-            unmapped_fields, target_schemas, similarity_threshold
-        )
+        return suggest_mapping_improvements(unmapped_fields, target_schemas, similarity_threshold)
 
     def get_schema_compatibility_report(
-        self,
-        source_schema: str,
-        target_schemas: List[str]
+        self, source_schema: str, target_schemas: List[str]
     ) -> Dict[str, Any]:
         """Generate a compatibility report between schemas.
 
@@ -315,7 +301,7 @@ class SchemaManager:
             "cache_dir": str(self.cache_dir),
             "update_interval_days": self.update_interval.days,
             "preferred_schemas": self.preferred_schemas,
-            "last_update": metadata.get('last_update'),
+            "last_update": metadata.get("last_update"),
             "available_schemas": list(schemas.keys()) if schemas else [],
             "schema_count": len(schemas) if schemas else 0,
             "cache_metadata_exists": self._metadata_file.exists(),

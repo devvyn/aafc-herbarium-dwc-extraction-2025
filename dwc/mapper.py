@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Iterable, Optional, Set, List
+from typing import Any, Dict, Iterable, Optional, List
 from difflib import SequenceMatcher
 from collections import defaultdict
 
@@ -10,7 +10,6 @@ from .schema import (
     resolve_term,
     fetch_official_schemas,
     SchemaInfo,
-    TermDefinition,
     validate_schema_compatibility,
 )
 from . import schema
@@ -119,10 +118,14 @@ def map_ocr_to_dwc(ocr_output: Dict[str, Any], minimal_fields: Iterable[str] = (
 
     # Validate against schemas if configured
     validation_result = validate_mapping_against_schemas(record)
-    if not validation_result['validation_passed']:
-        validation_flags = [f"invalid_fields:{','.join(validation_result['invalid_field_names'][:3])}"]
-        if validation_result['deprecated_field_names']:
-            validation_flags.append(f"deprecated_fields:{','.join(validation_result['deprecated_field_names'][:3])}")
+    if not validation_result["validation_passed"]:
+        validation_flags = [
+            f"invalid_fields:{','.join(validation_result['invalid_field_names'][:3])}"
+        ]
+        if validation_result["deprecated_field_names"]:
+            validation_flags.append(
+                f"deprecated_fields:{','.join(validation_result['deprecated_field_names'][:3])}"
+            )
 
         existing = record.flags.split(";") if record.flags else []
         record.flags = ";".join(existing + validation_flags)
@@ -131,8 +134,7 @@ def map_ocr_to_dwc(ocr_output: Dict[str, Any], minimal_fields: Iterable[str] = (
 
 
 def validate_mapping_against_schemas(
-    record: DwcRecord,
-    target_schemas: Optional[List[str]] = None
+    record: DwcRecord, target_schemas: Optional[List[str]] = None
 ) -> Dict[str, Any]:
     """Validate a mapped record against target schemas.
 
@@ -144,7 +146,7 @@ def validate_mapping_against_schemas(
         Dictionary containing validation results
     """
     if target_schemas is None:
-        target_schemas = ['dwc_simple', 'abcd_206']
+        target_schemas = ["dwc_simple", "abcd_206"]
 
     # Get all non-empty fields from the record
     record_dict = record.to_dict()
@@ -154,21 +156,23 @@ def validate_mapping_against_schemas(
     compatibility = validate_schema_compatibility(populated_fields, target_schemas)
 
     return {
-        'total_fields': len(populated_fields),
-        'valid_fields': len(compatibility['valid']),
-        'invalid_fields': len(compatibility['invalid']),
-        'deprecated_fields': len(compatibility['deprecated']),
-        'compatibility_score': len(compatibility['valid']) / len(populated_fields) if populated_fields else 0.0,
-        'invalid_field_names': compatibility['invalid'],
-        'deprecated_field_names': compatibility['deprecated'],
-        'validation_passed': len(compatibility['invalid']) == 0,
+        "total_fields": len(populated_fields),
+        "valid_fields": len(compatibility["valid"]),
+        "invalid_fields": len(compatibility["invalid"]),
+        "deprecated_fields": len(compatibility["deprecated"]),
+        "compatibility_score": len(compatibility["valid"]) / len(populated_fields)
+        if populated_fields
+        else 0.0,
+        "invalid_field_names": compatibility["invalid"],
+        "deprecated_field_names": compatibility["deprecated"],
+        "validation_passed": len(compatibility["invalid"]) == 0,
     }
 
 
 def suggest_mapping_improvements(
     unmapped_fields: List[str],
     target_schemas: Optional[List[str]] = None,
-    similarity_threshold: float = 0.6
+    similarity_threshold: float = 0.6,
 ) -> Dict[str, List[str]]:
     """Suggest mapping improvements for unmapped fields.
 
@@ -184,7 +188,7 @@ def suggest_mapping_improvements(
     logger = logging.getLogger(__name__)
 
     if target_schemas is None:
-        target_schemas = ['dwc_simple', 'abcd_206']
+        target_schemas = ["dwc_simple", "abcd_206"]
 
     try:
         # Ensure we have schemas cached
@@ -229,9 +233,7 @@ def suggest_mapping_improvements(
 
 
 def generate_fuzzy_mappings(
-    target_terms: List[str],
-    similarity_threshold: float = 0.6,
-    max_suggestions: int = 3
+    target_terms: List[str], similarity_threshold: float = 0.6, max_suggestions: int = 3
 ) -> Dict[str, List[str]]:
     """Generate fuzzy mappings for terms based on string similarity.
 
@@ -247,18 +249,18 @@ def generate_fuzzy_mappings(
 
     # Common variations and patterns to match
     common_variations = {
-        'scientific_name': ['scientificName', 'species', 'taxon'],
-        'collector': ['recordedBy', 'collected_by'],
-        'collection_date': ['eventDate', 'date_collected'],
-        'latitude': ['decimalLatitude', 'lat'],
-        'longitude': ['decimalLongitude', 'long', 'lng'],
-        'country': ['country'],
-        'province': ['stateProvince', 'state'],
-        'locality': ['locality', 'location'],
-        'barcode': ['catalogNumber', 'specimen_number'],
-        'family': ['family'],
-        'genus': ['genus'],
-        'habitat': ['habitat', 'environment'],
+        "scientific_name": ["scientificName", "species", "taxon"],
+        "collector": ["recordedBy", "collected_by"],
+        "collection_date": ["eventDate", "date_collected"],
+        "latitude": ["decimalLatitude", "lat"],
+        "longitude": ["decimalLongitude", "long", "lng"],
+        "country": ["country"],
+        "province": ["stateProvince", "state"],
+        "locality": ["locality", "location"],
+        "barcode": ["catalogNumber", "specimen_number"],
+        "family": ["family"],
+        "genus": ["genus"],
+        "habitat": ["habitat", "environment"],
     }
 
     fuzzy_mappings = defaultdict(list)
@@ -270,8 +272,8 @@ def generate_fuzzy_mappings(
                 fuzzy_mappings[source_pattern].append(target_candidate)
                 # Add variations of the source pattern
                 variations = [
-                    source_pattern.replace('_', ' '),
-                    source_pattern.replace('_', ''),
+                    source_pattern.replace("_", " "),
+                    source_pattern.replace("_", ""),
                     source_pattern.upper(),
                     source_pattern.lower(),
                     source_pattern.title(),
@@ -289,14 +291,14 @@ def generate_fuzzy_mappings(
             target_term,  # Exact match
             target_lower,  # Lowercase
             target_term.upper(),  # Uppercase
-            '_'.join(target_term.split()),  # Space to underscore
-            ' '.join(target_term.split('_')),  # Underscore to space
-            target_term.replace('decimal', ''),  # Remove decimal prefix
-            target_term.replace('verbatim', ''),  # Remove verbatim prefix
+            "_".join(target_term.split()),  # Space to underscore
+            " ".join(target_term.split("_")),  # Underscore to space
+            target_term.replace("decimal", ""),  # Remove decimal prefix
+            target_term.replace("verbatim", ""),  # Remove verbatim prefix
         ]
 
         for source in potential_sources:
-            source = source.strip('_').strip()
+            source = source.strip("_").strip()
             if source and source not in fuzzy_mappings:
                 fuzzy_mappings[source] = [target_term]
 
@@ -311,7 +313,7 @@ def generate_fuzzy_mappings(
 def auto_generate_mappings_from_schemas(
     schema_names: Optional[List[str]] = None,
     include_fuzzy: bool = True,
-    similarity_threshold: float = 0.6
+    similarity_threshold: float = 0.6,
 ) -> Dict[str, str]:
     """Automatically generate term mappings from official schemas.
 
@@ -337,8 +339,9 @@ def auto_generate_mappings_from_schemas(
 
         # Use specified schemas or all available
         if schema_names:
-            schemas_to_use = {name: schema for name, schema in _CACHED_SCHEMAS.items()
-                            if name in schema_names}
+            schemas_to_use = {
+                name: schema for name, schema in _CACHED_SCHEMAS.items() if name in schema_names
+            }
         else:
             schemas_to_use = _CACHED_SCHEMAS
 
@@ -357,10 +360,10 @@ def auto_generate_mappings_from_schemas(
             variations = [
                 term.lower(),
                 term.upper(),
-                term.replace('_', ' '),
-                term.replace(' ', '_'),
-                term.replace('decimal', '').strip('_'),
-                term.replace('verbatim', '').strip('_'),
+                term.replace("_", " "),
+                term.replace(" ", "_"),
+                term.replace("decimal", "").strip("_"),
+                term.replace("verbatim", "").strip("_"),
             ]
 
             for variation in variations:
@@ -369,10 +372,7 @@ def auto_generate_mappings_from_schemas(
 
         # Generate fuzzy mappings if requested
         if include_fuzzy:
-            fuzzy_mappings = generate_fuzzy_mappings(
-                list(all_terms),
-                similarity_threshold
-            )
+            fuzzy_mappings = generate_fuzzy_mappings(list(all_terms), similarity_threshold)
 
             # Convert fuzzy mappings to direct mappings (take first suggestion)
             for source, targets in fuzzy_mappings.items():
@@ -390,7 +390,7 @@ def auto_generate_mappings_from_schemas(
 def configure_dynamic_mappings(
     schema_names: Optional[List[str]] = None,
     include_fuzzy: bool = True,
-    similarity_threshold: float = 0.6
+    similarity_threshold: float = 0.6,
 ) -> None:
     """Configure dynamic mappings based on official schemas.
 

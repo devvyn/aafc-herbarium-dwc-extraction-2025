@@ -12,6 +12,7 @@ from engines.gpt.image_to_text import load_messages
 @dataclass
 class PromptTestResult:
     """Result of prompt validation test."""
+
     task: str
     missing_placeholders: List[str]
     unexpected_placeholders: List[str]
@@ -59,21 +60,18 @@ def extract_placeholders(content: str) -> Set[str]:
     return placeholders
 
 
-def validate_prompt_task(
-    task: str,
-    prompt_dir: Optional[Path] = None
-) -> PromptTestResult:
+def validate_prompt_task(task: str, prompt_dir: Optional[Path] = None) -> PromptTestResult:
     """Validate a single prompt task comprehensively."""
     try:
         messages = load_messages(task, prompt_dir)
-    except Exception as e:
+    except Exception:
         return PromptTestResult(
             task=task,
             missing_placeholders=REQUIRED_PLACEHOLDERS.get(task, []),
             unexpected_placeholders=[],
             content_length=0,
             role_coverage=set(),
-            passed=False
+            passed=False,
         )
 
     # Combine all message content
@@ -88,7 +86,9 @@ def validate_prompt_task(
 
     # Check for missing and unexpected placeholders
     missing = list(required_placeholders - found_placeholders)
-    unexpected = list(found_placeholders - required_placeholders - {"%IMAGE%", "%TEXT%", "%CONTEXT%"})
+    unexpected = list(
+        found_placeholders - required_placeholders - {"%IMAGE%", "%TEXT%", "%CONTEXT%"}
+    )
 
     # Validate content length
     min_length = MIN_CONTENT_LENGTH.get(task, 0)
@@ -99,11 +99,7 @@ def validate_prompt_task(
     roles_valid = required_roles.issubset(roles)
 
     # Overall pass/fail
-    passed = (
-        len(missing) == 0 and
-        content_valid and
-        roles_valid
-    )
+    passed = len(missing) == 0 and content_valid and roles_valid
 
     return PromptTestResult(
         task=task,
@@ -111,7 +107,7 @@ def validate_prompt_task(
         unexpected_placeholders=unexpected,
         content_length=len(content),
         role_coverage=roles,
-        passed=passed
+        passed=passed,
     )
 
 
@@ -163,15 +159,15 @@ def test_prompt_content_quality() -> None:
 
         # Check minimum content length
         min_length = MIN_CONTENT_LENGTH.get(task, 0)
-        assert len(content) >= min_length, (
-            f"Task '{task}' content too short: {len(content)} < {min_length}"
-        )
+        assert (
+            len(content) >= min_length
+        ), f"Task '{task}' content too short: {len(content)} < {min_length}"
 
         # Check for empty messages
         for i, message in enumerate(messages):
-            assert message["content"].strip(), (
-                f"Task '{task}' message {i} ({message['role']}) is empty"
-            )
+            assert message[
+                "content"
+            ].strip(), f"Task '{task}' message {i} ({message['role']}) is empty"
 
 
 def test_custom_prompt_directory() -> None:

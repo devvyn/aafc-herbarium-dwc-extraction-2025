@@ -18,7 +18,7 @@ import json
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 try:
     from rich.console import Console
@@ -113,14 +113,16 @@ def calculate_strategy_metrics(extractions: List[Dict], ground_truth: List[Dict]
     truth_lookup = {gt["sha256"]: gt for gt in ground_truth}
 
     # Per-field aggregates
-    field_stats = defaultdict(lambda: {
-        "exact_matches": 0,
-        "partial_matches": 0,
-        "total_comparisons": 0,
-        "confidence_sum": 0.0,
-        "present_in_extracted": 0,
-        "present_in_truth": 0
-    })
+    field_stats = defaultdict(
+        lambda: {
+            "exact_matches": 0,
+            "partial_matches": 0,
+            "total_comparisons": 0,
+            "confidence_sum": 0.0,
+            "present_in_extracted": 0,
+            "present_in_truth": 0,
+        }
+    )
 
     total_specimens = 0
 
@@ -165,10 +167,7 @@ def calculate_strategy_metrics(extractions: List[Dict], ground_truth: List[Dict]
                 stats["confidence_sum"] += conf
 
     # Calculate final metrics
-    metrics = {
-        "total_specimens": total_specimens,
-        "fields": {}
-    }
+    metrics = {"total_specimens": total_specimens, "fields": {}}
 
     for field, stats in field_stats.items():
         total = stats["total_comparisons"]
@@ -178,13 +177,19 @@ def calculate_strategy_metrics(extractions: List[Dict], ground_truth: List[Dict]
         metrics["fields"][field] = {
             "exact_accuracy": stats["exact_matches"] / total,
             "partial_accuracy": stats["partial_matches"] / total,
-            "precision": stats["exact_matches"] / stats["present_in_extracted"] if stats["present_in_extracted"] > 0 else 0,
-            "recall": stats["exact_matches"] / stats["present_in_truth"] if stats["present_in_truth"] > 0 else 0,
+            "precision": stats["exact_matches"] / stats["present_in_extracted"]
+            if stats["present_in_extracted"] > 0
+            else 0,
+            "recall": stats["exact_matches"] / stats["present_in_truth"]
+            if stats["present_in_truth"] > 0
+            else 0,
             "coverage": stats["present_in_extracted"] / total,
-            "avg_confidence": stats["confidence_sum"] / stats["present_in_extracted"] if stats["present_in_extracted"] > 0 else 0,
+            "avg_confidence": stats["confidence_sum"] / stats["present_in_extracted"]
+            if stats["present_in_extracted"] > 0
+            else 0,
             "exact_matches": stats["exact_matches"],
             "partial_matches": stats["partial_matches"],
-            "total": total
+            "total": total,
         }
 
     # Overall metrics
@@ -195,7 +200,10 @@ def calculate_strategy_metrics(extractions: List[Dict], ground_truth: List[Dict]
     metrics["overall"] = {
         "exact_accuracy": all_exact / all_total if all_total > 0 else 0,
         "partial_accuracy": all_partial / all_total if all_total > 0 else 0,
-        "avg_confidence": sum(f["avg_confidence"] * f["total"] for f in metrics["fields"].values()) / all_total if all_total > 0 else 0
+        "avg_confidence": sum(f["avg_confidence"] * f["total"] for f in metrics["fields"].values())
+        / all_total
+        if all_total > 0
+        else 0,
     }
 
     return metrics
@@ -238,11 +246,9 @@ def display_comparison(experiments: List[Dict], ground_truth: List[Dict]):
             continue
 
         metrics = calculate_strategy_metrics(exp["extractions"], ground_truth)
-        strategy_metrics.append({
-            "name": exp["name"],
-            "description": exp["description"],
-            "metrics": metrics
-        })
+        strategy_metrics.append(
+            {"name": exp["name"], "description": exp["description"], "metrics": metrics}
+        )
 
     if not strategy_metrics:
         console.print("[yellow]No completed strategies to compare[/yellow]")
@@ -256,7 +262,9 @@ def display_comparison(experiments: List[Dict], ground_truth: List[Dict]):
     table.add_column("Partial Acc", justify="right", style="yellow")
     table.add_column("Avg Conf", justify="right", style="blue")
 
-    for strategy in sorted(strategy_metrics, key=lambda s: s["metrics"]["overall"]["exact_accuracy"], reverse=True):
+    for strategy in sorted(
+        strategy_metrics, key=lambda s: s["metrics"]["overall"]["exact_accuracy"], reverse=True
+    ):
         name = strategy["name"]
         m = strategy["metrics"]
 
@@ -265,7 +273,7 @@ def display_comparison(experiments: List[Dict], ground_truth: List[Dict]):
             str(m["total_specimens"]),
             f"{m['overall']['exact_accuracy']:.1%}",
             f"{m['overall']['partial_accuracy']:.1%}",
-            f"{m['overall']['avg_confidence']:.2f}"
+            f"{m['overall']['avg_confidence']:.2f}",
         )
 
     console.print("\n", table)
@@ -296,7 +304,7 @@ def display_comparison(experiments: List[Dict], ground_truth: List[Dict]):
                 f"{f['exact_accuracy']:.1%}",
                 f"{f['partial_accuracy']:.1%}",
                 f"{f['coverage']:.1%}",
-                f"{f['avg_confidence']:.2f}"
+                f"{f['avg_confidence']:.2f}",
             )
 
         console.print("\n", field_table)
@@ -305,26 +313,15 @@ def display_comparison(experiments: List[Dict], ground_truth: List[Dict]):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Compare extraction strategies"
-    )
-    parser.add_argument(
-        "--ground-truth",
-        type=Path,
-        required=True,
-        help="Ground truth JSONL file"
-    )
+    parser = argparse.ArgumentParser(description="Compare extraction strategies")
+    parser.add_argument("--ground-truth", type=Path, required=True, help="Ground truth JSONL file")
     parser.add_argument(
         "--experiments",
         type=Path,
         default=Path("experiments.json"),
-        help="Experiments metadata JSON"
+        help="Experiments metadata JSON",
     )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        help="Output comparison results JSON"
-    )
+    parser.add_argument("--output", type=Path, help="Output comparison results JSON")
 
     args = parser.parse_args()
 

@@ -5,7 +5,7 @@ import urllib.request
 import urllib.error
 from importlib import resources
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, NamedTuple
+from typing import Dict, Iterable, List, Optional
 from xml.etree import ElementTree as ET
 from dataclasses import dataclass
 from datetime import datetime
@@ -40,6 +40,7 @@ PROJECT_TERMS = [
 
 class SchemaType(Enum):
     """Enumeration of supported schema types."""
+
     DWC = "dwc"
     ABCD = "abcd"
     CUSTOM = "custom"
@@ -48,6 +49,7 @@ class SchemaType(Enum):
 @dataclass
 class SchemaInfo:
     """Information about a parsed schema."""
+
     name: str
     version: str
     namespace: str
@@ -60,6 +62,7 @@ class SchemaInfo:
 @dataclass
 class TermDefinition:
     """Definition of a schema term with metadata."""
+
     name: str
     namespace: str
     description: Optional[str] = None
@@ -180,7 +183,9 @@ def load_schema_terms(schema_files: Optional[Iterable[Path]] = None) -> List[str
     return terms + PROJECT_TERMS
 
 
-def fetch_official_schemas(use_cache: bool = True, cache_dir: Optional[Path] = None) -> Dict[str, SchemaInfo]:
+def fetch_official_schemas(
+    use_cache: bool = True, cache_dir: Optional[Path] = None
+) -> Dict[str, SchemaInfo]:
     """Fetch and parse official Darwin Core and ABCD schemas.
 
     Args:
@@ -266,7 +271,9 @@ def fetch_official_schemas(use_cache: bool = True, cache_dir: Optional[Path] = N
     return schemas
 
 
-def load_schema_terms_from_official_sources(preferred_schemas: Optional[List[str]] = None) -> List[str]:
+def load_schema_terms_from_official_sources(
+    preferred_schemas: Optional[List[str]] = None,
+) -> List[str]:
     """Load terms from official Darwin Core and ABCD schema sources.
 
     Args:
@@ -287,15 +294,20 @@ def load_schema_terms_from_official_sources(preferred_schemas: Optional[List[str
 
         # Use specified schemas or all available
         if preferred_schemas:
-            schemas_to_use = {name: schema for name, schema in official_schemas.items()
-                            if name in preferred_schemas}
+            schemas_to_use = {
+                name: schema
+                for name, schema in official_schemas.items()
+                if name in preferred_schemas
+            }
         else:
             schemas_to_use = official_schemas
 
         # Collect all terms
         all_terms = set()
         for schema_name, schema_info in schemas_to_use.items():
-            logger.info(f"Loading terms from schema: {schema_name} ({len(schema_info.terms)} terms)")
+            logger.info(
+                f"Loading terms from schema: {schema_name} ({len(schema_info.terms)} terms)"
+            )
             all_terms.update(schema_info.terms)
 
         # Convert to sorted list and add project terms
@@ -331,7 +343,9 @@ def configure_terms_from_official_sources(preferred_schemas: Optional[List[str]]
     DWC_TERMS = load_schema_terms_from_official_sources(preferred_schemas)
 
 
-def validate_schema_compatibility(terms: List[str], target_schemas: List[str]) -> Dict[str, List[str]]:
+def validate_schema_compatibility(
+    terms: List[str], target_schemas: List[str]
+) -> Dict[str, List[str]]:
     """Validate terms against target schemas and report compatibility issues.
 
     Args:
@@ -348,12 +362,13 @@ def validate_schema_compatibility(terms: List[str], target_schemas: List[str]) -
 
     try:
         official_schemas = fetch_official_schemas()
-        target_schema_info = {name: schema for name, schema in official_schemas.items()
-                            if name in target_schemas}
+        target_schema_info = {
+            name: schema for name, schema in official_schemas.items() if name in target_schemas
+        }
 
         if not target_schema_info:
             logger.warning(f"None of the target schemas {target_schemas} could be loaded")
-            return {'valid': [], 'invalid': terms, 'deprecated': []}
+            return {"valid": [], "invalid": terms, "deprecated": []}
 
         # Collect all valid terms from target schemas
         valid_terms = set()
@@ -361,25 +376,21 @@ def validate_schema_compatibility(terms: List[str], target_schemas: List[str]) -
             valid_terms.update(schema_info.terms)
 
         # Categorize input terms
-        result = {
-            'valid': [],
-            'invalid': [],
-            'deprecated': []
-        }
+        result = {"valid": [], "invalid": [], "deprecated": []}
 
         for term in terms:
             if term in PROJECT_TERMS:
-                result['valid'].append(term)  # Project terms are always valid
+                result["valid"].append(term)  # Project terms are always valid
             elif term in valid_terms:
-                result['valid'].append(term)
+                result["valid"].append(term)
             else:
-                result['invalid'].append(term)
+                result["invalid"].append(term)
 
         return result
 
     except Exception as e:
         logger.error(f"Schema validation failed: {e}")
-        return {'valid': [], 'invalid': terms, 'deprecated': []}
+        return {"valid": [], "invalid": terms, "deprecated": []}
 
 
 class DwcRecord(BaseModel):

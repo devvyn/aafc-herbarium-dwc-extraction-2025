@@ -54,7 +54,7 @@ class CommandExecutor:
                 cwd=self.repo_root,
                 capture_output=True,
                 text=True,
-                timeout=60
+                timeout=60,
             )
 
             execution_time = time.time() - start_time
@@ -73,7 +73,7 @@ class CommandExecutor:
                 stdout=result.stdout,
                 stderr=result.stderr,
                 artifacts_created=artifacts,
-                environment="test"
+                environment="test",
             )
 
         except subprocess.TimeoutExpired:
@@ -86,7 +86,7 @@ class CommandExecutor:
                 stdout="",
                 stderr="Command timed out after 60 seconds",
                 artifacts_created=[],
-                environment="test"
+                environment="test",
             )
 
         except FileNotFoundError:
@@ -99,7 +99,7 @@ class CommandExecutor:
                 stdout="",
                 stderr=f"Command not found: {command.name}",
                 artifacts_created=[],
-                environment="test"
+                environment="test",
             )
 
     def _find_artifacts(self, command: TestCommand) -> List[str]:
@@ -118,7 +118,7 @@ class CommandExecutor:
             "/specify": ["spec.md"],
             "/plan": ["plan.md", "research.md", "data-model.md", "contracts/"],
             "/tasks": ["tasks.md"],
-            "/implement": []  # Implementation creates various files
+            "/implement": [],  # Implementation creates various files
         }
 
         expected = artifact_patterns.get(command.name, [])

@@ -44,9 +44,7 @@ def open_browser(url: str, delay: float = 1.5):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Web dashboard for batch monitoring"
-    )
+    parser = argparse.ArgumentParser(description="Web dashboard for batch monitoring")
     parser.add_argument(
         "--port",
         type=int,

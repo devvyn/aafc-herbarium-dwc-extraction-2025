@@ -97,6 +97,7 @@ def launch_tui():
 
     try:
         from tui_interface import main as tui_main
+
         tui_main()
     except ImportError:
         print("❌ TUI dependencies not available. Install with: pip install rich")
@@ -111,6 +112,7 @@ def launch_web_dashboard():
 
     try:
         from web_dashboard import main as web_main
+
         web_main()
     except ImportError:
         print("❌ Web dependencies not available. Install with: pip install fastapi uvicorn jinja2")
@@ -128,25 +130,34 @@ def launch_cli():
     print("\nFor full help: python cli.py --help")
 
     # Offer to run with example args
-    if input("\n🚀 Run with example arguments? [y/N]: ").lower().startswith('y'):
+    if input("\n🚀 Run with example arguments? [y/N]: ").lower().startswith("y"):
         import subprocess
-        import shutil
 
         # Check if we have trial images
         if Path("trial_images").exists():
             print("🔄 Processing trial images...")
             try:
-                subprocess.run([
-                    sys.executable, "cli.py", "process",
-                    "--input", "trial_images",
-                    "--output", "cli_results",
-                    "--engine", "vision"
-                ], check=True)
+                subprocess.run(
+                    [
+                        sys.executable,
+                        "cli.py",
+                        "process",
+                        "--input",
+                        "trial_images",
+                        "--output",
+                        "cli_results",
+                        "--engine",
+                        "vision",
+                    ],
+                    check=True,
+                )
                 print("✅ Processing complete! Results in cli_results/")
             except subprocess.CalledProcessError as e:
                 print(f"❌ Processing failed: {e}")
         else:
-            print("❌ No trial images found. Run quick trial first or specify your own image directory.")
+            print(
+                "❌ No trial images found. Run quick trial first or specify your own image directory."
+            )
 
 
 def launch_quick_trial():
@@ -154,23 +165,30 @@ def launch_quick_trial():
     print("🔄 Launching Quick Trial (5 images)...")
     print("This will download 5 test images and process them with Apple Vision OCR.")
 
-    if input("Continue? [Y/n]: ").lower().startswith('n'):
+    if input("Continue? [Y/n]: ").lower().startswith("n"):
         return
 
     try:
         import subprocess
-        result = subprocess.run([sys.executable, "quick_trial_run.py"],
-                              capture_output=False, text=True)
+
+        result = subprocess.run(
+            [sys.executable, "quick_trial_run.py"], capture_output=False, text=True
+        )
 
         if result.returncode == 0:
             print("\n✅ Quick trial completed!")
-            if input("🌐 Launch web interface to review results? [Y/n]: ").lower().startswith('y'):
+            if input("🌐 Launch web interface to review results? [Y/n]: ").lower().startswith("y"):
                 try:
-                    subprocess.run([
-                        sys.executable, "review_web.py",
-                        "--db", "trial_results/candidates.db",
-                        "--images", "trial_images"
-                    ])
+                    subprocess.run(
+                        [
+                            sys.executable,
+                            "review_web.py",
+                            "--db",
+                            "trial_results/candidates.db",
+                            "--images",
+                            "trial_images",
+                        ]
+                    )
                 except KeyboardInterrupt:
                     print("\n👋 Review session ended.")
         else:
@@ -283,7 +301,7 @@ Examples:
   %(prog)s --web             # Launch web dashboard
   %(prog)s --cli             # Show CLI help
   %(prog)s --trial           # Run quick trial
-        """
+        """,
     )
 
     parser.add_argument("--tui", action="store_true", help="Launch TUI directly")
@@ -302,8 +320,10 @@ def main():
     # Check dependencies first
     if not check_dependencies():
         if not args.check:
-            print("\n💡 Tip: You can still use the basic CLI interface without additional dependencies.")
-            if input("Continue with CLI help? [y/N]: ").lower().startswith('y'):
+            print(
+                "\n💡 Tip: You can still use the basic CLI interface without additional dependencies."
+            )
+            if input("Continue with CLI help? [y/N]: ").lower().startswith("y"):
                 launch_cli()
         return 1
 

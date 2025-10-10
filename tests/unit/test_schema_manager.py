@@ -2,7 +2,7 @@
 
 import pytest
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from datetime import datetime, timedelta
 
 from dwc.schema_manager import SchemaManager
@@ -52,7 +52,7 @@ def test_schema_manager_default_init():
     assert manager.preferred_schemas == ["dwc_simple", "abcd_206"]
 
 
-@patch('dwc.schema_manager.fetch_official_schemas')
+@patch("dwc.schema_manager.fetch_official_schemas")
 def test_get_schemas_force_update(mock_fetch, temp_cache_dir, mock_schema_info):
     """Test forcing schema update."""
     mock_fetch.return_value = {"test_schema": mock_schema_info}
@@ -86,7 +86,7 @@ def test_list_available_schemas(temp_cache_dir, mock_schema_info):
     assert set(schemas) == {"schema1", "schema2"}
 
 
-@patch('dwc.schema_manager.load_schema_terms_from_official_sources')
+@patch("dwc.schema_manager.load_schema_terms_from_official_sources")
 def test_get_schema_terms(mock_load_terms, temp_cache_dir):
     """Test getting schema terms."""
     mock_load_terms.return_value = ["term1", "term2", "term3"]
@@ -103,13 +103,13 @@ def test_get_schema_terms(mock_load_terms, temp_cache_dir):
     mock_load_terms.assert_called_with(["custom_schema"])
 
 
-@patch('dwc.schema_manager.validate_schema_compatibility')
+@patch("dwc.schema_manager.validate_schema_compatibility")
 def test_validate_terms(mock_validate, temp_cache_dir):
     """Test term validation."""
     mock_validate.return_value = {
         "valid": ["term1", "term2"],
         "invalid": ["term3"],
-        "deprecated": []
+        "deprecated": [],
     }
 
     manager = SchemaManager(cache_dir=temp_cache_dir)
@@ -120,7 +120,7 @@ def test_validate_terms(mock_validate, temp_cache_dir):
     mock_validate.assert_called_with(["term1", "term2", "term3"], ["dwc_simple", "abcd_206"])
 
 
-@patch('dwc.schema_manager.auto_generate_mappings_from_schemas')
+@patch("dwc.schema_manager.auto_generate_mappings_from_schemas")
 def test_generate_mappings(mock_generate, temp_cache_dir):
     """Test mapping generation."""
     mock_generate.return_value = {"field1": "term1", "field2": "term2"}
@@ -132,7 +132,7 @@ def test_generate_mappings(mock_generate, temp_cache_dir):
     mock_generate.assert_called_with(["dwc_simple", "abcd_206"], True, 0.6)
 
 
-@patch('dwc.schema_manager.suggest_mapping_improvements')
+@patch("dwc.schema_manager.suggest_mapping_improvements")
 def test_suggest_mappings(mock_suggest, temp_cache_dir):
     """Test mapping suggestions."""
     mock_suggest.return_value = {"unmapped_field": ["suggestion1", "suggestion2"]}
@@ -173,7 +173,7 @@ def test_get_schema_compatibility_report(temp_cache_dir):
 
     target_report = report["target_schemas"]["target"]
     assert target_report["overlapping_terms"] == 2  # term2, term3
-    assert target_report["compatibility_score"] == 2/3  # 2 out of 3 source terms
+    assert target_report["compatibility_score"] == 2 / 3  # 2 out of 3 source terms
     assert target_report["unique_to_source"] == 1  # term1
     assert target_report["unique_to_target"] == 1  # term4
 
@@ -199,7 +199,7 @@ def test_metadata_persistence(temp_cache_dir, mock_schema_info):
     # Save metadata
     metadata = {
         "last_update": "2023-01-01T12:00:00",
-        "schemas": {"test": {"name": "test", "version": "1.0"}}
+        "schemas": {"test": {"name": "test", "version": "1.0"}},
     }
     manager._save_metadata(metadata)
 
@@ -209,10 +209,13 @@ def test_metadata_persistence(temp_cache_dir, mock_schema_info):
     assert "test" in loaded["schemas"]
 
 
-@pytest.mark.parametrize("days_old,should_update", [
-    (10, False),  # Recent, should not update
-    (40, True),   # Old, should update
-])
+@pytest.mark.parametrize(
+    "days_old,should_update",
+    [
+        (10, False),  # Recent, should not update
+        (40, True),  # Old, should update
+    ],
+)
 def test_should_update_schemas(temp_cache_dir, days_old, should_update):
     """Test schema update timing logic."""
     manager = SchemaManager(cache_dir=temp_cache_dir, update_interval_days=30)
@@ -230,7 +233,7 @@ class TestSchemaManagerIntegration:
 
     def test_full_workflow(self, temp_cache_dir):
         """Test a complete workflow of schema management."""
-        with patch('dwc.schema_manager.fetch_official_schemas') as mock_fetch:
+        with patch("dwc.schema_manager.fetch_official_schemas") as mock_fetch:
             # Mock schema data
             mock_schema = SchemaInfo(
                 name="dwc_simple",

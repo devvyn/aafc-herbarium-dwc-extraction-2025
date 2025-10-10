@@ -2,10 +2,8 @@ import subprocess
 import json
 import zipfile
 import hashlib
-import platform
-import sys
 from datetime import datetime, timezone
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import pytest
 
 from dwc import archive
@@ -81,7 +79,7 @@ def test_enhanced_manifest_structure(tmp_path, monkeypatch):
         filters={"basisOfRecord": "specimen"},
         version="1.2.3",
         include_git_info=True,
-        include_system_info=True
+        include_system_info=True,
     )
 
     # Test enhanced manifest structure
@@ -101,15 +99,13 @@ def test_enhanced_manifest_structure(tmp_path, monkeypatch):
 
 def test_manifest_without_git_info(tmp_path, monkeypatch):
     """Test manifest generation when git is not available."""
+
     def raise_file_not_found(*args, **kwargs):
         raise FileNotFoundError()
 
     monkeypatch.setattr(subprocess, "check_output", raise_file_not_found)
 
-    manifest = archive.build_manifest(
-        include_git_info=True,
-        include_system_info=False
-    )
+    manifest = archive.build_manifest(include_git_info=True, include_system_info=False)
 
     assert manifest["git_commit"] == "unknown"
     assert "git_branch" not in manifest
@@ -120,7 +116,9 @@ def test_create_versioned_bundle_with_checksums(tmp_path, monkeypatch):
     """Test versioned bundle creation with file checksums."""
     # Create test CSV files
     (tmp_path / "occurrence.csv").write_text("occurrenceID,scientificName\n1,Test species")
-    (tmp_path / "identification_history.csv").write_text("occurrenceID,identifiedBy\n1,Test Identifier")
+    (tmp_path / "identification_history.csv").write_text(
+        "occurrenceID,identifiedBy\n1,Test Identifier"
+    )
 
     fake_commit = "abc1234567890"
     monkeypatch.setattr(subprocess, "check_output", lambda *a, **k: fake_commit)
@@ -133,10 +131,7 @@ def test_create_versioned_bundle_with_checksums(tmp_path, monkeypatch):
     monkeypatch.setattr(archive, "datetime", DummyDatetime)
 
     bundle = archive.create_versioned_bundle(
-        tmp_path,
-        version="2.1.0",
-        bundle_format="rich",
-        include_checksums=True
+        tmp_path, version="2.1.0", bundle_format="rich", include_checksums=True
     )
 
     assert bundle.exists()
@@ -168,10 +163,7 @@ def test_create_versioned_bundle_simple_format(tmp_path, monkeypatch):
     monkeypatch.setattr(subprocess, "check_output", lambda *a, **k: fake_commit)
 
     bundle = archive.create_versioned_bundle(
-        tmp_path,
-        version="3.0.0",
-        bundle_format="simple",
-        include_checksums=False
+        tmp_path, version="3.0.0", bundle_format="simple", include_checksums=False
     )
 
     assert bundle.exists()
@@ -198,7 +190,7 @@ def test_create_versioned_bundle_with_additional_files(tmp_path, monkeypatch):
     bundle = archive.create_versioned_bundle(
         tmp_path,
         version="1.5.0",
-        additional_files=["README.txt", "processing_log.txt", "nonexistent.txt"]
+        additional_files=["README.txt", "processing_log.txt", "nonexistent.txt"],
     )
 
     with zipfile.ZipFile(bundle) as zf:
@@ -224,7 +216,7 @@ def test_create_archive_integration_with_versioned_bundle(tmp_path, monkeypatch)
         version="2.3.1",
         bundle_format="rich",
         include_checksums=True,
-        additional_files=[]
+        additional_files=[],
     )
 
     assert archive_path.exists()
@@ -238,7 +230,7 @@ def test_create_archive_integration_with_versioned_bundle(tmp_path, monkeypatch)
             "occurrence.csv",
             "identification_history.csv",
             "meta.xml",
-            "manifest.json"
+            "manifest.json",
         }
         assert expected_files <= names
 
@@ -253,22 +245,13 @@ def test_create_archive_integration_with_versioned_bundle(tmp_path, monkeypatch)
 def test_invalid_version_handling():
     """Test that invalid version strings are properly rejected."""
     with pytest.raises(ValueError, match="version must follow semantic versioning"):
-        archive.create_versioned_bundle(
-            Path("/tmp"),
-            version="invalid-version"
-        )
+        archive.create_versioned_bundle(Path("/tmp"), version="invalid-version")
 
     with pytest.raises(ValueError, match="version must follow semantic versioning"):
-        archive.create_versioned_bundle(
-            Path("/tmp"),
-            version="1.0"
-        )
+        archive.create_versioned_bundle(Path("/tmp"), version="1.0")
 
     with pytest.raises(ValueError, match="version must follow semantic versioning"):
-        archive.create_versioned_bundle(
-            Path("/tmp"),
-            version="v1.0.0"
-        )
+        archive.create_versioned_bundle(Path("/tmp"), version="v1.0.0")
 
 
 def test_manifest_git_dirty_detection(tmp_path, monkeypatch):
@@ -310,11 +293,7 @@ def test_bundle_without_git_in_filename(tmp_path, monkeypatch):
 
     monkeypatch.setattr(archive, "datetime", DummyDatetime)
 
-    bundle = archive.create_versioned_bundle(
-        tmp_path,
-        version="1.8.2",
-        bundle_format="rich"
-    )
+    bundle = archive.create_versioned_bundle(tmp_path, version="1.8.2", bundle_format="rich")
 
     # Should still create bundle, but without git hash in filename
     assert bundle.exists()
@@ -324,7 +303,7 @@ def test_bundle_without_git_in_filename(tmp_path, monkeypatch):
     assert bundle.name.count("_") >= 2  # version_timestamp_...
 
 
-@patch('dwc.archive.importlib.metadata.version')
+@patch("dwc.archive.importlib.metadata.version")
 def test_manifest_package_version_detection(mock_version, tmp_path):
     """Test detection of package version in manifest."""
     mock_version.return_value = "0.1.4"

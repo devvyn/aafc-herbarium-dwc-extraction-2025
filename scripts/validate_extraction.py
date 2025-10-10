@@ -19,7 +19,7 @@ import json
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 
 @dataclass
@@ -89,9 +89,7 @@ def load_jsonl(file_path: Path) -> List[Dict]:
     return records
 
 
-def validate_specimen(
-    ground_truth: Dict, extraction: Dict, fields: List[str]
-) -> Dict[str, Dict]:
+def validate_specimen(ground_truth: Dict, extraction: Dict, fields: List[str]) -> Dict[str, Dict]:
     """Validate a single specimen against ground truth.
 
     Args:
@@ -129,9 +127,7 @@ def validate_specimen(
     return results
 
 
-def calculate_metrics(
-    validation_results: List[Dict], fields: List[str]
-) -> ValidationMetrics:
+def calculate_metrics(validation_results: List[Dict], fields: List[str]) -> ValidationMetrics:
     """Calculate aggregate quality metrics from validation results.
 
     Args:
@@ -168,12 +164,8 @@ def calculate_metrics(
     overall_coverage = sum(field_coverage.values())
 
     overall_exact_rate = overall_exact / total_comparisons if total_comparisons > 0 else 0
-    overall_partial_rate = (
-        overall_partial / total_comparisons if total_comparisons > 0 else 0
-    )
-    overall_coverage_rate = (
-        overall_coverage / total_comparisons if total_comparisons > 0 else 0
-    )
+    overall_partial_rate = overall_partial / total_comparisons if total_comparisons > 0 else 0
+    overall_coverage_rate = overall_coverage / total_comparisons if total_comparisons > 0 else 0
 
     return ValidationMetrics(
         total_specimens=total_specimens,
@@ -214,9 +206,7 @@ def format_metrics_report(metrics: ValidationMetrics) -> str:
         coverage_count = metrics.field_coverage[field]
 
         exact_pct = exact_count / metrics.total_specimens if metrics.total_specimens > 0 else 0
-        partial_pct = (
-            partial_count / metrics.total_specimens if metrics.total_specimens > 0 else 0
-        )
+        partial_pct = partial_count / metrics.total_specimens if metrics.total_specimens > 0 else 0
         coverage_pct = (
             coverage_count / metrics.total_specimens if metrics.total_specimens > 0 else 0
         )

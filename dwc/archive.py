@@ -20,7 +20,6 @@ import re
 import json
 import hashlib
 import logging
-from typing import Union
 
 from .schema import DWC_TERMS
 
@@ -129,7 +128,10 @@ def build_manifest(
         # Add package version if available
         try:
             import importlib.metadata
-            manifest["package_version"] = importlib.metadata.version("aafc-herbarium-dwc-extraction")
+
+            manifest["package_version"] = importlib.metadata.version(
+                "aafc-herbarium-dwc-extraction"
+            )
         except (importlib.metadata.PackageNotFoundError, ModuleNotFoundError):
             pass
 
@@ -339,7 +341,7 @@ def create_versioned_bundle(
         for name in files_to_include:
             file_path = output_dir / name
             if file_path.exists():
-                with open(file_path, 'rb') as f:
+                with open(file_path, "rb") as f:
                     content = f.read()
                     file_checksums[name] = {
                         "sha256": hashlib.sha256(content).hexdigest(),
@@ -349,6 +351,7 @@ def create_versioned_bundle(
 
     # Write the enhanced manifest
     from io_utils.write import write_manifest
+
     write_manifest(output_dir, manifest)
     build_meta_xml(output_dir)
 

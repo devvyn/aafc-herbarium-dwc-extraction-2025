@@ -36,15 +36,12 @@ def hash_content(content: str | bytes) -> str:
         SHA256 hex digest
     """
     if isinstance(content, str):
-        content = content.encode('utf-8')
+        content = content.encode("utf-8")
     return hashlib.sha256(content).hexdigest()
 
 
 def create_dag_node(
-    content_hash: str,
-    inputs: list[str],
-    metadata: dict,
-    timestamp: Optional[str] = None
+    content_hash: str, inputs: list[str], metadata: dict, timestamp: Optional[str] = None
 ) -> dict:
     """Create DAG node linking content to inputs.
 
@@ -83,7 +80,7 @@ def store_dag_node(node: dict, output_dir: Path) -> Path:
 
     # Store by content hash
     node_path = dag_dir / f"{node['hash'][:16]}.json"
-    with open(node_path, 'w') as f:
+    with open(node_path, "w") as f:
         json.dump(node, f, indent=2)
 
     return node_path
@@ -103,7 +100,7 @@ def example_specimen_lifecycle():
         "collector": "J. Smith",
         "collection_date": "1987-06-15",
         "locality": "Near Saskatoon",
-        "notes": "Collected from roadside"
+        "notes": "Collected from roadside",
     }
     field_notes_json = json.dumps(field_notes, sort_keys=True)
     field_notes_hash = hash_content(field_notes_json)
@@ -116,7 +113,7 @@ def example_specimen_lifecycle():
             "git_commit": "abc123",  # Original digitization code
             "author": "J. Smith",
         },
-        timestamp="1987-06-15T10:00:00Z"
+        timestamp="1987-06-15T10:00:00Z",
     )
     store_dag_node(field_notes_node, output_dir)
 
@@ -135,7 +132,7 @@ def example_specimen_lifecycle():
         "image_filename": "AAFC-12345.jpg",
         "scanner": "Canon EOS 5D",
         "resolution_dpi": 600,
-        "digitizer": "M. Johnson"
+        "digitizer": "M. Johnson",
     }
     digitization_json = json.dumps(digitization_metadata, sort_keys=True)
     digitization_hash = hash_content(digitization_json)
@@ -149,7 +146,7 @@ def example_specimen_lifecycle():
             "author": "M. Johnson",
             "image_hash": image_hash,  # Link to actual image
         },
-        timestamp="2010-03-20T14:30:00Z"
+        timestamp="2010-03-20T14:30:00Z",
     )
     store_dag_node(digitization_node, output_dir)
 
@@ -166,7 +163,7 @@ def example_specimen_lifecycle():
         "decimal_longitude": -106.6700,
         "coordinate_uncertainty_meters": 1000,
         "georeference_notes": "Corrected using Google Maps",
-        "georeferenced_by": "Dr. A. Lee"
+        "georeferenced_by": "Dr. A. Lee",
     }
     georeference_json = json.dumps(georeference, sort_keys=True)
     georeference_hash = hash_content(georeference_json)
@@ -179,13 +176,15 @@ def example_specimen_lifecycle():
             "git_commit": "ghi789",  # Georeferencing tool code
             "author": "Dr. A. Lee",
         },
-        timestamp="2023-05-10T09:15:00Z"
+        timestamp="2023-05-10T09:15:00Z",
     )
     store_dag_node(georeference_node, output_dir)
 
     print("2023: Georeference correction")
     print(f"  Hash: {georeference_hash[:16]}")
-    print(f"  Coordinates: ({georeference['decimal_latitude']}, {georeference['decimal_longitude']})")
+    print(
+        f"  Coordinates: ({georeference['decimal_latitude']}, {georeference['decimal_longitude']})"
+    )
     print(f"  Inputs: {field_notes_hash[:16]}")
     print()
 
@@ -196,7 +195,7 @@ def example_specimen_lifecycle():
         "family": "Cyperaceae",
         "identified_by": "Dr. P. Singh",
         "identification_date": "2024-08-20",
-        "identification_notes": "Redetermined from C. siccata"
+        "identification_notes": "Redetermined from C. siccata",
     }
     taxonomy_json = json.dumps(taxonomy, sort_keys=True)
     taxonomy_hash = hash_content(taxonomy_json)
@@ -209,7 +208,7 @@ def example_specimen_lifecycle():
             "git_commit": "jkl012",  # Taxonomy database code
             "author": "Dr. P. Singh",
         },
-        timestamp="2024-08-20T11:45:00Z"
+        timestamp="2024-08-20T11:45:00Z",
     )
     store_dag_node(taxonomy_node, output_dir)
 
@@ -228,7 +227,7 @@ def example_specimen_lifecycle():
         "locality": "Beaver River crossing",
         "state_province": "Saskatchewan",
         "country": "Canada",
-        "extraction_confidence": 0.85
+        "extraction_confidence": 0.85,
     }
     ai_extraction_json = json.dumps(ai_extraction, sort_keys=True)
     ai_extraction_hash = hash_content(ai_extraction_json)
@@ -242,7 +241,7 @@ def example_specimen_lifecycle():
             "model": "gpt-4o-mini",
             "extraction_version": "1.0.0",
         },
-        timestamp="2025-10-08T16:20:00Z"
+        timestamp="2025-10-08T16:20:00Z",
     )
     store_dag_node(ai_extraction_node, output_dir)
 
@@ -277,7 +276,7 @@ def example_specimen_lifecycle():
             "git_commit": "pqr678",
             "merge_strategy": "latest_wins",
         },
-        timestamp=datetime.now(timezone.utc).isoformat()
+        timestamp=datetime.now(timezone.utc).isoformat(),
     )
     store_dag_node(merged_node, output_dir)
 
@@ -345,11 +344,11 @@ def example_specimen_lifecycle():
                                ├─> {georeference_hash[:8]} (2023) ──> {merged_hash[:8]}
                                └─> {taxonomy_hash[:8]} (2024) ──────> {merged_hash[:8]}
         {image_hash[:8]} (2010) ──────> {ai_extraction_hash[:8]} (2025) ──> {merged_hash[:8]}
-        """.strip()
+        """.strip(),
     }
 
     dag_summary_path = output_dir / "specimen_dag_summary.json"
-    with open(dag_summary_path, 'w') as f:
+    with open(dag_summary_path, "w") as f:
         json.dump(dag_summary, f, indent=2)
 
     print(f"DAG summary saved: {dag_summary_path}")
@@ -365,7 +364,7 @@ def example_deduplication():
     specimen_data = {
         "catalog_number": "019121",
         "scientific_name": "Bouteloua gracilis",
-        "locality": "Saskatoon"
+        "locality": "Saskatoon",
     }
 
     # Batch A

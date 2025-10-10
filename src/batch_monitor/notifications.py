@@ -43,7 +43,9 @@ class NotificationManager:
                 message += f"\n⚠️ {status.progress.failed} failed"
         elif status.status == "failed":
             title = f"{status.status_emoji} Batch Failed"
-            message = f"Batch {status.batch_id[:16]} failed after {status.timing.elapsed_minutes:.1f} min"
+            message = (
+                f"Batch {status.batch_id[:16]} failed after {status.timing.elapsed_minutes:.1f} min"
+            )
         elif status.status == "expired":
             title = f"{status.status_emoji} Batch Expired"
             message = f"Batch {status.batch_id[:16]} expired without completing"
@@ -99,12 +101,12 @@ class NotificationManager:
             message: Notification body
             subtitle: Optional subtitle
         """
-        script = f'''
+        script = f"""
         display notification "{message}" ¬
             with title "{title}" ¬
             subtitle "{subtitle}" ¬
             sound name "Glass"
-        '''
+        """
 
         try:
             subprocess.run(
@@ -113,6 +115,6 @@ class NotificationManager:
                 capture_output=True,
                 timeout=5,
             )
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
             # Silently fail - notifications are nice-to-have
             pass

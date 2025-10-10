@@ -21,14 +21,14 @@
 
 
 ⏺ Bash(ls -t ~/Documents/GitHub/ | head -5)
-  ⎿  Error: eza: Option --time (-t) has no 
+  ⎿  Error: eza: Option --time (-t) has no
      "/Users/devvynmurphy/Documents/GitHub/" setting (choices: modified, changed,
       accessed, created)
 
 ⏺ Let me check the most recently modified directories properly:
 
 ⏺ Bash(ls -lt ~/Documents/GitHub/ | head -6)
-  ⎿  Error: eza: Option --time (-t) has no 
+  ⎿  Error: eza: Option --time (-t) has no
      "/Users/devvynmurphy/Documents/GitHub/" setting (choices: modified, changed,
       accessed, created)
 
@@ -37,14 +37,14 @@
 
 
 ⏺ Bash(ls -la ~/Documents/GitHub/ | head -10)
-  ⎿ drwx------@    - devvynmurphy 21 Sep 20:18 .claude                     
+  ⎿ drwx------@    - devvynmurphy 21 Sep 20:18 .claude
     .rw-r--r--@  14k devvynmurphy 26 Sep 12:51 .DS_Store
     drwxr-xr-x@    - devvynmurphy 27 Sep 21:20 aafc-herbarium-dwc-extractio
     … +8 lines (ctrl+o to expand)
 
 
 ⏺ Bash(git status)
-  ⎿  On branch main                               
+  ⎿  On branch main
      Your branch is up to date with 'origin/main'.
      … +31 lines (ctrl+o to expand)
 
@@ -88,12 +88,12 @@
 
 
 ⏺ Bash(git pull origin main)
-  ⎿  Already up to date.                                      
+  ⎿  Already up to date.
      From github.com:devvyn/aafc-herbarium-dwc-extraction-2025
       * branch            main       -> FETCH_HEAD
 
 ⏺ Bash(git stash pop)
-  ⎿  On branch main                               
+  ⎿  On branch main
      Your branch is up to date with 'origin/main'.
      … +32 lines (ctrl+o to expand)
 
@@ -105,15 +105,15 @@
   The repository is now synced, with your local modifications and ephemeral
   files preserved but not committed.
 
-> check bridge before planning work. i want to make sure all agent input is 
+> check bridge before planning work. i want to make sure all agent input is
 digested before the next move
 
 ⏺ I'll check the bridge system to ensure all agent input is digested before
   planning the next move.
 
 ⏺ Bash(~/devvyn-meta-project/scripts/bridge-register.sh status)
-  ⎿  Error: Usage: 
-     /Users/devvynmurphy/devvyn-meta-project/scripts/bridge-register.sh <action> 
+  ⎿  Error: Usage:
+     /Users/devvynmurphy/devvyn-meta-project/scripts/bridge-register.sh <action>
      <agent> [session_id]
 
      Actions:
@@ -127,7 +127,7 @@ digested before the next move
      … +6 lines (ctrl+o to see all)
 
 ⏺ Bash(/Users/devvynmurphy/devvyn-meta-project/scripts/bridge-receive.sh code)
-  ⎿  📨 Processing message: 2025-09-27T17            
+  ⎿  📨 Processing message: 2025-09-27T17
      👤 From: codex
      ⚡ Priority: # [PRIORITY: HIGH] Collision Test 3
      … +36 lines (ctrl+o to expand)
@@ -136,12 +136,12 @@ digested before the next move
   messages:
 
 ⏺ Bash(~/devvyn-meta-project/scripts/bridge-register.sh list)
-  ⎿  Registered Agents:            
+  ⎿  Registered Agents:
      ==================
      … +12 lines (ctrl+o to expand)
 
 ⏺ Bash(/Users/devvynmurphy/devvyn-meta-project/scripts/bridge-receive.sh code)
-  ⎿  📨 Processing message: 2025-09-27T17          
+  ⎿  📨 Processing message: 2025-09-27T17
      👤 From: chat
      ⚡ Priority: # [PRIORITY: NORMAL] Rapid Test 8
      … +36 lines (ctrl+o to expand)
@@ -151,7 +151,7 @@ digested before the next move
   ensure I've processed all agent input:
 
 ⏺ Bash(/Users/devvynmurphy/devvyn-meta-project/scripts/bridge-receive.sh code)
-  ⎿  📨 Processing message: 2025-09-27T17          
+  ⎿  📨 Processing message: 2025-09-27T17
      👤 From: chat
      ⚡ Priority: # [PRIORITY: NORMAL] Rapid Test 4
      … +36 lines (ctrl+o to expand)
@@ -163,19 +163,19 @@ digested before the next move
   processing to clear the queue:
 
 ⏺ Bash(/Users/devvynmurphy/devvyn-meta-project/scripts/bridge-receive.sh code)
-  ⎿  📨 Processing message: 2025-09-27T17          
+  ⎿  📨 Processing message: 2025-09-27T17
      👤 From: chat
      ⚡ Priority: # [PRIORITY: NORMAL] Rapid Test 1
      … +36 lines (ctrl+o to expand)
 
 ⏺ Bash(/Users/devvynmurphy/devvyn-meta-project/scripts/bridge-receive.sh code)
-  ⎿  📨 Processing message: 2025-09-27T17          
+  ⎿  📨 Processing message: 2025-09-27T17
      👤 From: chat
      ⚡ Priority: # [PRIORITY: NORMAL] Rapid Test 9
      … +36 lines (ctrl+o to expand)
 
 ⏺ Bash(/Users/devvynmurphy/devvyn-meta-project/scripts/bridge-receive.sh code)
-  ⎿  📨 Processing message: 2025-09-27T17          
+  ⎿  📨 Processing message: 2025-09-27T17
      👤 From: chat
      ⚡ Priority: # [PRIORITY: NORMAL] Rapid Test 5
      … +36 lines (ctrl+o to expand)
@@ -227,8 +227,8 @@ digested before the next move
   The bridge system is clean and ready for your next move. What would you
   like to work on next?
 
-> today we'll be working with the agents slash command in claude code. 
-enumerate a set of recommended high level planning and process design work 
+> today we'll be working with the agents slash command in claude code.
+enumerate a set of recommended high level planning and process design work
 opportunities
 
 ⏺ I'll enumerate high-level planning and process design work opportunities
@@ -239,7 +239,7 @@ opportunities
   ⎿  Found 5 files (ctrl+o to expand)
 
 ⏺ Search(pattern: "**/*slash*")
-  ⎿  Found 0 files 
+  ⎿  Found 0 files
 
 ⏺ Search(pattern: "agent", head_limit: 10)
   ⎿  Found 10 files (ctrl+o to expand)
@@ -387,10 +387,10 @@ opportunities
   any references to this concept and analyze what it might entail.
 
 ⏺ Search(pattern: "extraction.?plan")
-  ⎿  Found 0 files 
+  ⎿  Found 0 files
 
 ⏺ Search(pattern: "bridge.?extraction")
-  ⎿  Found 0 files 
+  ⎿  Found 0 files
 
 ⏺ Read(SPECIFICATIONS.md)
   ⎿  Read 135 lines (ctrl+o to expand)
@@ -438,7 +438,7 @@ opportunities
 
   # Extraction-ready pattern (robust):
   /agent-sync --bridge-auto-detect
-  # Automatically resolves: ~/infrastructure/agent-bridge/ OR 
+  # Automatically resolves: ~/infrastructure/agent-bridge/ OR
   ~/devvyn-meta-project/bridge/
 
   3. Transition Testing Commands
@@ -535,7 +535,7 @@ opportunities
   kind of systems thinking that makes the multi-agent collaboration
   framework so powerful.
 
-> have we considered claude code's "/agents" command, which appears to 
+> have we considered claude code's "/agents" command, which appears to
 afford agent orchestration utility?
 
 ⏺ You're absolutely right to bring this up! I need to investigate Claude
@@ -549,7 +549,7 @@ afford agent orchestration utility?
 ⏺ Fetch(https://docs.claude.com/en/docs/claude-code/subagents)
   ⎿  Received 1.6MB (200 OK)
 
-⏺ Excellent catch! The /agents command reveals native agent orchestration 
+⏺ Excellent catch! The /agents command reveals native agent orchestration
   capabilities in Claude Code that fundamentally changes our planning
   strategy. Let me analyze this:
 
@@ -576,7 +576,7 @@ afford agent orchestration utility?
 
   Complementary Architecture (Not Competing)
 
-  | Capability              | Bridge System             | Claude Code 
+  | Capability              | Bridge System             | Claude Code
   /agents     |
   |-------------------------|---------------------------|-------------------
   ------|
@@ -597,7 +597,7 @@ afford agent orchestration utility?
 
   Strategic Integration Insight:
 
-  The bridge system and /agents command solve different orchestration 
+  The bridge system and /agents command solve different orchestration
   problems:
   - Bridge: Cross-session, persistent, multi-project coordination
   - /agents: Within-session, immediate, specialized task delegation
@@ -626,7 +626,7 @@ afford agent orchestration utility?
   3. Smart Agent Discovery and Handoff
 
   # New slash command combining both systems
-  /handoff-to-specialist "OCR engine evaluation needed for herbarium 
+  /handoff-to-specialist "OCR engine evaluation needed for herbarium
   project"
 
   # This would:
@@ -678,12 +678,12 @@ afford agent orchestration utility?
   ⎿  (No content)
 
 ⏺ Bash(ls -la .claude/)
-  ⎿  .rw-r--r--@ 3.2k devvynmurphy 28 Sep 16:20 -M CLAUDE.md          
+  ⎿  .rw-r--r--@ 3.2k devvynmurphy 28 Sep 16:20 -M CLAUDE.md
      drwxr-xr-x@    - devvynmurphy 27 Sep 11:32 -N commands
      .rw-r--r--@ 1.6k devvynmurphy 28 Sep 16:20 -M settings.local.json
 
 ⏺ Write(.claude/commands/bridge-agent-create.md)
-  ⎿  Wrote 162 lines to .claude/commands/bridge-agent-create.md            
+  ⎿  Wrote 162 lines to .claude/commands/bridge-agent-create.md
      ---
      name: bridge-agent-create
      description: Create native Claude Code subagent with bridge system
@@ -700,7 +700,7 @@ afford agent orchestration utility?
      … +152 lines (ctrl+o to expand)
 
 ⏺ Write(.claude/commands/session-handoff.md)
-  ⎿  Wrote 233 lines to .claude/commands/session-handoff.md                
+  ⎿  Wrote 233 lines to .claude/commands/session-handoff.md
      ---
      name: session-handoff
      description: Coordinate with other agents via bridge system with
@@ -716,7 +716,7 @@ afford agent orchestration utility?
      … +223 lines (ctrl+o to expand)
 
 ⏺ Write(.claude/commands/sync-with-native.md)
-  ⎿  Wrote 289 lines to .claude/commands/sync-with-native.md               
+  ⎿  Wrote 289 lines to .claude/commands/sync-with-native.md
      ---
      name: sync-with-native
      description: Synchronize bridge system state with native Claude Code
@@ -732,7 +732,7 @@ afford agent orchestration utility?
      … +279 lines (ctrl+o to expand)
 
 ⏺ Write(.claude/commands/bridge-extraction-prep.md)
-  ⎿  Wrote 345 lines to .claude/commands/bridge-extraction-prep.md     
+  ⎿  Wrote 345 lines to .claude/commands/bridge-extraction-prep.md
      ---
      name: bridge-extraction-prep
      description: Prepare for Agent Bridge Extraction Plan execution
@@ -747,7 +747,7 @@ afford agent orchestration utility?
      … +335 lines (ctrl+o to expand)
 
 ⏺ Write(.claude/commands/extraction-verify.md)
-  ⎿  Wrote 314 lines to .claude/commands/extraction-verify.md              
+  ⎿  Wrote 314 lines to .claude/commands/extraction-verify.md
      ---
      name: extraction-verify
      description: Verify bridge system operation during extraction
@@ -763,7 +763,7 @@ afford agent orchestration utility?
      … +304 lines (ctrl+o to expand)
 
 ⏺ Write(.claude/commands/README.md)
-  ⎿  Wrote 167 lines to .claude/commands/README.md                         
+  ⎿  Wrote 167 lines to .claude/commands/README.md
      # Hybrid Agent Orchestration Commands
      Bridge integration commands that combine Claude Code's native `/agents`
       system with the bridge system for comprehensive multi-agent
@@ -775,7 +775,7 @@ afford agent orchestration utility?
      … +157 lines (ctrl+o to expand)
 
 ⏺ Bash(ls -la .claude/commands/)
-  ⎿ .rw-r--r--@  6.3k devvynmurphy 27 Sep 11:32 -N analyze.md              
+  ⎿ .rw-r--r--@  6.3k devvynmurphy 27 Sep 11:32 -N analyze.md
     .rw-r--r--@  5.9k devvynmurphy 28 Sep 16:47 -N bridge-agent-create.md
     .rw-r--r--@   11k devvynmurphy 28 Sep 16:49 -N bridge-extraction-prep.m
     … +11 lines (ctrl+o to expand)
@@ -825,7 +825,7 @@ afford agent orchestration utility?
   gap between immediate tactical delegation and persistent strategic
   coordination across the entire project portfolio.
 
-> what are all the things i could ask you to "deploy", and is there a 
+> what are all the things i could ask you to "deploy", and is there a
 registry or discovery affordance?
 
 ⏺ Looking at the current project state and the commands I just implemented,
@@ -840,14 +840,14 @@ registry or discovery affordance?
      Usage: fd [OPTIONS] [pattern] [path]...
 
      For more information, try '--help'.
-     rg: error parsing flag -E: grep config error: unknown encoding: 
+     rg: error parsing flag -E: grep config error: unknown encoding:
      (spec|command|config|deploy)
 
 ⏺ Search(pattern: "deploy|install|setup|configure", head_limit: 10)
   ⎿  Found 10 files (ctrl+o to expand)
 
 ⏺ Bash(fd "spec" . | head -10)
-  ⎿  ./SPECIFICATIONS.md               
+  ⎿  ./SPECIFICATIONS.md
      ./fresh_export/trial_specimens.csv
      ./specs/
      … +7 lines (ctrl+o to expand)
@@ -856,7 +856,7 @@ registry or discovery affordance?
   ⎿  (No content)
 
 ⏺ Bash(ls -la specs/ 2>/dev/null || echo "No specs directory")
-  ⎿ drwxr-xr-x@ - devvynmurphy 27 Sep 11:34 -N 001-ocr-extraction-pipeline 
+  ⎿ drwxr-xr-x@ - devvynmurphy 27 Sep 11:34 -N 001-ocr-extraction-pipeline
     drwxr-xr-x@ - devvynmurphy 27 Sep 11:35 -N 002-curator-review-interface
 
 
@@ -865,44 +865,44 @@ registry or discovery affordance?
   🔧 Infrastructure Components
 
   deploy bridge-extraction-plan     # Execute full bridge system migration
-  deploy hybrid-orchestration       # Install bridge + native agent 
+  deploy hybrid-orchestration       # Install bridge + native agent
   integration
   deploy bridge-backup-system       # Safety backup procedures
   deploy agent-coordination-protocol # Bridge v3.0 messaging system
 
   🤖 Agent Systems
 
-  deploy specialized-agents          # Darwin Core, OCR, Pattern Analysis, 
+  deploy specialized-agents          # Darwin Core, OCR, Pattern Analysis,
   Scientific Review agents
-  deploy native-bridge-sync          # Synchronization between /agents and 
+  deploy native-bridge-sync          # Synchronization between /agents and
   bridge
   deploy cross-session-handoff       # Session coordination protocols
   deploy agent-discovery-system      # Registry and discovery mechanisms
 
   📋 Specification Systems
 
-  deploy spec-driven-development     # .specify/ system and spec-kit 
+  deploy spec-driven-development     # .specify/ system and spec-kit
   integration
   deploy ocr-extraction-pipeline     # specs/001-ocr-extraction-pipeline/
   deploy curator-review-interface    # specs/002-curator-review-interface/
-  deploy specification-validation    # Spec quality gates and compliance 
+  deploy specification-validation    # Spec quality gates and compliance
   checking
 
   🔬 Scientific Research Pipeline
 
   deploy darwin-core-validation      # Taxonomic accuracy and DwC compliance
   deploy ocr-benchmarking-suite      # Systematic OCR engine evaluation
-  deploy pattern-analysis-toolkit    # Historical pattern application from 
+  deploy pattern-analysis-toolkit    # Historical pattern application from
   INTER_AGENT_MEMO
-  deploy gbif-integration-engine     # API validation and data submission 
+  deploy gbif-integration-engine     # API validation and data submission
   workflows
 
   ⚙️ Development Infrastructure
 
   deploy multi-agent-framework       # v2.1 collaboration framework
-  deploy quality-assurance-pipeline  # Testing, linting, validation 
+  deploy quality-assurance-pipeline  # Testing, linting, validation
   automation
-  deploy documentation-system        # Auto-generated docs and README 
+  deploy documentation-system        # Auto-generated docs and README
   maintenance
   deploy git-workflow-automation     # Commit, PR, and release management
 
@@ -928,7 +928,7 @@ registry or discovery affordance?
   ---
 
 ⏺ Write(.claude/commands/deploy.md)
-  ⎿  Wrote 325 lines to .claude/commands/deploy.md                         
+  ⎿  Wrote 325 lines to .claude/commands/deploy.md
      ---
      name: deploy
      description: Deploy project components with intelligent discovery and
@@ -1035,9 +1035,9 @@ registry or discovery affordance?
   ⎿  Updated .claude/commands/deploy.md with 83 additions and 279 removals
        1    ---
        2    name: deploy
-       3 -  description: Deploy project components with intelligent 
+       3 -  description: Deploy project components with intelligent
          -  discovery and dependency resolution
-       3 +  description: Deploy project components with 
+       3 +  description: Deploy project components with
          +  discovery and dependency resolution
        4    usage: /deploy [component] [options]
        5    args:
@@ -1051,74 +1051,74 @@ registry or discovery affordance?
        11 +      description: Options like --dry-run, --force, --backup
        12        required: false
        13    ---
-       14    
+       14
        15 -  # Deployment Registry and Discovery System
        15 +  # Deployment Registry System
-       16    
-       17 -  Intelligent deployment system with automatic component 
+       16
+       17 -  Intelligent deployment system with automatic component
           - discovery, dependency resolution, and rollback capabilities.
-       17 +  Deploy project components with intelligent discovery and 
+       17 +  Deploy project components with intelligent discovery and
           + dependency resolution.
-       18    
+       18
        19 -  ## Usage Examples
        19 +  ## Quick Usage
-       20    
+       20
        21    ```bash
-       22 -  /deploy list                           
+       22 -  /deploy list
           -  # Show all deployable components
-       23 -  /deploy hybrid-orchestration          
+       23 -  /deploy hybrid-orchestration
           -  # Deploy bridge + native agent integration
-       24 -  /deploy specialized-agents --backup    # Deploy with 
+       24 -  /deploy specialized-agents --backup    # Deploy with
           - automatic backup
-       25 -  /deploy bridge-extraction-plan --dry-run  # Preview 
+       25 -  /deploy bridge-extraction-plan --dry-run  # Preview
           - deployment steps
-       22 +  /deploy list                    
+       22 +  /deploy list
           +  # Show all deployable components
-       23 +  /deploy hybrid-orchestration    
+       23 +  /deploy hybrid-orchestration
           +  # Deploy bridge + native agent integration
-       24 +  /deploy specialized-agents      # Deploy Darwin Core, OCR, 
+       24 +  /deploy specialized-agents      # Deploy Darwin Core, OCR,
           + Pattern agents
-       25 +  /deploy bridge-extraction-plan  # Execute bridge system 
+       25 +  /deploy bridge-extraction-plan  # Execute bridge system
           + migration
        26    ```
-       27    
+       27
        28    ## Implementation
      ...
         30    ```bash
         31    #!/bin/bash
-        32    
+        32
         33 -  # Parse arguments
         33    COMPONENT="${1:-list}"
         34    OPTIONS="${2:-}"
-        35    
+        35
         36 -  # Component registry with dependencies and descriptions
         37 -  declare -A COMPONENTS
         38 -  declare -A DESCRIPTIONS
         39 -  declare -A DEPENDENCIES
         40 -  declare -A DEPLOYMENT_SCRIPTS
-        41 -  
+        41 -
         42 -  # Infrastructure Components
         43 -  COMPONENTS[bridge-extraction-plan]="infrastructure"
-        44 -  DESCRIPTIONS[bridge-extraction-plan]="Execute full bridge 
+        44 -  DESCRIPTIONS[bridge-extraction-plan]="Execute full bridge
            - system migration to ~/infrastructure/agent-bridge/"
         45 -  DEPENDENCIES[bridge-extraction-plan]="bridge-backup-system"
         46 -  DEPLOYMENT_SCRIPTS[bridge-extraction-plan]="deploy_bridge_e
            - xtraction"
-        47 -  
+        47 -
         48 -  COMPONENTS[hybrid-orchestration]="infrastructure"
         49 -  DESCRIPTIONS[hybrid-orchestration]="Install bridge + native
            -  /agents integration system"
         50 -  DEPENDENCIES[hybrid-orchestration]=""
         51 -  DEPLOYMENT_SCRIPTS[hybrid-orchestration]="deploy_hybrid_orc
            - hestration"
-        52 -  
+        52 -
         53 -  COMPONENTS[bridge-backup-system]="infrastructure"
-        54 -  DESCRIPTIONS[bridge-backup-system]="Safety backup 
+        54 -  DESCRIPTIONS[bridge-backup-system]="Safety backup
            - procedures for bridge system"
         55 -  DEPENDENCIES[bridge-backup-system]=""
         56 -  DEPLOYMENT_SCRIPTS[bridge-backup-system]="deploy_bridge_bac
            - kup"
-        57 -  
+        57 -
         58 -  # Agent Systems
         59 -  COMPONENTS[specialized-agents]="agents"
         60 -  DESCRIPTIONS[specialized-agents]="Darwin Core, OCR, Pattern
@@ -1126,89 +1126,89 @@ registry or discovery affordance?
         61 -  DEPENDENCIES[specialized-agents]="hybrid-orchestration"
         62 -  DEPLOYMENT_SCRIPTS[specialized-agents]="deploy_specialized_
            - agents"
-        63 -  
+        63 -
         64 -  COMPONENTS[agent-discovery-system]="agents"
-        65 -  DESCRIPTIONS[agent-discovery-system]="Registry and 
+        65 -  DESCRIPTIONS[agent-discovery-system]="Registry and
            - discovery mechanisms for agent coordination"
         66 -  DEPENDENCIES[agent-discovery-system]="hybrid-orchestration"
         67 -  DEPLOYMENT_SCRIPTS[agent-discovery-system]="deploy_agent_di
            - scovery"
-        68 -  
+        68 -
         69 -  # Specification Systems
         70 -  COMPONENTS[spec-driven-development]="specifications"
-        71 -  DESCRIPTIONS[spec-driven-development]="Complete .specify/ 
+        71 -  DESCRIPTIONS[spec-driven-development]="Complete .specify/
            - system and spec-kit integration"
         72 -  DEPENDENCIES[spec-driven-development]=""
         73 -  DEPLOYMENT_SCRIPTS[spec-driven-development]="deploy_spec_sy
            - stem"
-        74 -  
+        74 -
         75 -  COMPONENTS[ocr-extraction-pipeline]="specifications"
-        76 -  DESCRIPTIONS[ocr-extraction-pipeline]="OCR extraction 
+        76 -  DESCRIPTIONS[ocr-extraction-pipeline]="OCR extraction
            - pipeline from specs/001-ocr-extraction-pipeline/"
         77 -  DEPENDENCIES[ocr-extraction-pipeline]="spec-driven-developm
            - ent"
         78 -  DEPLOYMENT_SCRIPTS[ocr-extraction-pipeline]="deploy_ocr_pip
            - eline"
-        79 -  
+        79 -
         80 -  # Scientific Research Pipeline
         81 -  COMPONENTS[darwin-core-validation]="research"
-        82 -  DESCRIPTIONS[darwin-core-validation]="Taxonomic accuracy 
+        82 -  DESCRIPTIONS[darwin-core-validation]="Taxonomic accuracy
            - and Darwin Core compliance system"
         83 -  DEPENDENCIES[darwin-core-validation]="specialized-agents"
         84 -  DEPLOYMENT_SCRIPTS[darwin-core-validation]="deploy_darwin_c
            - ore"
-        85 -  
+        85 -
         86 -  COMPONENTS[pattern-analysis-toolkit]="research"
-        87 -  DESCRIPTIONS[pattern-analysis-toolkit]="Historical pattern 
+        87 -  DESCRIPTIONS[pattern-analysis-toolkit]="Historical pattern
            - application from INTER_AGENT_MEMO"
         88 -  DEPENDENCIES[pattern-analysis-toolkit]="specialized-agents"
         89 -  DEPLOYMENT_SCRIPTS[pattern-analysis-toolkit]="deploy_patter
            - n_analysis"
-        90 -  
+        90 -
         91 -  # Development Infrastructure
         92 -  COMPONENTS[multi-agent-framework]="development"
-        93 -  DESCRIPTIONS[multi-agent-framework]="v2.1 collaboration 
+        93 -  DESCRIPTIONS[multi-agent-framework]="v2.1 collaboration
            - framework deployment"
         94 -  DEPENDENCIES[multi-agent-framework]="hybrid-orchestration"
-        95 -  
+        95 -
            - DEPLOYMENT_SCRIPTS[multi-agent-framework]="deploy_framework"
-        96 -  
+        96 -
         36    echo "🚀 Deployment Registry System"
         37    echo "Component: $COMPONENT"
         38 -  if [ -n "$OPTIONS" ]; then
         39 -      echo "Options: $OPTIONS"
         40 -  fi
         41 -  echo
-        38    
+        38
         39    case "$COMPONENT" in
         40 -      "list"|"discover"|"registry")
         41 -          echo "=== DEPLOYABLE COMPONENTS REGISTRY ==="
         40 +      "list")
         41            echo
-        42 -  
+        42 -
         43 -          # Group by category
         44 -          declare -A CATEGORIES
-        45 -          CATEGORIES[infrastructure]="🔧 Infrastructure 
+        45 -          CATEGORIES[infrastructure]="🔧 Infrastructure
            - Components"
         46 -          CATEGORIES[agents]="🤖 Agent Systems"
-        47 -          CATEGORIES[specifications]="📋 Specification 
+        47 -          CATEGORIES[specifications]="📋 Specification
            - Systems"
-        48 -          CATEGORIES[research]="🔬 Scientific Research 
+        48 -          CATEGORIES[research]="🔬 Scientific Research
            - Pipeline"
-        49 -          CATEGORIES[development]="⚙️ Development 
+        49 -          CATEGORIES[development]="⚙️ Development
            - Infrastructure"
-        50 -  
-        51 -          for category in infrastructure agents 
+        50 -
+        51 -          for category in infrastructure agents
            - specifications research development; do
         52 -              echo "${CATEGORIES[$category]}"
         53 -              echo "$(printf '=%.0s' {1..50})"
-        54 -  
+        54 -
         55 -              for component in "${!COMPONENTS[@]}"; do
-        56 -                  if [ "${COMPONENTS[$component]}" = 
+        56 -                  if [ "${COMPONENTS[$component]}" =
            - "$category" ]; then
         57 -                      STATUS="🔲"
-        58 -  
-        59 -                      # Check if component is already 
+        58 -
+        59 -                      # Check if component is already
            - deployed
         60 -                      case "$component" in
         61 -                          "hybrid-orchestration")
@@ -1218,32 +1218,32 @@ registry or discovery affordance?
         64 -                              fi
         65 -                              ;;
         66 -                          "bridge-backup-system")
-        67 -                              if [ -f 
+        67 -                              if [ -f
            - ".claude/commands/bridge-extraction-prep.md" ]; then
         68 -                                  STATUS="✅"
         69 -                              fi
         70 -                              ;;
         71 -                          "spec-driven-development")
-        72 -                              if [ -f "SPECIFICATIONS.md" ] 
+        72 -                              if [ -f "SPECIFICATIONS.md" ]
            - && [ -d "specs" ]; then
         73 -                                  STATUS="✅"
         74 -                              fi
         75 -                              ;;
         76 -                          "specialized-agents")
-        77 -                              if [ -d 
+        77 -                              if [ -d
            - ".claude/commands/agents" ]; then
         78 -                                  STATUS="✅"
         79 -                              fi
         80 -                              ;;
         81 -                      esac
-        82 -  
+        82 -
         83 -                      echo "   $STATUS $component"
-        84 -                      echo "      
+        84 -                      echo "
            - ${DESCRIPTIONS[$component]}"
-        85 -  
-        86 -                      if [ -n "${DEPENDENCIES[$component]}" 
+        85 -
+        86 -                      if [ -n "${DEPENDENCIES[$component]}"
            - ]; then
-        87 -                          echo "      Dependencies: 
+        87 -                          echo "      Dependencies:
            - ${DEPENDENCIES[$component]}"
         88 -                      fi
         89 -                      echo
@@ -1251,68 +1251,68 @@ registry or discovery affordance?
         91 -              done
         92 -              echo
         93 -          done
-        94 -  
+        94 -
         95 -          echo "📖 Discovery Commands:"
-        96 -          echo "   /deploy [component-name]        # Deploy 
+        96 -          echo "   /deploy [component-name]        # Deploy
            - specific component"
-        97 -          echo "   /deploy [component] --dry-run   # Preview 
+        97 -          echo "   /deploy [component] --dry-run   # Preview
            - deployment"
-        98 -          echo "   /deploy [component] --backup    # Deploy 
+        98 -          echo "   /deploy [component] --backup    # Deploy
            - with backup"
-        99 -          echo "   /sync-with-native status        # Check 
+        99 -          echo "   /sync-with-native status        # Check
            - agent system health"
-       100 -          echo "   /bridge-extraction-prep validate # Check 
+       100 -          echo "   /bridge-extraction-prep validate # Check
            - bridge readiness"
         42 +          echo "=== DEPLOYABLE COMPONENTS ==="
         43 +          echo
         44 +          echo "🔧 Infrastructure:"
-        45 +          echo "   bridge-extraction-plan    Execute bridge 
+        45 +          echo "   bridge-extraction-plan    Execute bridge
            + system migration"
-        46 +          echo "   hybrid-orchestration      Bridge + native 
+        46 +          echo "   hybrid-orchestration      Bridge + native
            + /agents integration"
-        47 +          echo "   bridge-backup-system      Safety backup 
+        47 +          echo "   bridge-backup-system      Safety backup
            + procedures"
         48 +          echo
         49 +          echo "🤖 Agent Systems:"
-        50 +          echo "   specialized-agents        Darwin Core, 
+        50 +          echo "   specialized-agents        Darwin Core,
            + OCR, Pattern, Review agents"
-        51 +          echo "   agent-discovery-system    Registry and 
+        51 +          echo "   agent-discovery-system    Registry and
            + discovery mechanisms"
         52 +          echo
         53 +          echo "📋 Specifications:"
-        54 +          echo "   spec-driven-development   Complete 
+        54 +          echo "   spec-driven-development   Complete
            + .specify/ system"
-        55 +          echo "   ocr-extraction-pipeline   OCR pipeline 
+        55 +          echo "   ocr-extraction-pipeline   OCR pipeline
            + implementation"
         56 +          echo
         57 +          echo "🔬 Research Pipeline:"
-        58 +          echo "   darwin-core-validation    Taxonomic 
+        58 +          echo "   darwin-core-validation    Taxonomic
            + accuracy system"
-        59 +          echo "   pattern-analysis-toolkit  Historical 
+        59 +          echo "   pattern-analysis-toolkit  Historical
            + pattern application"
         60 +          echo
         61 +          echo "⚙️ Development:"
-        62 +          echo "   multi-agent-framework     v2.1 
+        62 +          echo "   multi-agent-framework     v2.1
            + collaboration framework"
-        63 +          echo "   quality-assurance         Testing and 
+        63 +          echo "   quality-assurance         Testing and
            + validation automation"
         64 +          echo
-        65 +          echo "Usage: /deploy [component-name] 
+        65 +          echo "Usage: /deploy [component-name]
            + [--dry-run|--backup]"
         66            ;;
-        67    
+        67
         68 -      *)
         69 -          # Check if component exists
         70 -          if [ -z "${COMPONENTS[$COMPONENT]}" ]; then
         71 -              echo "❌ Unknown component: $COMPONENT"
-        72 -              echo "💡 Use '/deploy list' to see available 
+        72 -              echo "💡 Use '/deploy list' to see available
            - components"
         73 -              exit 1
         68 +      "hybrid-orchestration")
         69 +          echo
         70 +          echo "=== DEPLOYING: Hybrid Orchestration ==="
         71 +          echo
-        72 +          if [ -f ".claude/commands/bridge-agent-create.md" 
+        72 +          if [ -f ".claude/commands/bridge-agent-create.md"
            + ]; then
         73 +              echo "✅ Already deployed!"
         74 +              echo "   Available commands:"
@@ -1323,17 +1323,17 @@ registry or discovery affordance?
         79 +              echo "   - /extraction-verify"
         80 +          else
         81 +              echo "❌ Deployment files missing"
-        82 +              echo "💡 Commands should be in 
+        82 +              echo "💡 Commands should be in
            + .claude/commands/"
         83            fi
         84 +          ;;
-        85    
+        85
         86 -          echo "=== DEPLOYING: $COMPONENT ==="
         87 -          echo "Category: ${COMPONENTS[$COMPONENT]}"
         88 -          echo "Description: ${DESCRIPTIONS[$COMPONENT]}"
-        89 -  
+        89 -
         90 -          if [ -n "${DEPENDENCIES[$COMPONENT]}" ]; then
-        91 -              echo "Dependencies: 
+        91 -              echo "Dependencies:
            - ${DEPENDENCIES[$COMPONENT]}"
         92 -          fi
         86 +      "specialized-agents")
@@ -1348,16 +1348,16 @@ registry or discovery affordance?
         95 +          echo
         96 +          echo "💡 Use: /bridge-agent-create [type] [name] to
            +  create agents"
-        97 +          echo "💡 Example: /bridge-agent-create darwin-core 
+        97 +          echo "💡 Example: /bridge-agent-create darwin-core
            + \"DwC Validator\""
         98 +          ;;
-        99    
+        99
        100 -          # Check for dry-run
        100 +      "bridge-extraction-plan")
        101 +          echo
        102 +          echo "=== DEPLOYING: Bridge Extraction Plan ==="
        103 +          echo
-       104 +          echo "🚨 This will migrate bridge system to 
+       104 +          echo "🚨 This will migrate bridge system to
            + ~/infrastructure/agent-bridge/"
        105 +          echo
        106            if [[ "$OPTIONS" == *"--dry-run"* ]]; then
@@ -1365,7 +1365,7 @@ registry or discovery affordance?
            -  "
        108 -              echo
        109 -          fi
-       110 -  
+       110 -
        111 -          # Check dependencies
        112 -          if [ -n "${DEPENDENCIES[$COMPONENT]}" ]; then
        113 -              echo "🔍 Checking dependencies..."
@@ -1376,71 +1376,71 @@ registry or discovery affordance?
        118 -              done
        119 -              echo
        120 -          fi
-       121 -  
+       121 -
        122 -          # Execute deployment
        123 -          DEPLOYMENT_FUNC="${DEPLOYMENT_SCRIPTS[$COMPONENT]}"
-       124 -  
+       124 -
        125 -          if [ -n "$DEPLOYMENT_FUNC" ]; then
-       126 -              echo "🚀 Executing deployment: 
+       126 -              echo "🚀 Executing deployment:
            - $DEPLOYMENT_FUNC"
-       127 -  
+       127 -
        128 -              # Call the appropriate deployment function
        129 -              case "$DEPLOYMENT_FUNC" in
        130 -                  "deploy_hybrid_orchestration")
-       131 -                      if [[ "$OPTIONS" == *"--dry-run"* ]]; 
+       131 -                      if [[ "$OPTIONS" == *"--dry-run"* ]];
            - then
-       132 -                          echo "Would deploy hybrid 
+       132 -                          echo "Would deploy hybrid
            - orchestration commands:"
        133 -                          echo "   - bridge-agent-create.md"
        134 -                          echo "   - session-handoff.md"
        135 -                          echo "   - sync-with-native.md"
        136 -                      else
-       137 -                          echo "✅ Hybrid orchestration 
+       137 -                          echo "✅ Hybrid orchestration
            - already deployed"
-       138 -                          echo "   Commands available in 
+       138 -                          echo "   Commands available in
            - .claude/commands/"
        139 -                      fi
        140 -                      ;;
-       141 -  
+       141 -
        142 -                  "deploy_bridge_extraction")
-       143 -                      if [[ "$OPTIONS" == *"--dry-run"* ]]; 
+       143 -                      if [[ "$OPTIONS" == *"--dry-run"* ]];
            - then
-       144 -                          echo "Would execute Bridge 
+       144 -                          echo "Would execute Bridge
            - Extraction Plan:"
-       145 -                          echo "   1. Validate current 
+       145 -                          echo "   1. Validate current
            - system"
        146 -                          echo "   2. Create safety backup"
-       147 -                          echo "   3. Execute extraction 
+       147 -                          echo "   3. Execute extraction
            - phases 1-7"
        148 -                      else
-       149 -                          echo "🔄 Initiating Bridge 
+       149 -                          echo "🔄 Initiating Bridge
            - Extraction Plan..."
-       150 -                          echo "💡 Use 
+       150 -                          echo "💡 Use
            - '/bridge-extraction-prep ready-check' first"
        151 -                      fi
        152 -                      ;;
-       153 -  
+       153 -
        154 -                  "deploy_specialized_agents")
-       155 -                      if [[ "$OPTIONS" == *"--dry-run"* ]]; 
+       155 -                      if [[ "$OPTIONS" == *"--dry-run"* ]];
            - then
-       156 -                          echo "Would create specialized 
+       156 -                          echo "Would create specialized
            - agents:"
        157 -                          echo "   - Darwin Core Validator"
        158 -                          echo "   - OCR Benchmark Agent"
        159 -                          echo "   - Pattern Analysis Expert"
        160 -                          echo "   - Scientific Reviewer"
        161 -                      else
-       162 -                          echo "🤖 Creating specialized 
+       162 -                          echo "🤖 Creating specialized
            - agents..."
-       163 -                          echo "💡 Use '/bridge-agent-create 
+       163 -                          echo "💡 Use '/bridge-agent-create
            - [type] [name]' to create agents"
        164 -                      fi
        165 -                      ;;
-       166 -  
+       166 -
        167 -                  *)
-       168 -                      echo "⚠️  Deployment script not 
+       168 -                      echo "⚠️  Deployment script not
            - implemented: $DEPLOYMENT_FUNC"
-       169 -                      echo "💡 Component is available but 
+       169 -                      echo "💡 Component is available but
            - requires manual deployment"
        170 -                      ;;
        171 -              esac
@@ -1450,42 +1450,42 @@ registry or discovery affordance?
        110 +              echo "   3. Execute extraction phases 1-7"
        111 +              echo "   4. Verify operation at new location"
        112            else
-       113 -              echo "❌ No deployment script defined for: 
+       113 -              echo "❌ No deployment script defined for:
            - $COMPONENT"
        113 +              echo "⚠️  CRITICAL OPERATION"
-       114 +              echo "💡 Recommend: /bridge-extraction-prep 
+       114 +              echo "💡 Recommend: /bridge-extraction-prep
            + ready-check first"
        115 +              echo "💡 Use --dry-run to preview steps"
        116            fi
        117 +          ;;
-       118    
+       118
        119 +      *)
        120            echo
        121 -          echo "🎉 Deployment process complete!"
-       122 -  
+       122 -
        123 -          if [[ "$OPTIONS" != *"--dry-run"* ]]; then
-       124 -              echo "💡 Verify with: /sync-with-native 
+       124 -              echo "💡 Verify with: /sync-with-native
            - health-check"
        125 -          fi
        121 +          echo "❌ Unknown component: $COMPONENT"
-       122 +          echo "💡 Use '/deploy list' to see available 
+       122 +          echo "💡 Use '/deploy list' to see available
            + components"
        123 +          exit 1
        124            ;;
        125    esac
-       126    
+       126
        127    echo
        128 -  echo "🔍 Deployment registry system ready!"
        129 -  ```
-       130 -  
+       130 -
        131 -  # Component Status Discovery
-       132 -  
+       132 -
        133 -  function check_component_status() {
        134 -      local component="$1"
-       135 -  
+       135 -
        136 -      case "$component" in
        137 -          "hybrid-orchestration")
-       138 -              if [ -d ".claude/commands" ] && [ -f 
+       138 -              if [ -d ".claude/commands" ] && [ -f
            - ".claude/commands/bridge-agent-create.md" ]; then
        139 -                  echo "✅ Deployed"
        140 -              else
@@ -1493,7 +1493,7 @@ registry or discovery affordance?
        142 -              fi
        143 -              ;;
        144 -          "bridge-extraction-plan")
-       145 -              if [ -d "$HOME/infrastructure/agent-bridge" ]; 
+       145 -              if [ -d "$HOME/infrastructure/agent-bridge" ];
            - then
        146 -                  echo "✅ Deployed"
        147 -              else
@@ -1501,10 +1501,10 @@ registry or discovery affordance?
        149 -              fi
        150 -              ;;
        151 -          "specialized-agents")
-       152 -              if [ -d ".claude/commands/agents" ] && [ $(ls 
+       152 -              if [ -d ".claude/commands/agents" ] && [ $(ls
            - .claude/commands/agents/*.json 2>/dev/null | wc -l) -gt 0 ];
            -  then
-       153 -                  echo "✅ Deployed ($(ls 
+       153 -                  echo "✅ Deployed ($(ls
            - .claude/commands/agents/*.json 2>/dev/null | wc -l) agents)"
        154 -              else
        155 -                  echo "🔲 Not deployed"
@@ -1515,28 +1515,28 @@ registry or discovery affordance?
        160 -              ;;
        161 -      esac
        162 -  }
-       163 -  
+       163 -
        164 -  # Auto-discovery functions for dynamic component detection
        165 -  function discover_project_components() {
        166 -      echo "🔍 Auto-discovered components:"
-       167 -  
+       167 -
        168 -      # Discover slash commands
        169 -      if [ -d ".claude/commands" ]; then
-       170 -          local cmd_count=$(ls .claude/commands/*.md 
+       170 -          local cmd_count=$(ls .claude/commands/*.md
            - 2>/dev/null | wc -l)
        171 -          echo "   📁 Slash commands: $cmd_count discovered"
        172 -      fi
-       173 -  
+       173 -
        174 -      # Discover specifications
        175 -      if [ -d "specs" ]; then
        176 -          local spec_count=$(ls specs/*/spec.md 2>/dev/null |
            -  wc -l)
        177 -          echo "   📋 Specifications: $spec_count discovered"
        178 -      fi
-       179 -  
+       179 -
        180 -      # Discover native agents
        181 -      if [ -d ".claude/commands/agents" ]; then
-       182 -          local agent_count=$(ls 
+       182 -          local agent_count=$(ls
            - .claude/commands/agents/*.json 2>/dev/null | wc -l)
        183 -          echo "   🤖 Native agents: $agent_count discovered"
        184 -      fi
@@ -1559,7 +1559,7 @@ registry or discovery affordance?
   2. Test Specific Deployments
 
   /deploy hybrid-orchestration    # Should show deployment status
-  /deploy specialized-agents      # Should show agent creation info  
+  /deploy specialized-agents      # Should show agent creation info
   /deploy bridge-extraction-plan --dry-run  # Should preview migration
 
   3. Verify Other Commands Work
@@ -1573,7 +1573,7 @@ registry or discovery affordance?
 ⏺ The file is missing again. Let me check the directory structure:
 
 ⏺ Bash(ls -la .claude/)
-  ⎿  .rw-r--r--@ 2.8k devvynmurphy 27 Sep 18:08 CLAUDE.md    
+  ⎿  .rw-r--r--@ 2.8k devvynmurphy 27 Sep 18:08 CLAUDE.md
      .rw-r--r--@  19k devvynmurphy 28 Sep 17:00 history.jsonl
      drwxr-xr-x@    - devvynmurphy 18 Sep 20:14 plugins
      … +6 lines (ctrl+o to expand)
@@ -1594,7 +1594,7 @@ registry or discovery affordance?
 
 ⏺ Bash(cp .claude/commands/agents/.claude/commands/*.md .claude/commands/
       2>/dev/null || echo "Commands may need to be recreated")
-  ⎿ Commands may need to be recreated                                      
+  ⎿ Commands may need to be recreated
     (eval):1: no matches found: .claude/commands/agents/.claude/commands/*.
     md
 
@@ -1615,73 +1615,73 @@ registry or discovery affordance?
      For more information, try '--help'.
 
 ⏺ Write(.claude/commands/bridge-agent-create.md)
-  ⎿  Updated .claude/commands/bridge-agent-create.md with 33 additions and 
+  ⎿  Updated .claude/commands/bridge-agent-create.md with 33 additions and
      98 removals
-        16    
+        16
         17    # Bridge-Integrated Agent Creator
-        18    
-        19 -  Creates a specialized Claude Code subagent and 
+        18
+        19 -  Creates a specialized Claude Code subagent and
            -  automatically registers it with the bridge system
            -   for cross-session coordination.
-        19 +  Creates a specialized Claude Code subagent and 
+        19 +  Creates a specialized Claude Code subagent and
            +  automatically registers it with the bridge system.
-        20    
+        20
         21    ## Usage Examples
-        22    
+        22
         23    ```bash
         24 -  /bridge-agent-create darwin-core "DwC Validator" "Validates
            -   taxonomic accuracy and Darwin Core compliance"
         25 -  /bridge-agent-create ocr-benchmark "OCR Tester" "Systematic
            -   OCR engine evaluation and performance testing"
-        26 -  /bridge-agent-create pattern-analysis "Pattern Expert" 
+        26 -  /bridge-agent-create pattern-analysis "Pattern Expert"
            -  "Applies historical gist patterns to current development"
-        27 -  /bridge-agent-create scientific-review "Science Reviewer" 
+        27 -  /bridge-agent-create scientific-review "Science Reviewer"
            -  "Reviews technical work for scientific accuracy"
         24 +  /bridge-agent-create darwin-core "DwC Validator" "Validates
            +   taxonomic accuracy"
         25 +  /bridge-agent-create ocr-benchmark "OCR Tester" "Evaluates
            +   OCR engines"
-        26 +  /bridge-agent-create pattern-analysis "Pattern Expert" 
+        26 +  /bridge-agent-create pattern-analysis "Pattern Expert"
            +  "Applies historical patterns"
-        27 +  /bridge-agent-create scientific-review "Science Reviewer" 
+        27 +  /bridge-agent-create scientific-review "Science Reviewer"
            +  "Reviews for accuracy"
         28    ```
-        29    
+        29
         30 +  ## Agent Types
-        31 +  
-        32 +  - **darwin-core**: Taxonomic validation and Darwin Core 
+        31 +
+        32 +  - **darwin-core**: Taxonomic validation and Darwin Core
            + compliance
-        33 +  - **ocr-benchmark**: OCR engine evaluation and performance 
+        33 +  - **ocr-benchmark**: OCR engine evaluation and performance
            + testing
         34 +  - **pattern-analysis**: Historical pattern application from
            +  INTER_AGENT_MEMO
-        35 +  - **scientific-review**: Scientific accuracy and domain 
+        35 +  - **scientific-review**: Scientific accuracy and domain
            + expertise validation
-        36 +  
+        36 +
         37    ## Implementation
-        38    
+        38
         39    ```bash
         40    #!/bin/bash
-        41    
+        41
         42 -  # Parse arguments
         42    AGENT_TYPE="$1"
         43    AGENT_NAME="$2"
         44    AGENT_DESC="${3:-Specialized agent for $AGENT_TYPE tasks}"
-        45    
+        45
         46 -  # Validate arguments
         46    if [ -z "$AGENT_TYPE" ] || [ -z "$AGENT_NAME" ]; then
-        47        echo "Usage: /bridge-agent-create [type] [name] 
+        47        echo "Usage: /bridge-agent-create [type] [name]
              [description]"
-        48 -      echo "Types: darwin-core, ocr-benchmark, 
+        48 -      echo "Types: darwin-core, ocr-benchmark,
            - pattern-analysis, scientific-review"
         48        exit 1
         49    fi
-        50    
+        50
         51 -  # Normalize name for bridge compatibility
-        52 -  BRIDGE_NAME=$(echo "$AGENT_NAME" | tr '[:upper:]' 
-           - '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 
+        52 -  BRIDGE_NAME=$(echo "$AGENT_NAME" | tr '[:upper:]'
+           - '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed
            - 's/^-\|-$//g')
-        53 -  
+        53 -
         51    # Auto-detect bridge location (extraction-ready)
         52 -  resolve_bridge_path() {
         53 -      if [ -d "$HOME/infrastructure/agent-bridge/bridge"
@@ -1702,20 +1702,20 @@ registry or discovery affordance?
         57 +      echo "ERROR: Bridge system not found"
         58 +      exit 1
         59 +  fi
-        60    
+        60
         61 -  BRIDGE_ROOT=$(resolve_bridge_path) || exit 1
-        61 +  echo "🤖 Creating bridge-integrated agent: $AGENT_NAME 
+        61 +  echo "🤖 Creating bridge-integrated agent: $AGENT_NAME
            + ($AGENT_TYPE)"
         62 +  echo "Bridge root: $BRIDGE_ROOT"
-        63    
+        63
         64 -  # Configure tools by agent type
         64 +  # Configure by agent type
         65    case "$AGENT_TYPE" in
         66        "darwin-core")
         67            TOOLS="Read,Write,Edit,Grep,WebFetch,Bash"
         68 -          MODEL="sonnet"
-        69 -          SPECIALIZED_PROMPT="You are a Darwin Core 
-           - validation specialist. Focus on taxonomic accuracy, field 
+        69 -          SPECIALIZED_PROMPT="You are a Darwin Core
+           - validation specialist. Focus on taxonomic accuracy, field
            - mapping compliance, and scientific data integrity."
         68 +          PROMPT="Darwin Core validation specialist. Focus on
            +  taxonomic accuracy."
@@ -1723,48 +1723,48 @@ registry or discovery affordance?
         70        "ocr-benchmark")
         71            TOOLS="Bash,Read,Write,Task,Glob"
         72 -          MODEL="sonnet"
-        73 -          SPECIALIZED_PROMPT="You are an OCR engine 
-           - evaluation specialist. Focus on systematic testing, 
+        73 -          SPECIALIZED_PROMPT="You are an OCR engine
+           - evaluation specialist. Focus on systematic testing,
            - performance benchmarking, and accuracy measurement."
-        72 +          PROMPT="OCR engine evaluation specialist. Focus on 
+        72 +          PROMPT="OCR engine evaluation specialist. Focus on
            + systematic testing."
         73            ;;
         74        "pattern-analysis")
         75            TOOLS="Read,Grep,Glob,Task,Edit"
         76 -          MODEL="sonnet"
-        77 -          SPECIALIZED_PROMPT="You are a pattern application 
-           - specialist. Focus on identifying opportunities to apply 
+        77 -          SPECIALIZED_PROMPT="You are a pattern application
+           - specialist. Focus on identifying opportunities to apply
            - proven historical patterns from INTER_AGENT_MEMO."
-        76 +          PROMPT="Pattern application specialist. Focus on 
+        76 +          PROMPT="Pattern application specialist. Focus on
            + INTER_AGENT_MEMO patterns."
         77            ;;
         78        "scientific-review")
         79            TOOLS="Read,Grep,WebFetch"
         80 -          MODEL="sonnet"
-        81 -          SPECIALIZED_PROMPT="You are a scientific accuracy 
-           - reviewer. Focus on domain expertise validation and research 
+        81 -          SPECIALIZED_PROMPT="You are a scientific accuracy
+           - reviewer. Focus on domain expertise validation and research
            - quality assurance."
-        80 +          PROMPT="Scientific accuracy reviewer. Focus on 
+        80 +          PROMPT="Scientific accuracy reviewer. Focus on
            + domain expertise."
         81            ;;
         82        *)
         83            echo "Unknown agent type: $AGENT_TYPE"
-        84 -          echo "Supported types: darwin-core, ocr-benchmark, 
+        84 -          echo "Supported types: darwin-core, ocr-benchmark,
            - pattern-analysis, scientific-review"
         84            exit 1
         85            ;;
         86    esac
-        87    
-        88 -  echo "Creating bridge-integrated agent: $AGENT_NAME 
+        87
+        88 -  echo "Creating bridge-integrated agent: $AGENT_NAME
            - ($AGENT_TYPE)"
         89 -  echo "Bridge root: $BRIDGE_ROOT"
         88    echo "Tools: $TOOLS"
         89 -  echo "Model: $MODEL"
-        90 -  
+        90 -
         91 -  # Step 1: Create native Claude Code subagent
         89    echo
         90 -  echo "Step 1: Creating native subagent..."
-        91 -  echo "Use the /agents command to create a new agent with 
+        91 -  echo "Use the /agents command to create a new agent with
            - these specifications:"
         92 -  echo "  Name: $AGENT_NAME"
         93 -  echo "  Description: $AGENT_DESC"
@@ -1772,27 +1772,27 @@ registry or discovery affordance?
         95 -  echo "  Model: $MODEL"
         96 -  echo "  System Prompt Addition: $SPECIALIZED_PROMPT"
         97 -  echo
-        98 -  echo "After creating the agent, press ENTER to continue 
+        98 -  echo "After creating the agent, press ENTER to continue
            - with bridge registration..."
         99 -  read -r
-       100 -  
+       100 -
        101 -  # Step 2: Register with bridge system
        102 -  echo "Step 2: Registering with bridge system..."
        103 -  if [ -f "$BRIDGE_ROOT/scripts/bridge-register.sh" ]; then
-       104 -      "$BRIDGE_ROOT/scripts/bridge-register.sh" register 
+       104 -      "$BRIDGE_ROOT/scripts/bridge-register.sh" register
            - "$BRIDGE_NAME" "$(date +%s)"
-       105 -      echo "✅ Agent '$BRIDGE_NAME' registered with bridge 
+       105 -      echo "✅ Agent '$BRIDGE_NAME' registered with bridge
            - system"
        106 -  else
-       107 -      echo "⚠️  Bridge registration script not found at 
+       107 -      echo "⚠️  Bridge registration script not found at
            - $BRIDGE_ROOT/scripts/bridge-register.sh"
        108 -      echo "Manual registration may be required"
        109 -  fi
-       110 -  
+       110 -
        111 -  # Step 3: Create agent coordination file
        112 -  AGENT_CONFIG_DIR=".claude/commands/agents"
        113 -  mkdir -p "$AGENT_CONFIG_DIR"
-       114 -  
+       114 -
        115 -  cat > "$AGENT_CONFIG_DIR/${BRIDGE_NAME}.json" << EOF
        116 -  {
        117 -      "agent_name": "$AGENT_NAME",
@@ -1806,43 +1806,43 @@ registry or discovery affordance?
        125 -      "project": "$(basename $(pwd))"
        126 -  }
        127 -  EOF
-       128 -  
-       129 -  echo "✅ Agent configuration saved to 
+       128 -
+       129 -  echo "✅ Agent configuration saved to
            - $AGENT_CONFIG_DIR/${BRIDGE_NAME}.json"
-       130 -  
+       130 -
        131 -  # Step 4: Test bridge connectivity
        132 -  echo "Step 3: Testing bridge connectivity..."
        133 -  if [ -f "$BRIDGE_ROOT/scripts/bridge-send.sh" ]; then
        134 -      echo "Testing message send capability..."
-       135 -      echo "Agent $AGENT_NAME created and ready for 
+       135 -      echo "Agent $AGENT_NAME created and ready for
            - coordination" | \
-       136 -      "$BRIDGE_ROOT/scripts/bridge-send.sh" code chat NORMAL 
+       136 -      "$BRIDGE_ROOT/scripts/bridge-send.sh" code chat NORMAL
            - "New Agent Created: $AGENT_NAME"
        137 -      echo "✅ Bridge connectivity verified"
        138 -  else
-       139 -      echo "⚠️  Bridge send script not found - connectivity 
+       139 -      echo "⚠️  Bridge send script not found - connectivity
            - test skipped"
        140 -  fi
-       141 -  
+       141 -
        142 -  echo
-       143 -  echo "🎉 Bridge-integrated agent '$AGENT_NAME' created 
+       143 -  echo "🎉 Bridge-integrated agent '$AGENT_NAME' created
            - successfully!"
        144 -  echo "   Type: $AGENT_TYPE"
        145 -  echo "   Bridge name: $BRIDGE_NAME"
-       146 -  echo "   Configuration: 
+       146 -  echo "   Configuration:
            - $AGENT_CONFIG_DIR/${BRIDGE_NAME}.json"
        147 -  echo
         90    echo "Next steps:"
         91 -  echo "1. Test the agent with a simple task"
-        92 -  echo "2. Use /session-handoff to coordinate with other 
+        92 -  echo "2. Use /session-handoff to coordinate with other
            - agents"
-        93 -  echo "3. Check bridge messages with: 
+        93 -  echo "3. Check bridge messages with:
            - $BRIDGE_ROOT/scripts/bridge-receive.sh code"
         91 +  echo "1. Use /agents command to create: $AGENT_NAME"
         92 +  echo "2. Configure with tools: $TOOLS"
         93 +  echo "3. Set prompt: $PROMPT"
         94 +  echo "4. Agent will be registered with bridge system"
-        95 +  
+        95 +
         96 +  echo "✅ Agent specification ready!"
         97    ```
         98   \ No newline at end of file
@@ -1931,7 +1931,7 @@ registry or discovery affordance?
   Let me check the existing commands to understand the working format:
 
 ⏺ Bash(ls -la .claude/commands/ | grep -E "analyze|clarify|specify" | head -3)
-  ⎿  Error: rg: error parsing flag -E: grep config error: unknown encoding: 
+  ⎿  Error: rg: error parsing flag -E: grep config error: unknown encoding:
      analyze|clarify|specify
 
 ⏺ Read(.claude/commands/specify.md)
@@ -1942,15 +1942,15 @@ registry or discovery affordance?
   deploy command to match:
 
 ⏺ Update(.claude/commands/deploy.md)
-  ⎿  Updated .claude/commands/deploy.md with 10 removals                 
+  ⎿  Updated .claude/commands/deploy.md with 10 removals
         1    ---
         2 -  name: deploy
-        2    description: Deploy project components with discovery and 
+        2    description: Deploy project components with discovery and
             dependency resolution
         3 -  usage: /deploy [component] [options]
         4 -  args:
         5 -    - name: component
-        6 -      description: Component to deploy (use 'list' to see all 
+        6 -      description: Component to deploy (use 'list' to see all
           - available)
         7 -      required: false
         8 -      default: list
@@ -1958,7 +1958,7 @@ registry or discovery affordance?
        10 -      description: Options like --dry-run, --force, --backup
        11 -      required: false
         3    ---
-        4    
+        4
         5    # Deployment Registry System
 
 ⏺ Now let me also update the content to handle arguments properly like the
@@ -1966,53 +1966,53 @@ registry or discovery affordance?
 
 ⏺ Update(.claude/commands/deploy.md)
   ⎿  Updated .claude/commands/deploy.md with 16 additions and 3 removals
-        4    
+        4
         5    # Deployment Registry System
-        6    
-        7 -  Deploy project components with intelligent discovery and 
+        6
+        7 -  Deploy project components with intelligent discovery and
           - dependency resolution.
-        7 +  The user can provide a component name and options after 
+        7 +  The user can provide a component name and options after
           + `/deploy`. The input is available in `$ARGUMENTS`.
-        8    
+        8
         9 +  User input: $ARGUMENTS
-       10 +  
+       10 +
        11    ## Quick Usage
-       12    
+       12
        13    ```bash
-       14 +  /deploy                         # Show all deployable 
+       14 +  /deploy                         # Show all deployable
           + components
-       15    /deploy list                    # Show all deployable 
+       15    /deploy list                    # Show all deployable
             components
-       16    /deploy hybrid-orchestration    # Deploy bridge + native 
+       16    /deploy hybrid-orchestration    # Deploy bridge + native
             agent integration
-       17    /deploy specialized-agents      # Deploy Darwin Core, OCR, 
+       17    /deploy specialized-agents      # Deploy Darwin Core, OCR,
             Pattern agents
      ...
-       17    
+       17
        18    ## Implementation
-       19    
+       19
        20 +  Parse the arguments and execute the deployment:
-       21 +  
+       21 +
        22    ```bash
        23    #!/bin/bash
-       24    
+       24
        25 -  COMPONENT="${1:-list}"
        26 -  OPTIONS="${2:-}"
        25 +  # Parse arguments from user input
        26 +  ARGS="$ARGUMENTS"
        27 +  COMPONENT="${ARGS%% *}"  # First word is component
        28 +  OPTIONS="${ARGS#* }"     # Rest are options
-       29    
+       29
        30 +  # Default to list if no component specified
-       31 +  if [ -z "$COMPONENT" ] || [ "$COMPONENT" = "$OPTIONS" ]; 
+       31 +  if [ -z "$COMPONENT" ] || [ "$COMPONENT" = "$OPTIONS" ];
           + then
        32 +      COMPONENT="list"
        33 +      OPTIONS=""
        34 +  fi
-       35 +  
+       35 +
        36    echo "🚀 Deployment Registry System"
        37    echo "Component: $COMPONENT"
-       38    
+       38
 
 ⏺ Now try these steps to get the command working:
 
@@ -2100,7 +2100,7 @@ registry or discovery affordance?
 
 ⏺ Bash(cd ~/Documents/GitHub/aafc-herbarium-dwc-extraction-2025 && head -4
       .claude/commands/deploy.md)
-  ⎿ ---                                                                    
+  ⎿ ---
     description: Deploy project components with discovery and dependency re
     solution
     ---
@@ -2114,7 +2114,7 @@ registry or discovery affordance?
 
   # In Claude Code, run:
   cd ~/Documents/GitHub/aafc-herbarium-dwc-extraction-2025
-  pwd  # Should show: 
+  pwd  # Should show:
   /Users/devvynmurphy/Documents/GitHub/aafc-herbarium-dwc-extraction-2025
 
   2. Restart Claude Code
@@ -2144,7 +2144,3 @@ registry or discovery affordance?
   The key is making sure Claude Code's working directory is the project
   directory when it starts up, as that's when it discovers the available
   slash commands.
-
-
-
-

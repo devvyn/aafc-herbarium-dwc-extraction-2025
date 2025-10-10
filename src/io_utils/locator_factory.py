@@ -91,7 +91,9 @@ def create_image_locator(
         base_path = storage_cfg.get("base_path")
         if base_path is None:
             if input_path is None:
-                raise ValueError("Local backend requires 'base_path' in config or input_path argument")
+                raise ValueError(
+                    "Local backend requires 'base_path' in config or input_path argument"
+                )
             base_path = input_path
         else:
             base_path = Path(base_path)
@@ -103,9 +105,7 @@ def create_image_locator(
         try:
             from .locators.s3 import S3ImageLocator
         except ImportError as e:
-            raise ImportError(
-                "S3 backend requires boto3: pip install boto3"
-            ) from e
+            raise ImportError("S3 backend requires boto3: pip install boto3") from e
 
         s3_cfg = storage_cfg.get("s3", {})
         if "bucket" not in s3_cfg:
@@ -125,13 +125,13 @@ def create_image_locator(
             from .locators.s3 import S3ImageLocator
             import boto3
         except ImportError as e:
-            raise ImportError(
-                "MinIO backend requires boto3: pip install boto3"
-            ) from e
+            raise ImportError("MinIO backend requires boto3: pip install boto3") from e
 
         minio_cfg = storage_cfg.get("minio", {})
         if "endpoint" not in minio_cfg or "bucket" not in minio_cfg:
-            raise ValueError("MinIO backend requires 'endpoint' and 'bucket' in storage.minio config")
+            raise ValueError(
+                "MinIO backend requires 'endpoint' and 'bucket' in storage.minio config"
+            )
 
         # Create boto3 client with MinIO endpoint
         s3_client = boto3.client(

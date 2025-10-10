@@ -69,9 +69,7 @@ class GBIFAutocomplete:
 
         try:
             response = requests.get(
-                f"{cls.BASE_URL}/suggest",
-                params={"q": query, "limit": limit},
-                timeout=5
+                f"{cls.BASE_URL}/suggest", params={"q": query, "limit": limit}, timeout=5
             )
 
             if response.status_code != 200:
@@ -79,13 +77,15 @@ class GBIFAutocomplete:
 
             suggestions = []
             for item in response.json():
-                suggestions.append({
-                    "scientificName": item.get("scientificName", ""),
-                    "canonicalName": item.get("canonicalName", ""),
-                    "rank": item.get("rank", ""),
-                    "key": item.get("key", ""),
-                    "kingdom": item.get("kingdom", "")
-                })
+                suggestions.append(
+                    {
+                        "scientificName": item.get("scientificName", ""),
+                        "canonicalName": item.get("canonicalName", ""),
+                        "rank": item.get("rank", ""),
+                        "key": item.get("key", ""),
+                        "kingdom": item.get("kingdom", ""),
+                    }
+                )
 
             return suggestions
 
@@ -116,7 +116,7 @@ class GBIFAutocomplete:
             "Prince Albert",
             "Cypress Hills",
             "Grasslands National Park",
-            "Beaver River"
+            "Beaver River",
         ]
 
         if not query:
@@ -177,7 +177,9 @@ class SpecimenValidator:
             for correction in self.corrections:
                 f.write(json.dumps(correction) + "\n")
 
-        console.print(f"\n[green]✅ Saved {len(self.corrections)} corrections to {self.output_file}[/green]")
+        console.print(
+            f"\n[green]✅ Saved {len(self.corrections)} corrections to {self.output_file}[/green]"
+        )
 
 
 class InteractiveCLI:
@@ -221,7 +223,7 @@ class InteractiveCLI:
             "locality",
             "habitat",
             "stateProvince",
-            "country"
+            "country",
         ]
 
         for field in key_fields:
@@ -261,18 +263,12 @@ class InteractiveCLI:
 
         # Default: simple text input
         else:
-            new_value = Prompt.ask(
-                "New value (or Enter to keep current)",
-                default=current_value
-            )
+            new_value = Prompt.ask("New value (or Enter to keep current)", default=current_value)
             return new_value
 
     def edit_scientific_name(self, current: str) -> str:
         """Edit scientific name with GBIF autocomplete."""
-        query = Prompt.ask(
-            "Search GBIF (or Enter to keep current)",
-            default=current
-        )
+        query = Prompt.ask("Search GBIF (or Enter to keep current)", default=current)
 
         if query == current:
             return current
@@ -294,10 +290,7 @@ class InteractiveCLI:
             console.print(f"  {i}. {name} ({rank}, {kingdom})")
 
         # Select
-        choice = Prompt.ask(
-            "Select number (or 0 to keep current, c for custom)",
-            default="0"
-        )
+        choice = Prompt.ask("Select number (or 0 to keep current, c for custom)", default="0")
 
         if choice == "0":
             return current
@@ -322,10 +315,7 @@ class InteractiveCLI:
             for i, loc in enumerate(suggestions, 1):
                 console.print(f"  {i}. {loc}")
 
-        choice = Prompt.ask(
-            "Enter number, custom value, or Enter to keep current",
-            default="0"
-        )
+        choice = Prompt.ask("Enter number, custom value, or Enter to keep current", default="0")
 
         if choice == "0":
             return current
@@ -354,10 +344,7 @@ class InteractiveCLI:
 
         # Header
         console.clear()
-        console.print(Panel(
-            f"[bold]Specimen {index + 1} of {total}[/bold]",
-            style="cyan"
-        ))
+        console.print(Panel(f"[bold]Specimen {index + 1} of {total}[/bold]", style="cyan"))
 
         # Image preview (if available)
         image_path = self.validator.get_image_path(specimen)
@@ -401,7 +388,7 @@ class InteractiveCLI:
             "s": "scientificName",
             "c": "catalogNumber",
             "r": "recordedBy",
-            "l": "locality"
+            "l": "locality",
         }
 
         if action in field_map:
@@ -426,11 +413,13 @@ class InteractiveCLI:
 
     def run(self):
         """Run interactive review session."""
-        console.print(Panel(
-            "[bold cyan]Interactive Specimen Correction Tool[/bold cyan]\n"
-            "Review extraction results and make expert corrections.",
-            title="Welcome"
-        ))
+        console.print(
+            Panel(
+                "[bold cyan]Interactive Specimen Correction Tool[/bold cyan]\n"
+                "Review extraction results and make expert corrections.",
+                title="Welcome",
+            )
+        )
 
         total = len(self.validator.specimens)
         console.print(f"\n📊 Total specimens: {total}")
@@ -451,30 +440,18 @@ class InteractiveCLI:
             self.validator.save_all()
 
             # Show summary
-            console.print(f"\n[green]✅ Reviewed {len(self.validator.corrections)} / {total} specimens[/green]")
+            console.print(
+                f"\n[green]✅ Reviewed {len(self.validator.corrections)} / {total} specimens[/green]"
+            )
 
 
 def main():
     parser = argparse.ArgumentParser(
         description="Interactive CLI correction tool with GBIF autocomplete"
     )
-    parser.add_argument(
-        "--input",
-        type=Path,
-        required=True,
-        help="Input extraction JSONL file"
-    )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        required=True,
-        help="Output corrected JSONL file"
-    )
-    parser.add_argument(
-        "--images",
-        type=Path,
-        help="Directory containing specimen images"
-    )
+    parser.add_argument("--input", type=Path, required=True, help="Input extraction JSONL file")
+    parser.add_argument("--output", type=Path, required=True, help="Output corrected JSONL file")
+    parser.add_argument("--images", type=Path, help="Directory containing specimen images")
 
     args = parser.parse_args()
 

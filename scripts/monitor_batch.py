@@ -15,10 +15,9 @@ Usage:
 """
 
 import argparse
-import json
 import sys
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 try:
@@ -55,7 +54,7 @@ def print_status(batch: dict):
 
         progress_pct = (completed / total * 100) if total > 0 else 0
 
-        print(f"\n📈 Progress:")
+        print("\n📈 Progress:")
         print(f"   Total:     {total:,}")
         print(f"   Completed: {completed:,} ({progress_pct:.1f}%)")
         print(f"   Failed:    {failed:,}")
@@ -67,7 +66,7 @@ def print_status(batch: dict):
         print(f"   [{bar}] {progress_pct:.1f}%")
 
     # Timestamps
-    print(f"\n⏱️  Timing:")
+    print("\n⏱️  Timing:")
     if batch.created_at:
         created = datetime.fromtimestamp(batch.created_at)
         print(f"   Created: {created.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -113,12 +112,12 @@ def download_results(batch: dict, output_dir: Path):
         return
 
     if not batch.output_file_id:
-        print(f"⚠️  No output file available")
+        print("⚠️  No output file available")
         return
 
     client = OpenAI()
 
-    print(f"\n📥 Downloading results...")
+    print("\n📥 Downloading results...")
     output_path = output_dir / "batch_output.jsonl"
 
     try:
@@ -128,7 +127,7 @@ def download_results(batch: dict, output_dir: Path):
         with open(output_path, "wb") as f:
             f.write(content.read())
 
-        print(f"✅ Results downloaded:")
+        print("✅ Results downloaded:")
         print(f"   {output_path}")
         print(f"   Size: {output_path.stat().st_size / 1024 / 1024:.1f} MB")
 
@@ -146,11 +145,11 @@ def download_results(batch: dict, output_dir: Path):
             with open(error_path, "wb") as f:
                 f.write(error_content.read())
 
-            print(f"\n⚠️  Errors downloaded:")
+            print("\n⚠️  Errors downloaded:")
             print(f"   {error_path}")
 
         # Next steps
-        print(f"\n📍 Next step:")
+        print("\n📍 Next step:")
         print(f"   python scripts/process_batch_results.py --batch-id {batch.id}")
 
     except Exception as e:
@@ -158,38 +157,24 @@ def download_results(batch: dict, output_dir: Path):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Monitor OpenAI Batch API job progress"
-    )
+    parser = argparse.ArgumentParser(description="Monitor OpenAI Batch API job progress")
 
     # Either batch ID directly or from file
     id_group = parser.add_mutually_exclusive_group(required=True)
-    id_group.add_argument(
-        "--batch-id",
-        type=str,
-        help="Batch job ID"
-    )
-    id_group.add_argument(
-        "--batch-id-file",
-        type=Path,
-        help="File containing batch ID"
-    )
+    id_group.add_argument("--batch-id", type=str, help="Batch job ID")
+    id_group.add_argument("--batch-id-file", type=Path, help="File containing batch ID")
 
     parser.add_argument(
         "--poll-interval",
         type=int,
         default=300,
-        help="Polling interval in seconds (default: 300 = 5 minutes)"
+        help="Polling interval in seconds (default: 300 = 5 minutes)",
     )
-    parser.add_argument(
-        "--no-poll",
-        action="store_true",
-        help="Check status once without polling"
-    )
+    parser.add_argument("--no-poll", action="store_true", help="Check status once without polling")
     parser.add_argument(
         "--output-dir",
         type=Path,
-        help="Output directory for results (default: same as batch-id-file)"
+        help="Output directory for results (default: same as batch-id-file)",
     )
 
     args = parser.parse_args()
@@ -225,7 +210,7 @@ def main():
             # Poll until complete
             print(f"📡 Monitoring batch: {batch_id}")
             print(f"⏱️  Poll interval: {args.poll_interval}s ({args.poll_interval/60:.0f} minutes)")
-            print(f"\nPress Ctrl+C to stop monitoring\n")
+            print("\nPress Ctrl+C to stop monitoring\n")
 
             while True:
                 batch = client.batches.retrieve(batch_id)
@@ -235,7 +220,7 @@ def main():
                 if batch.status in ["completed", "failed", "expired", "cancelled"]:
                     if batch.status == "completed":
                         download_results(batch, output_dir)
-                        print(f"\n✅ Batch completed successfully!")
+                        print("\n✅ Batch completed successfully!")
                     else:
                         print(f"\n❌ Batch ended with status: {batch.status}")
 
@@ -246,9 +231,9 @@ def main():
                 time.sleep(args.poll_interval)
 
     except KeyboardInterrupt:
-        print(f"\n\n⏸️  Monitoring stopped by user")
+        print("\n\n⏸️  Monitoring stopped by user")
         print(f"📋 Batch ID: {batch_id}")
-        print(f"\nResume monitoring with:")
+        print("\nResume monitoring with:")
         print(f"   python scripts/monitor_batch.py --batch-id {batch_id}")
 
     except Exception as e:

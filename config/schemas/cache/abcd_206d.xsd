@@ -663,7 +663,7 @@
 			<xs:element name="Identifiers" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">A container element for several identifiers for this unit.</xs:documentation>
-				</xs:annotation>	
+				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element maxOccurs="unbounded" name="Identifier" minOccurs="0">

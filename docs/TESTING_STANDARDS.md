@@ -35,11 +35,11 @@ def test_sqlalchemy_and_sqlite3_equivalence(tmp_path: Path) -> None:
     # Setup data with SQLAlchemy
     session = init_db(db_path)
     insert_candidate(session, "run1", "test.jpg", candidate)
-    
+
     # Compare results from both interfaces
     sqlalchemy_results = fetch_candidates(session, "test.jpg")
     sqlite3_results = fetch_candidates_sqlite(conn, "test.jpg")
-    
+
     assert_equivalent_results(sqlalchemy_results, sqlite3_results)
 ```
 
@@ -62,10 +62,10 @@ def test_sqlalchemy_and_sqlite3_equivalence(tmp_path: Path) -> None:
 def test_web_review_database_compatibility():
     """Test that review_web.py can handle sqlite3 connections."""
     create_test_database(db_path)
-    
+
     with sqlite3.connect(db_path) as conn:
         candidates = fetch_candidates_sqlite(conn, "test.jpg")
-        
+
     assert len(candidates) > 0
 ```
 
@@ -81,8 +81,8 @@ def test_web_review_database_compatibility():
 ```python
 def test_fetch_candidates_sqlite_compatibility(tmp_path: Path) -> None:
     """Regression test for SQLAlchemy compatibility issues in web review.
-    
-    Bug: review_web.py used sqlite3.Connection but fetch_candidates() 
+
+    Bug: review_web.py used sqlite3.Connection but fetch_candidates()
     expected SQLAlchemy Session, causing TypeError in production.
     """
     # Test the exact scenario that failed
@@ -120,7 +120,7 @@ repos:
         entry: uv run python -m pytest tests/unit/
         language: system
         pass_filenames: false
-        
+
       - id: mypy
         name: Type checking
         entry: uv run mypy src/
@@ -144,21 +144,21 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-          
+
       - name: Install dependencies
         run: |
           pip install uv
           uv sync
-          
+
       - name: Run unit tests
         run: uv run python -m pytest tests/unit/ -v --cov=src/
-        
+
       - name: Run integration tests
         run: uv run python -m pytest tests/integration/ -v
-        
+
       - name: Type checking
         run: uv run mypy src/
-        
+
       - name: Lint code
         run: uv run ruff check src/
 ```
@@ -171,7 +171,7 @@ Add to project root for easy testing:
 # Run all tests
 uv run python -m pytest
 
-# Run unit tests only  
+# Run unit tests only
 uv run python -m pytest tests/unit/
 
 # Run integration tests

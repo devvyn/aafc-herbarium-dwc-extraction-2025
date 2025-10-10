@@ -27,20 +27,24 @@ VERSION_CHECKS = [
     {
         "file": "README.md",
         "patterns": [
-            (r'version-(\d+\.\d+\.\d+)-blue', "Version badge"),
-            (r'## 📦 Current Release: v(\d+\.\d+\.\d+)', "Current Release section"),
-            (r'\*\*Current:\*\* v(\d+\.\d+\.\d+)', "Version History section"),
-        ]
+            (r"version-(\d+\.\d+\.\d+)-blue", "Version badge"),
+            (r"## 📦 Current Release: v(\d+\.\d+\.\d+)", "Current Release section"),
+            (r"\*\*Current:\*\* v(\d+\.\d+\.\d+)", "Version History section"),
+        ],
     },
     # CHANGELOG.md - only check first version header after [Unreleased]
     {
         "file": "CHANGELOG.md",
         "patterns": [
-            (r'## \[Unreleased\].*?## \[(\d+\.\d+\.\d+)\]', "Latest version header (first after Unreleased)"),
+            (
+                r"## \[Unreleased\].*?## \[(\d+\.\d+\.\d+)\]",
+                "Latest version header (first after Unreleased)",
+            ),
         ],
-        "multiline": True
+        "multiline": True,
     },
 ]
+
 
 def get_canonical_version() -> str:
     """Read canonical version from pyproject.toml."""
@@ -49,7 +53,13 @@ def get_canonical_version() -> str:
         pyproject = tomllib.load(f)
     return pyproject["project"]["version"]
 
-def check_file(file_path: Path, patterns: List[Tuple[str, str]], canonical_version: str, multiline: bool = False) -> List[str]:
+
+def check_file(
+    file_path: Path,
+    patterns: List[Tuple[str, str]],
+    canonical_version: str,
+    multiline: bool = False,
+) -> List[str]:
     """Check a file for version inconsistencies.
 
     Returns list of error messages (empty if all consistent).
@@ -74,9 +84,12 @@ def check_file(file_path: Path, patterns: List[Tuple[str, str]], canonical_versi
 
     return errors
 
+
 def main():
     parser = argparse.ArgumentParser(description="Check version consistency across codebase")
-    parser.add_argument("--fix", action="store_true", help="Automatically fix inconsistencies (not implemented)")
+    parser.add_argument(
+        "--fix", action="store_true", help="Automatically fix inconsistencies (not implemented)"
+    )
     args = parser.parse_args()
 
     # Get canonical version
@@ -118,6 +131,7 @@ def main():
         print("✅ All version references are consistent!")
         print()
         return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

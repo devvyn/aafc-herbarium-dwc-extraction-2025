@@ -3,7 +3,6 @@
 from pathlib import Path
 
 from io_utils.ocr_cache import (
-    OCRResult,
     ProcessingRun,
     RunLineage,
     cache_ocr_result,
@@ -63,12 +62,8 @@ def test_cache_deduplication(tmp_path: Path) -> None:
 
     # Cache same specimen twice with different text (should update)
     # Note: engine_version must be non-NULL for merge to work properly
-    cache_ocr_result(
-        session, "abc123", "vision", "First text", 0.8, engine_version="v1"
-    )
-    cache_ocr_result(
-        session, "abc123", "vision", "Second text", 0.9, engine_version="v1"
-    )
+    cache_ocr_result(session, "abc123", "vision", "First text", 0.8, engine_version="v1")
+    cache_ocr_result(session, "abc123", "vision", "Second text", 0.9, engine_version="v1")
 
     # Should only have one result (merged/updated)
     cached = get_cached_ocr(session, "abc123", "vision", "v1")
@@ -85,12 +80,8 @@ def test_cache_engine_versioning(tmp_path: Path) -> None:
     session = init_db(db_path)
 
     # Cache with different engine versions
-    cache_ocr_result(
-        session, "abc123", "gpt", "GPT-4 result", 0.95, engine_version="gpt-4"
-    )
-    cache_ocr_result(
-        session, "abc123", "gpt", "GPT-4o result", 0.97, engine_version="gpt-4o"
-    )
+    cache_ocr_result(session, "abc123", "gpt", "GPT-4 result", 0.95, engine_version="gpt-4")
+    cache_ocr_result(session, "abc123", "gpt", "GPT-4o result", 0.97, engine_version="gpt-4o")
 
     # Should retrieve version-specific results
     gpt4 = get_cached_ocr(session, "abc123", "gpt", "gpt-4")

@@ -36,6 +36,7 @@ class ImageMetadata:
         content_type: MIME type (e.g., "image/jpeg")
         source_uri: Original URI/path where image is stored
     """
+
     identifier: str
     size_bytes: Optional[int] = None
     last_modified: Optional[float] = None

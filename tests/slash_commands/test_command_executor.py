@@ -1,7 +1,6 @@
 """Contract tests for CommandExecutor."""
 
 import pytest
-from src.test_harness.models import TestCommand, ValidationResult, TestStatus
 
 
 class TestCommandExecutorContract:

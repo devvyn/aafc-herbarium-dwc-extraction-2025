@@ -45,6 +45,4 @@ def test_iter_images_custom_extensions(tmp_path: Path) -> None:
 
     images = list(iter_images(tmp_path, extensions={"tif", ".tiff"}))
 
-    assert images == sorted(
-        [tmp_path / "sheet.tif", tmp_path / "slide.TIFF"], key=lambda p: str(p)
-    )
+    assert images == sorted([tmp_path / "sheet.tif", tmp_path / "slide.TIFF"], key=lambda p: str(p))

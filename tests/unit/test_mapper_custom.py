@@ -31,4 +31,3 @@ barcode = "catalogNumber"
     record = map_custom_schema({"barcode": "Z"})
     assert record.catalogNumber == "Z"
     configure_mappings({})
-

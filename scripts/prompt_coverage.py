@@ -12,7 +12,7 @@ from tests.unit.test_prompt_coverage import (
     run_prompt_coverage_analysis,
     generate_coverage_report,
     validate_prompt_task,
-    REQUIRED_PLACEHOLDERS
+    REQUIRED_PLACEHOLDERS,
 )
 
 
@@ -57,7 +57,7 @@ def evaluate_comprehensive(prompt_dir: Optional[Path] = None, output_format: str
                 "unexpected_placeholders": result.unexpected_placeholders,
                 "content_length": result.content_length,
                 "role_coverage": list(result.role_coverage),
-                "passed": result.passed
+                "passed": result.passed,
             }
         print(json.dumps(json_results, indent=2))
     elif output_format == "report":
@@ -79,7 +79,7 @@ def evaluate_comprehensive(prompt_dir: Optional[Path] = None, output_format: str
                 if result.unexpected_placeholders:
                     print(f"    Unexpected placeholders: {result.unexpected_placeholders}")
                 if result.content_length == 0:
-                    print(f"    No content found")
+                    print("    No content found")
 
     # Return appropriate exit code
     all_passed = all(r.passed for r in results.values())
@@ -103,10 +103,11 @@ def benchmark_prompt_effectiveness(prompt_dir: Optional[Path] = None) -> int:
 
     # This could be extended to run prompts against test images
     # and measure actual OCR accuracy, not just placeholder coverage
-    results = run_prompt_coverage_analysis() if not prompt_dir else {
-        task: validate_prompt_task(task, prompt_dir)
-        for task in REQUIRED_PLACEHOLDERS.keys()
-    }
+    results = (
+        run_prompt_coverage_analysis()
+        if not prompt_dir
+        else {task: validate_prompt_task(task, prompt_dir) for task in REQUIRED_PLACEHOLDERS.keys()}
+    )
 
     effectiveness_scores = {}
     for task, result in results.items():
@@ -144,24 +145,13 @@ def main():
         "--mode",
         choices=["basic", "comprehensive", "custom", "benchmark"],
         default="basic",
-        help="Evaluation mode"
+        help="Evaluation mode",
     )
+    parser.add_argument("--prompt-dir", type=Path, help="Custom prompt directory to validate")
     parser.add_argument(
-        "--prompt-dir",
-        type=Path,
-        help="Custom prompt directory to validate"
+        "--output-format", choices=["text", "json", "report"], default="text", help="Output format"
     )
-    parser.add_argument(
-        "--output-format",
-        choices=["text", "json", "report"],
-        default="text",
-        help="Output format"
-    )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose output"
-    )
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
 
     args = parser.parse_args()
 
@@ -185,6 +175,7 @@ def main():
     except Exception as e:
         if args.verbose:
             import traceback
+
             traceback.print_exc()
         else:
             print(f"Error: {e}")

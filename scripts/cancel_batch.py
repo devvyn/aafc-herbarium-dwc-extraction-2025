@@ -8,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     pass

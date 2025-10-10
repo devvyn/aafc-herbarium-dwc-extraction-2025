@@ -49,26 +49,17 @@ def load_prompt_messages(prompt_dir: Path, task: str) -> List[Dict[str, str]]:
     # Load system prompt
     system_file = prompt_dir / f"{task}.system.prompt"
     if system_file.exists():
-        messages.append({
-            "role": "system",
-            "content": system_file.read_text(encoding="utf-8")
-        })
+        messages.append({"role": "system", "content": system_file.read_text(encoding="utf-8")})
 
     # Load user prompt (will be converted to vision format)
     user_file = prompt_dir / f"{task}.user.prompt"
     if user_file.exists():
-        messages.append({
-            "role": "user",
-            "content": user_file.read_text(encoding="utf-8")
-        })
+        messages.append({"role": "user", "content": user_file.read_text(encoding="utf-8")})
     else:
         # Fallback to legacy format
         legacy_file = prompt_dir / f"{task}.prompt"
         if legacy_file.exists():
-            messages.append({
-                "role": "user",
-                "content": legacy_file.read_text(encoding="utf-8")
-            })
+            messages.append({"role": "user", "content": legacy_file.read_text(encoding="utf-8")})
 
     if not messages or messages[-1]["role"] != "user":
         raise ValueError(f"No user prompt found for task: {task}")
@@ -83,7 +74,7 @@ def create_batch_request(
     model: str = "gpt-4o-mini",
     use_structured_output: bool = False,
     schema_path: Path = None,
-    temperature: float = None
+    temperature: float = None,
 ) -> Dict:
     """Create a single batch request for an image.
 
@@ -104,27 +95,18 @@ def create_batch_request(
 
     # Convert user message to vision format
     vision_messages = messages[:-1].copy()  # All except last message
-    vision_messages.append({
-        "role": "user",
-        "content": [
-            {
-                "type": "text",
-                "text": messages[-1]["content"]
-            },
-            {
-                "type": "image_url",
-                "image_url": {
-                    "url": f"data:image/jpeg;base64,{b64_image}"
-                }
-            }
-        ]
-    })
+    vision_messages.append(
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": messages[-1]["content"]},
+                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64_image}"}},
+            ],
+        }
+    )
 
     # Build request body
-    body = {
-        "model": model,
-        "messages": vision_messages
-    }
+    body = {"model": model, "messages": vision_messages}
 
     # Only set temperature if explicitly provided
     if temperature is not None:
@@ -137,11 +119,7 @@ def create_batch_request(
             schema = json.load(f)
         body["response_format"] = {
             "type": "json_schema",
-            "json_schema": {
-                "name": "darwin_core_extraction",
-                "schema": schema,
-                "strict": True
-            }
+            "json_schema": {"name": "darwin_core_extraction", "schema": schema, "strict": True},
         }
     else:
         # Fallback to basic JSON mode
@@ -152,7 +130,7 @@ def create_batch_request(
         "custom_id": f"specimen-{sha256}",
         "method": "POST",
         "url": "/v1/chat/completions",
-        "body": body
+        "body": body,
     }
 
 
@@ -161,62 +139,39 @@ def main():
         description="Create OpenAI Batch API request file for herbarium extraction"
     )
     parser.add_argument(
-        "--input",
-        type=Path,
-        required=True,
-        help="Input directory containing specimen images"
+        "--input", type=Path, required=True, help="Input directory containing specimen images"
     )
     parser.add_argument(
-        "--output",
-        type=Path,
-        required=True,
-        help="Output directory for batch files"
+        "--output", type=Path, required=True, help="Output directory for batch files"
     )
     parser.add_argument(
         "--prompt-dir",
         type=Path,
         default=Path("config/prompts"),
-        help="Directory containing prompt files"
+        help="Directory containing prompt files",
     )
+    parser.add_argument("--task", type=str, default="image_to_dwc_v2", help="Prompt task name")
+    parser.add_argument("--model", type=str, default="gpt-4o-mini", help="OpenAI model name")
+    parser.add_argument("--limit", type=int, help="Limit number of images to process (for testing)")
     parser.add_argument(
-        "--task",
-        type=str,
-        default="image_to_dwc_v2",
-        help="Prompt task name"
-    )
-    parser.add_argument(
-        "--model",
-        type=str,
-        default="gpt-4o-mini",
-        help="OpenAI model name"
-    )
-    parser.add_argument(
-        "--limit",
-        type=int,
-        help="Limit number of images to process (for testing)"
-    )
-    parser.add_argument(
-        "--offset",
-        type=int,
-        default=0,
-        help="Skip first N images (for batch splitting)"
+        "--offset", type=int, default=0, help="Skip first N images (for batch splitting)"
     )
     parser.add_argument(
         "--structured-output",
         action="store_true",
-        help="Use JSON Schema structured outputs (enforces field names)"
+        help="Use JSON Schema structured outputs (enforces field names)",
     )
     parser.add_argument(
         "--schema",
         type=Path,
         default=Path("config/schemas/darwin_core_extraction.json"),
-        help="Path to JSON schema file"
+        help="Path to JSON schema file",
     )
     parser.add_argument(
         "--temperature",
         type=float,
         default=None,
-        help="Temperature setting (0-2). If not set, uses OpenAI default (1.0)"
+        help="Temperature setting (0-2). If not set, uses OpenAI default (1.0)",
     )
 
     args = parser.parse_args()
@@ -237,7 +192,9 @@ def main():
     print(f"Loading prompt messages from: {args.prompt_dir}")
     try:
         messages = load_prompt_messages(args.prompt_dir, args.task)
-        print(f"✅ Loaded {len(messages)} prompt messages ({', '.join(m['role'] for m in messages)})")
+        print(
+            f"✅ Loaded {len(messages)} prompt messages ({', '.join(m['role'] for m in messages)})"
+        )
     except Exception as e:
         print(f"Error loading prompts: {e}")
         sys.exit(1)
@@ -247,28 +204,30 @@ def main():
     total_available = len(all_image_files)
 
     # Apply offset and limit for batch splitting
-    image_files = all_image_files[args.offset:]
+    image_files = all_image_files[args.offset :]
     if args.limit:
-        image_files = image_files[:args.limit]
+        image_files = image_files[: args.limit]
 
     if args.offset > 0 or args.limit:
         print(f"\n⚠️  Batch slice: offset={args.offset}, limit={args.limit}")
-        print(f"   Processing specimens {args.offset + 1} to {args.offset + len(image_files)} of {total_available}")
+        print(
+            f"   Processing specimens {args.offset + 1} to {args.offset + len(image_files)} of {total_available}"
+        )
 
     print(f"\nFound {len(image_files)} images to process")
 
     # Display configuration
-    print(f"\n📋 Configuration:")
+    print("\n📋 Configuration:")
     print(f"   Model: {args.model}")
     if args.temperature is not None:
         print(f"   Temperature: {args.temperature}")
     else:
-        print(f"   Temperature: default (1.0)")
+        print("   Temperature: default (1.0)")
     if args.structured_output:
-        print(f"   Response Format: JSON Schema (strict=True)")
+        print("   Response Format: JSON Schema (strict=True)")
         print(f"   Schema: {args.schema}")
     else:
-        print(f"   Response Format: JSON Object (basic mode)")
+        print("   Response Format: JSON Object (basic mode)")
 
     # Create batch requests
     batch_input_path = args.output / "batch_input.jsonl"
@@ -277,7 +236,7 @@ def main():
     manifest = {}
     processed = 0
 
-    print(f"\nCreating batch requests...")
+    print("\nCreating batch requests...")
     print(f"Output: {batch_input_path}")
 
     with open(batch_input_path, "w", encoding="utf-8") as f:
@@ -294,7 +253,7 @@ def main():
                     args.model,
                     args.structured_output,
                     args.schema if args.structured_output else None,
-                    args.temperature
+                    args.temperature,
                 )
 
                 # Write JSONL line
@@ -304,7 +263,7 @@ def main():
                 manifest[sha256] = {
                     "filename": image_path.name,
                     "custom_id": f"specimen-{sha256}",
-                    "path": str(image_path)
+                    "path": str(image_path),
                 }
 
                 processed += 1
@@ -321,15 +280,15 @@ def main():
     with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
 
-    print(f"\n✅ Batch request file created:")
+    print("\n✅ Batch request file created:")
     print(f"   - {batch_input_path}")
     print(f"   - {processed:,} requests")
     print(f"   - {batch_input_path.stat().st_size / 1024 / 1024:.1f} MB")
-    print(f"\n✅ Manifest created:")
+    print("\n✅ Manifest created:")
     print(f"   - {manifest_path}")
     print(f"   - {len(manifest):,} images mapped")
 
-    print(f"\n📤 Next step:")
+    print("\n📤 Next step:")
     print(f"   python scripts/submit_batch.py --input {batch_input_path}")
 
 
