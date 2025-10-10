@@ -24,7 +24,7 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import requests
 from tqdm import tqdm
@@ -37,40 +37,39 @@ OPENROUTER_MODELS = {
         "id": "qwen/qwen-2.5-vl-72b-instruct:free",
         "name": "Qwen 2.5 VL 72B (FREE)",
         "cost": 0.0,
-        "notes": "Top-rated OCR model, FREE tier"
+        "notes": "Top-rated OCR model, FREE tier",
     },
     "qwen-vl-32b-free": {
         "id": "qwen/qwen-2.5-vl-32b-instruct:free",
         "name": "Qwen 2.5 VL 32B (FREE)",
         "cost": 0.0,
-        "notes": "Compact vision model, FREE"
+        "notes": "Compact vision model, FREE",
     },
     "llama-vision-free": {
         "id": "meta-llama/llama-3.2-11b-vision-instruct:free",
         "name": "Llama 3.2 11B Vision (FREE)",
         "cost": 0.0,
-        "notes": "Strong OCR, 128K context, FREE"
+        "notes": "Strong OCR, 128K context, FREE",
     },
-
     # Paid Models
     "qwen-vl-72b": {
         "id": "qwen/qwen-2.5-vl-72b-instruct",
         "name": "Qwen 2.5 VL 72B",
         "cost": 0.0036,  # Estimated per specimen
-        "notes": "Top OCR performer, paid tier"
+        "notes": "Top OCR performer, paid tier",
     },
     "claude-sonnet": {
         "id": "anthropic/claude-3.5-sonnet",
         "name": "Claude 3.5 Sonnet",
         "cost": 0.025,  # Estimated per specimen
-        "notes": "Premium quality"
+        "notes": "Premium quality",
     },
     "gemini-flash": {
         "id": "google/gemini-2.0-flash-exp:free",
         "name": "Gemini 2.0 Flash (FREE)",
         "cost": 0.0,
-        "notes": "Google vision model, FREE"
-    }
+        "notes": "Google vision model, FREE",
+    },
 }
 
 
@@ -80,47 +79,27 @@ def encode_image_base64(image_path: Path) -> str:
         return base64.b64encode(f.read()).decode("utf-8")
 
 
-def create_vision_message(
-    image_path: Path,
-    system_prompt: str,
-    user_prompt: str
-) -> List[Dict]:
+def create_vision_message(image_path: Path, system_prompt: str, user_prompt: str) -> List[Dict]:
     """Create OpenRouter-compatible vision message."""
     # Encode image
     image_b64 = encode_image_base64(image_path)
 
     # OpenRouter vision format (OpenAI-compatible)
     messages = [
-        {
-            "role": "system",
-            "content": system_prompt
-        },
+        {"role": "system", "content": system_prompt},
         {
             "role": "user",
             "content": [
-                {
-                    "type": "text",
-                    "text": user_prompt
-                },
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/jpeg;base64,{image_b64}"
-                    }
-                }
-            ]
-        }
+                {"type": "text", "text": user_prompt},
+                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_b64}"}},
+            ],
+        },
     ]
 
     return messages
 
 
-def call_openrouter(
-    messages: List[Dict],
-    model: str,
-    api_key: str,
-    max_retries: int = 3
-) -> Dict:
+def call_openrouter(messages: List[Dict], model: str, api_key: str, max_retries: int = 3) -> Dict:
     """Call OpenRouter API with retry logic."""
     url = "https://openrouter.ai/api/v1/chat/completions"
 
@@ -128,14 +107,10 @@ def call_openrouter(
         "Authorization": f"Bearer {api_key}",
         "HTTP-Referer": "https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025",
         "X-Title": "AAFC Herbarium Extraction",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
     }
 
-    payload = {
-        "model": model,
-        "messages": messages,
-        "response_format": {"type": "json_object"}
-    }
+    payload = {"model": model, "messages": messages, "response_format": {"type": "json_object"}}
 
     for attempt in range(max_retries):
         try:
@@ -145,7 +120,7 @@ def call_openrouter(
 
         except requests.exceptions.Timeout:
             if attempt < max_retries - 1:
-                wait = 2 ** attempt
+                wait = 2**attempt
                 print(f"  Timeout, retrying in {wait}s...")
                 time.sleep(wait)
             else:
@@ -154,7 +129,7 @@ def call_openrouter(
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 429:  # Rate limit
                 if attempt < max_retries - 1:
-                    wait = 5 * (2 ** attempt)
+                    wait = 5 * (2**attempt)
                     print(f"  Rate limited, waiting {wait}s...")
                     time.sleep(wait)
                 else:
@@ -166,11 +141,7 @@ def call_openrouter(
 
 
 def extract_specimen(
-    image_path: Path,
-    model: str,
-    api_key: str,
-    system_prompt: str,
-    user_prompt: str
+    image_path: Path, model: str, api_key: str, system_prompt: str, user_prompt: str
 ) -> Dict:
     """Extract Darwin Core data from single specimen image."""
     try:
@@ -202,7 +173,7 @@ def extract_specimen(
             "model": model,
             "provider": "openrouter",
             "error": str(e),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
 
@@ -211,45 +182,27 @@ def main():
         description="Extract Darwin Core data using OpenRouter vision models"
     )
     parser.add_argument(
-        "--input",
-        type=Path,
-        required=True,
-        help="Input directory containing specimen images"
+        "--input", type=Path, required=True, help="Input directory containing specimen images"
     )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        required=True,
-        help="Output directory for results"
-    )
+    parser.add_argument("--output", type=Path, required=True, help="Output directory for results")
     parser.add_argument(
         "--model",
         type=str,
         default="qwen-vl-72b-free",
         choices=list(OPENROUTER_MODELS.keys()),
-        help="Model to use (default: qwen-vl-72b-free)"
+        help="Model to use (default: qwen-vl-72b-free)",
     )
     parser.add_argument(
-        "--api-key",
-        type=str,
-        help="OpenRouter API key (or set OPENROUTER_API_KEY env var)"
+        "--api-key", type=str, help="OpenRouter API key (or set OPENROUTER_API_KEY env var)"
     )
-    parser.add_argument(
-        "--limit",
-        type=int,
-        help="Limit number of images to process"
-    )
-    parser.add_argument(
-        "--offset",
-        type=int,
-        default=0,
-        help="Skip first N images"
-    )
+    parser.add_argument("--limit", type=int, help="Limit number of images to process")
+    parser.add_argument("--offset", type=int, default=0, help="Skip first N images")
 
     args = parser.parse_args()
 
     # Get API key
     import os
+
     api_key = args.api_key or os.environ.get("OPENROUTER_API_KEY")
     if not api_key:
         print("Error: OpenRouter API key required")
@@ -268,16 +221,16 @@ def main():
     print(f"Cost: ${model_config['cost']}/specimen ({model_config['notes']})")
     print()
 
-    # Load prompts
+    # Load prompts (use AAFC-specific prompts)
     prompt_dir = Path("config/prompts")
-    system_prompt = (prompt_dir / "image_to_dwc_few_shot.system.prompt").read_text()
-    user_prompt = (prompt_dir / "image_to_dwc_few_shot.user.prompt").read_text()
+    system_prompt = (prompt_dir / "image_to_dwc_v2_aafc.system.prompt").read_text()
+    user_prompt = (prompt_dir / "image_to_dwc_v2_aafc.user.prompt").read_text()
 
-    # Get images (handle both .jpg and .JPG)
-    all_images = sorted(list(args.input.glob("*.jpg")) + list(args.input.glob("*.JPG")))
-    images = all_images[args.offset:]
+    # Get images recursively (handle both .jpg and .JPG, including nested directories)
+    all_images = sorted(list(args.input.glob("**/*.jpg")) + list(args.input.glob("**/*.JPG")))
+    images = all_images[args.offset :]
     if args.limit:
-        images = images[:args.limit]
+        images = images[: args.limit]
 
     print(f"Found {len(images)} images to process")
     if args.offset > 0 or args.limit:
@@ -287,54 +240,86 @@ def main():
     # Create output directory
     args.output.mkdir(parents=True, exist_ok=True)
 
-    # Process images
-    results = []
-
-    for image_path in tqdm(images, desc="Extracting"):
-        result = extract_specimen(
-            image_path,
-            model_id,
-            api_key,
-            system_prompt,
-            user_prompt
-        )
-        results.append(result)
-
-        # Small delay to avoid rate limits
-        time.sleep(0.5)
-
-    # Save results
+    # Process images with streaming + early validation
     output_file = args.output / "raw.jsonl"
-    with open(output_file, "w") as f:
-        for result in results:
-            f.write(json.dumps(result) + "\n")
 
-    # Generate statistics
-    successful = [r for r in results if "dwc" in r]
-    failed = [r for r in results if "error" in r]
+    successful = 0
+    failed = 0
+
+    with open(output_file, "w") as f:
+        for i, image_path in enumerate(tqdm(images, desc="Extracting")):
+            result = extract_specimen(image_path, model_id, api_key, system_prompt, user_prompt)
+
+            # Stream result immediately
+            f.write(json.dumps(result) + "\n")
+            f.flush()  # Force write to disk
+
+            # Track success/failure
+            if "dwc" in result and result["dwc"]:
+                successful += 1
+            else:
+                failed += 1
+
+            # EARLY VALIDATION: Check after first 5 specimens
+            if i == 4:  # Zero-indexed, so 5th specimen
+                success_rate = successful / 5
+                if success_rate < 0.5:
+                    print(
+                        f"\n❌ EARLY FAILURE DETECTED: {successful}/5 successful ({success_rate:.0%})"
+                    )
+                    print("First 5 specimens show <50% success rate.")
+                    print(
+                        "Check prompts, API key, or configuration before processing all 2,885 specimens!"
+                    )
+                    sys.exit(1)
+                else:
+                    print(
+                        f"\n✅ Early validation passed: {successful}/5 successful ({success_rate:.0%})"
+                    )
+
+            # Progress check every 50 specimens
+            if i > 0 and (i + 1) % 50 == 0:
+                current_rate = successful / (i + 1)
+                print(f"\nProgress: {i+1}/{len(images)} - {current_rate:.1%} success rate")
+                if current_rate < 0.7:
+                    print(f"⚠️  WARNING: Success rate dropped to {current_rate:.1%}")
+
+            # Small delay to avoid rate limits
+            time.sleep(0.5)
+
+    # Generate statistics from file
+    results = []
+    with open(output_file) as rf:
+        for line in rf:
+            results.append(json.loads(line))
+
+    successful_results = [r for r in results if "dwc" in r and r["dwc"]]
+    failed_results = [r for r in results if "error" in r or not r.get("dwc")]
 
     print()
     print("=" * 70)
     print("EXTRACTION COMPLETE")
     print("=" * 70)
     print(f"Total processed: {len(results)}")
-    print(f"Successful: {len(successful)} ({len(successful)/len(results)*100:.1f}%)")
-    print(f"Failed: {len(failed)}")
+    print(
+        f"Successful: {len(successful_results)} ({len(successful_results)/len(results)*100:.1f}%)"
+    )
+    print(f"Failed: {len(failed_results)}")
     print()
     print(f"Results saved: {output_file}")
 
     # Calculate field coverage
-    if successful:
+    if successful_results:
         all_fields = set()
-        for r in successful:
+        for r in successful_results:
             all_fields.update(r["dwc"].keys())
 
         print()
         print("Field coverage:")
         for field in sorted(all_fields):
-            count = sum(1 for r in successful if field in r["dwc"] and r["dwc"][field])
-            pct = count / len(successful) * 100
-            print(f"  {field:30s} {pct:5.1f}% ({count}/{len(successful)})")
+            count = sum(1 for r in successful_results if field in r["dwc"] and r["dwc"][field])
+            pct = count / len(successful_results) * 100
+            print(f"  {field:30s} {pct:5.1f}% ({count}/{len(successful_results)})")
 
 
 if __name__ == "__main__":
