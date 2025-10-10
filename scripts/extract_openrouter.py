@@ -20,6 +20,7 @@ Usage:
 import argparse
 import base64
 import json
+import os
 import sys
 import time
 from datetime import datetime
@@ -28,6 +29,10 @@ from typing import Dict, List
 
 import requests
 from tqdm import tqdm
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from src.utils.environment import save_environment_snapshot
 
 
 # OpenRouter model registry
@@ -201,7 +206,6 @@ def main():
     args = parser.parse_args()
 
     # Get API key
-    import os
 
     api_key = args.api_key or os.environ.get("OPENROUTER_API_KEY")
     if not api_key:
@@ -239,6 +243,13 @@ def main():
 
     # Create output directory
     args.output.mkdir(parents=True, exist_ok=True)
+
+    # Capture environment snapshot for reproducibility
+    run_id = args.output.name
+    command = " ".join(sys.argv)
+    env_snapshot_path = save_environment_snapshot(args.output, run_id=run_id, command=command)
+    print(f"Environment snapshot: {env_snapshot_path}")
+    print()
 
     # Process images with streaming + early validation
     output_file = args.output / "raw.jsonl"
