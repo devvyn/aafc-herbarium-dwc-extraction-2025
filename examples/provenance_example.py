@@ -14,10 +14,10 @@ from pathlib import Path
 
 # Import provenance utilities
 import sys
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from provenance import (
     capture_git_provenance,
-    capture_system_info,
     create_manifest,
     save_manifest,
     validate_reproducibility,
@@ -74,7 +74,7 @@ def example_export_manifest():
                 "duration_seconds": duration,
                 "errors": 0,
             },
-        }
+        },
     )
 
     print("Export Manifest:")
@@ -110,7 +110,7 @@ def process_specimens_with_tracking(input_dir: Path, output_dir: Path):
             "input_dir": str(input_dir),
             "output_dir": str(output_dir),
             "specimen_count": 42,
-        }
+        },
     )
 
     save_manifest(manifest, output_dir / "manifest.json")
@@ -154,7 +154,7 @@ def example_fragment_accumulation():
         "collector": "J. Smith",
         "date": "1987-06-15",
         "git_commit": "abc123",  # Original processing
-        "timestamp": "1987-06-15T10:00:00Z"
+        "timestamp": "1987-06-15T10:00:00Z",
     }
 
     # Georeference corrected in 2023
@@ -163,7 +163,7 @@ def example_fragment_accumulation():
         "lon": -75.456,
         "corrected_date": "2023-05-10",
         "git_commit": "def456",  # Different codebase!
-        "timestamp": "2023-05-10T14:30:00Z"
+        "timestamp": "2023-05-10T14:30:00Z",
     }
 
     # Taxonomic update in 2024
@@ -172,7 +172,7 @@ def example_fragment_accumulation():
         "determiner": "Dr. Lee",
         "determination_date": "2024-08-20",
         "git_commit": "ghi789",  # Another codebase
-        "timestamp": "2024-08-20T09:15:00Z"
+        "timestamp": "2024-08-20T09:15:00Z",
     }
 
     print("Fragment History (git provenance per fragment):")

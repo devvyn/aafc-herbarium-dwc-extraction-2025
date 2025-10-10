@@ -283,7 +283,9 @@ def process_image(
                         text,
                         avg_conf,
                     )
-                    record_lineage(cache_session, run_id, specimen_sha, "completed", cache_hit=False)
+                    record_lineage(
+                        cache_session, run_id, specimen_sha, "completed", cache_hit=False
+                    )
                 insert_candidate(
                     cand_session,
                     run_id,
@@ -508,6 +510,7 @@ def process_cli(
     # Import progress tracker
     try:
         from progress_tracker import global_tracker, track_processing
+
         use_progress = True
     except ImportError:
         use_progress = False
@@ -748,12 +751,17 @@ try:  # optional dependency
         # Validate semantic version
         semver_pattern = re.compile(r"^\d+\.\d+\.\d+$")
         if not semver_pattern.match(version):
-            typer.echo(f"Error: Version '{version}' must follow semantic versioning (e.g., '1.0.0')", err=True)
+            typer.echo(
+                f"Error: Version '{version}' must follow semantic versioning (e.g., '1.0.0')",
+                err=True,
+            )
             raise typer.Exit(1)
 
         # Validate bundle format
         if bundle_format not in ["rich", "simple"]:
-            typer.echo(f"Error: Bundle format must be 'rich' or 'simple', got '{bundle_format}'", err=True)
+            typer.echo(
+                f"Error: Bundle format must be 'rich' or 'simple', got '{bundle_format}'", err=True
+            )
             raise typer.Exit(1)
 
         # Load configuration for export settings

@@ -1,16 +1,16 @@
 <?xml version='1.0' encoding='utf-8'?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="2023-09-14" targetNamespace="http://rs.tdwg.org/dwc/terms/">
     <xs:include schemaLocation="tdwg_dwcterms.xsd" />
-    
+
     <xs:annotation>
         <xs:documentation>
-            This schema redefines all Darwin Core classes to disallow compound objects - 
-            within a class no other nested class is allowed. It allows properties to 
+            This schema redefines all Darwin Core classes to disallow compound objects -
+            within a class no other nested class is allowed. It allows properties to
             occur in any order and as many times as needed.
         </xs:documentation>
     </xs:annotation>
 
-    
+
     <xs:element name="Occurrence" substitutionGroup="dwc:anyClass">
         <xs:complexType>
             <xs:choice maxOccurs="unbounded">
@@ -20,8 +20,8 @@
             </xs:choice>
         </xs:complexType>
     </xs:element>
-    
-    
+
+
     <xs:element name="Organism" substitutionGroup="dwc:anyClass">
         <xs:complexType>
             <xs:choice maxOccurs="unbounded">
@@ -31,8 +31,8 @@
             </xs:choice>
         </xs:complexType>
     </xs:element>
-    
-    
+
+
     <xs:element name="MaterialEntity" substitutionGroup="dwc:anyClass">
         <xs:complexType>
             <xs:choice maxOccurs="unbounded">
@@ -42,8 +42,8 @@
             </xs:choice>
         </xs:complexType>
     </xs:element>
-    
-    
+
+
     <xs:element name="MaterialSample" substitutionGroup="dwc:anyClass">
         <xs:complexType>
             <xs:choice maxOccurs="unbounded">
@@ -53,8 +53,8 @@
             </xs:choice>
         </xs:complexType>
     </xs:element>
-    
-    
+
+
     <xs:element name="Event" substitutionGroup="dwc:anyClass">
         <xs:complexType>
             <xs:choice maxOccurs="unbounded">
@@ -64,8 +64,8 @@
             </xs:choice>
         </xs:complexType>
     </xs:element>
-    
-    
+
+
     <xs:element name="Location" substitutionGroup="dwc:anyClass">
         <xs:complexType>
             <xs:choice maxOccurs="unbounded">
@@ -74,9 +74,9 @@
                 <xs:element ref="dwc:anyRecordLevelTerm" />
             </xs:choice>
         </xs:complexType>
-    </xs:element>  
-    
-    
+    </xs:element>
+
+
     <xs:element name="GeologicalContext" substitutionGroup="dwc:anyClass">
         <xs:complexType>
             <xs:choice maxOccurs="unbounded">
@@ -85,9 +85,9 @@
                 <xs:element ref="dwc:anyRecordLevelTerm" />
             </xs:choice>
         </xs:complexType>
-    </xs:element>  
+    </xs:element>
 
-    
+
     <xs:element name="Identification" substitutionGroup="dwc:anyClass">
         <xs:complexType>
             <xs:choice maxOccurs="unbounded">
@@ -97,8 +97,8 @@
             </xs:choice>
         </xs:complexType>
     </xs:element>
-    
-    
+
+
     <xs:element name="Taxon" substitutionGroup="dwc:anyClass">
         <xs:complexType>
             <xs:choice maxOccurs="unbounded">
@@ -109,7 +109,7 @@
         </xs:complexType>
     </xs:element>
 
-    
+
     <xs:element name="MeasurementOrFact" substitutionGroup="dwc:anyClass">
         <xs:complexType>
             <xs:choice maxOccurs="unbounded">
@@ -119,8 +119,8 @@
             </xs:choice>
         </xs:complexType>
     </xs:element>
-    
-    
+
+
     <xs:element name="ResourceRelationship" substitutionGroup="dwc:anyClass">
         <xs:complexType>
             <xs:choice maxOccurs="unbounded">
@@ -130,8 +130,8 @@
             </xs:choice>
         </xs:complexType>
     </xs:element>
-    
-    
+
+
     <xs:element name="ChronometricAge" substitutionGroup="dwc:anyClass">
         <xs:complexType>
             <xs:choice maxOccurs="unbounded">
@@ -140,5 +140,5 @@
                 <xs:element ref="dwc:anyRecordLevelTerm" />
             </xs:choice>
         </xs:complexType>
-    </xs:element>    
+    </xs:element>
 </xs:schema>

@@ -108,13 +108,17 @@ def resize_directory(
 
 def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Batch resize herbarium images")
-    parser.add_argument("--input", type=Path, required=True, help="Directory containing source images")
+    parser.add_argument(
+        "--input", type=Path, required=True, help="Directory containing source images"
+    )
     parser.add_argument(
         "--output",
         type=Path,
         help="Optional directory to mirror resized files; defaults to in-place updates",
     )
-    parser.add_argument("--config", type=Path, help="Optional configuration file merged over config.default.toml")
+    parser.add_argument(
+        "--config", type=Path, help="Optional configuration file merged over config.default.toml"
+    )
     parser.add_argument("--max-dim", type=int, help="Maximum length of the longest edge in pixels")
     parser.add_argument("--dry-run", action="store_true", help="Show actions without writing files")
     return parser.parse_args(argv)

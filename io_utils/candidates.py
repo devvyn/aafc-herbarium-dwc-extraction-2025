@@ -88,13 +88,12 @@ def fetch_candidates(session: Session, image: str) -> List[Candidate]:
 
 def fetch_candidates_sqlite(conn, image: str) -> List[Candidate]:
     """Retrieve all candidate values for an image using raw sqlite3 connection."""
-    import sqlite3
 
     cursor = conn.cursor()
     cursor.execute(
         "SELECT value, engine, confidence, error FROM candidates "
         "WHERE image = ? ORDER BY confidence DESC",
-        (image,)
+        (image,),
     )
     rows = cursor.fetchall()
     return [

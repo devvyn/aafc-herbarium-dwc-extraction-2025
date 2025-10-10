@@ -1,8 +1,7 @@
 """Integration tests for enhanced schema and mapping functionality."""
 
 import pytest
-from unittest.mock import patch, MagicMock
-from pathlib import Path
+from unittest.mock import patch
 
 from dwc import (
     SchemaManager,
@@ -67,14 +66,13 @@ def mock_abcd_schema():
 class TestEnhancedMapping:
     """Test enhanced mapping functionality."""
 
-    @patch('dwc.mapper.fetch_official_schemas')
+    @patch("dwc.mapper.fetch_official_schemas")
     def test_auto_generate_mappings(self, mock_fetch, mock_dwc_schema):
         """Test automatic mapping generation from schemas."""
         mock_fetch.return_value = {"dwc_simple": mock_dwc_schema}
 
         mappings = auto_generate_mappings_from_schemas(
-            schema_names=["dwc_simple"],
-            include_fuzzy=True
+            schema_names=["dwc_simple"], include_fuzzy=True
         )
 
         # Should include case variations
@@ -89,7 +87,7 @@ class TestEnhancedMapping:
         assert "scientific_name" in mappings
         assert mappings["scientific_name"] == "scientificName"
 
-    @patch('dwc.mapper.fetch_official_schemas')
+    @patch("dwc.mapper.fetch_official_schemas")
     def test_configure_dynamic_mappings(self, mock_fetch, mock_dwc_schema):
         """Test configuration of dynamic mappings."""
         mock_fetch.return_value = {"dwc_simple": mock_dwc_schema}
@@ -99,7 +97,7 @@ class TestEnhancedMapping:
         # Test that dynamic mappings work in OCR mapping
         ocr_output = {
             "barcode": "ABC123",  # Should map via rules
-            "lat": "45.5",        # Should map via dynamic mappings
+            "lat": "45.5",  # Should map via dynamic mappings
             "scientific_name": "Plantus testicus",  # Should map via dynamic mappings
         }
 
@@ -109,42 +107,40 @@ class TestEnhancedMapping:
         assert record.decimalLatitude == "45.5"
         assert record.scientificName == "Plantus testicus"
 
-    @patch('dwc.mapper.fetch_official_schemas')
+    @patch("dwc.mapper.fetch_official_schemas")
     def test_validate_mapping_against_schemas(self, mock_fetch, mock_dwc_schema):
         """Test validation of mapped records against schemas."""
         mock_fetch.return_value = {"dwc_simple": mock_dwc_schema}
 
         # Create a record with mixed valid/invalid fields
-        record = map_ocr_to_dwc({
-            "catalogNumber": "ABC123",     # Valid
-            "scientificName": "Test sp.",  # Valid
-            "invalidField": "value",       # Invalid
-        })
-
-        validation_result = validate_mapping_against_schemas(
-            record, target_schemas=["dwc_simple"]
+        record = map_ocr_to_dwc(
+            {
+                "catalogNumber": "ABC123",  # Valid
+                "scientificName": "Test sp.",  # Valid
+                "invalidField": "value",  # Invalid
+            }
         )
+
+        validation_result = validate_mapping_against_schemas(record, target_schemas=["dwc_simple"])
 
         assert validation_result["validation_passed"] is False
         assert "invalidField" in validation_result["invalid_field_names"]
         assert validation_result["valid_fields"] >= 2  # At least catalogNumber and scientificName
 
-    @patch('dwc.mapper.fetch_official_schemas')
+    @patch("dwc.mapper.fetch_official_schemas")
     def test_suggest_mapping_improvements(self, mock_fetch, mock_dwc_schema):
         """Test mapping suggestions for unmapped fields."""
         mock_fetch.return_value = {"dwc_simple": mock_dwc_schema}
 
         unmapped_fields = [
-            "collector",       # Should suggest recordedBy
-            "species",         # Should suggest scientificName
-            "collection_date", # Should suggest eventDate
-            "latitude",        # Should suggest decimalLatitude
+            "collector",  # Should suggest recordedBy
+            "species",  # Should suggest scientificName
+            "collection_date",  # Should suggest eventDate
+            "latitude",  # Should suggest decimalLatitude
         ]
 
         suggestions = suggest_mapping_improvements(
-            unmapped_fields,
-            target_schemas=["dwc_simple"],
-            similarity_threshold=0.5
+            unmapped_fields, target_schemas=["dwc_simple"], similarity_threshold=0.5
         )
 
         assert "collector" in suggestions
@@ -164,7 +160,7 @@ class TestSchemaManagerIntegration:
         """Test complete workflow from schema management to mapping."""
         cache_dir = tmp_path / "cache"
 
-        with patch('dwc.schema_manager.fetch_official_schemas') as mock_fetch:
+        with patch("dwc.schema_manager.fetch_official_schemas") as mock_fetch:
             mock_fetch.return_value = {
                 "dwc_simple": mock_dwc_schema,
                 "abcd_206": mock_abcd_schema,
@@ -172,8 +168,7 @@ class TestSchemaManagerIntegration:
 
             # Initialize schema manager
             manager = SchemaManager(
-                cache_dir=cache_dir,
-                preferred_schemas=["dwc_simple", "abcd_206"]
+                cache_dir=cache_dir, preferred_schemas=["dwc_simple", "abcd_206"]
             )
 
             # Get schemas
@@ -209,8 +204,7 @@ class TestSchemaManagerIntegration:
 
             # Validate the result
             validation = manager.validate_terms(
-                list(record.to_dict().keys()),
-                target_schemas=["dwc_simple"]
+                list(record.to_dict().keys()), target_schemas=["dwc_simple"]
             )
 
             assert len(validation["invalid"]) == 0
@@ -219,7 +213,7 @@ class TestSchemaManagerIntegration:
         """Test schema compatibility reporting."""
         cache_dir = tmp_path / "cache"
 
-        with patch('dwc.schema_manager.fetch_official_schemas') as mock_fetch:
+        with patch("dwc.schema_manager.fetch_official_schemas") as mock_fetch:
             mock_fetch.return_value = {
                 "dwc_simple": mock_dwc_schema,
                 "abcd_206": mock_abcd_schema,
@@ -228,10 +222,7 @@ class TestSchemaManagerIntegration:
             manager = SchemaManager(cache_dir=cache_dir)
 
             # Generate compatibility report
-            report = manager.get_schema_compatibility_report(
-                "dwc_simple",
-                ["abcd_206"]
-            )
+            report = manager.get_schema_compatibility_report("dwc_simple", ["abcd_206"])
 
             assert report["source_schema"] == "dwc_simple"
             assert "abcd_206" in report["target_schemas"]
@@ -247,18 +238,18 @@ class TestSchemaManagerIntegration:
         """Test workflow for getting mapping suggestions."""
         cache_dir = tmp_path / "cache"
 
-        with patch('dwc.schema_manager.fetch_official_schemas') as mock_fetch:
+        with patch("dwc.schema_manager.fetch_official_schemas") as mock_fetch:
             mock_fetch.return_value = {"dwc_simple": mock_dwc_schema}
 
             manager = SchemaManager(cache_dir=cache_dir)
 
             # Simulate unmapped fields from OCR output
             unmapped_fields = [
-                "specimen_id",    # Similar to catalogNumber
-                "taxon",          # Similar to scientificName
-                "when_collected", # Similar to eventDate
+                "specimen_id",  # Similar to catalogNumber
+                "taxon",  # Similar to scientificName
+                "when_collected",  # Similar to eventDate
                 "who_collected",  # Similar to recordedBy
-                "where",          # Similar to locality
+                "where",  # Similar to locality
             ]
 
             suggestions = manager.suggest_mappings(unmapped_fields)
@@ -277,7 +268,7 @@ class TestSchemaManagerIntegration:
 class TestErrorHandling:
     """Test error handling in enhanced mapping functionality."""
 
-    @patch('dwc.mapper.fetch_official_schemas')
+    @patch("dwc.mapper.fetch_official_schemas")
     def test_mapping_with_no_schemas(self, mock_fetch):
         """Test mapping behavior when no schemas are available."""
         mock_fetch.return_value = {}
@@ -290,7 +281,7 @@ class TestErrorHandling:
         record = map_ocr_to_dwc({"barcode": "ABC123"})
         assert record.catalogNumber == "ABC123"
 
-    @patch('dwc.mapper.fetch_official_schemas')
+    @patch("dwc.mapper.fetch_official_schemas")
     def test_validation_with_schema_errors(self, mock_fetch):
         """Test validation when schema fetching fails."""
         mock_fetch.side_effect = Exception("Network error")

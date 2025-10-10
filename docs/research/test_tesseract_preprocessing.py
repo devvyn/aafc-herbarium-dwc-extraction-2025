@@ -11,10 +11,9 @@ import cv2
 import numpy as np
 import pytesseract
 from pathlib import Path
-from PIL import Image, ImageEnhance, ImageFilter
 import sys
 import time
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 
 class TesseractPreprocessor:
@@ -22,16 +21,16 @@ class TesseractPreprocessor:
 
     def __init__(self):
         self.preprocessing_methods = [
-            'raw',
-            'grayscale',
-            'threshold_binary',
-            'threshold_adaptive',
-            'contrast_enhance',
-            'denoise',
-            'morphological',
-            'gaussian_blur',
-            'unsharp_mask',
-            'combined_best'
+            "raw",
+            "grayscale",
+            "threshold_binary",
+            "threshold_adaptive",
+            "contrast_enhance",
+            "denoise",
+            "morphological",
+            "gaussian_blur",
+            "unsharp_mask",
+            "combined_best",
         ]
 
     def preprocess_raw(self, image: np.ndarray) -> np.ndarray:
@@ -61,7 +60,7 @@ class TesseractPreprocessor:
     def preprocess_contrast_enhance(self, image: np.ndarray) -> np.ndarray:
         """Enhance contrast using CLAHE."""
         gray = self.preprocess_grayscale(image)
-        clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
+        clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
         enhanced = clahe.apply(gray)
         return enhanced
 
@@ -108,7 +107,7 @@ class TesseractPreprocessor:
         gray = self.preprocess_grayscale(image)
 
         # CLAHE for contrast
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
         enhanced = clahe.apply(gray)
 
         # Denoise
@@ -133,29 +132,29 @@ class TesseractPreprocessor:
             # Load image
             image = cv2.imread(str(image_path))
             if image is None:
-                return {'error': f'Could not load image: {image_path}'}
+                return {"error": f"Could not load image: {image_path}"}
 
             # Apply preprocessing
-            preprocess_func = getattr(self, f'preprocess_{method}')
+            preprocess_func = getattr(self, f"preprocess_{method}")
             processed = preprocess_func(image)
 
             # Run OCR with different PSM modes
-            best_result = {'text': '', 'char_count': 0, 'psm_mode': None}
+            best_result = {"text": "", "char_count": 0, "psm_mode": None}
 
             # Try different Page Segmentation Modes
             psm_modes = [6, 7, 8, 11, 12, 13]  # Various text recognition modes
 
             for psm in psm_modes:
                 try:
-                    config = f'--oem 3 --psm {psm}'
+                    config = f"--oem 3 --psm {psm}"
                     text = pytesseract.image_to_string(processed, config=config)
                     char_count = len([c for c in text if c.isalnum()])
 
-                    if char_count > best_result['char_count']:
+                    if char_count > best_result["char_count"]:
                         best_result = {
-                            'text': text.strip(),
-                            'char_count': char_count,
-                            'psm_mode': psm
+                            "text": text.strip(),
+                            "char_count": char_count,
+                            "psm_mode": psm,
                         }
                 except Exception:
                     continue
@@ -163,22 +162,22 @@ class TesseractPreprocessor:
             processing_time = time.time() - start_time
 
             # Analyze results
-            text = best_result['text']
-            lines = [line.strip() for line in text.split('\\n') if line.strip()]
+            text = best_result["text"]
+            lines = [line.strip() for line in text.split("\\n") if line.strip()]
 
             return {
-                'method': method,
-                'text': text,
-                'text_length': len(text),
-                'char_count': best_result['char_count'],
-                'line_count': len(lines),
-                'psm_mode': best_result['psm_mode'],
-                'processing_time': processing_time,
-                'lines': lines[:5]  # First 5 lines for inspection
+                "method": method,
+                "text": text,
+                "text_length": len(text),
+                "char_count": best_result["char_count"],
+                "line_count": len(lines),
+                "psm_mode": best_result["psm_mode"],
+                "processing_time": processing_time,
+                "lines": lines[:5],  # First 5 lines for inspection
             }
 
         except Exception as e:
-            return {'error': str(e), 'method': method}
+            return {"error": str(e), "method": method}
 
     def test_all_methods(self, image_path: Path) -> List[Dict]:
         """Test all preprocessing methods on an image."""
@@ -191,33 +190,36 @@ class TesseractPreprocessor:
             result = self.test_preprocessing_method(image_path, method)
             results.append(result)
 
-            if 'error' in result:
+            if "error" in result:
                 print(f"    ❌ Error: {result['error']}")
             else:
-                char_count = result.get('char_count', 0)
-                psm = result.get('psm_mode', 'N/A')
+                char_count = result.get("char_count", 0)
+                psm = result.get("psm_mode", "N/A")
                 print(f"    ✅ {char_count} chars (PSM {psm})")
 
         return results
 
     def analyze_best_method(self, results: List[Dict]) -> Dict:
         """Analyze which preprocessing method worked best."""
-        valid_results = [r for r in results if 'error' not in r]
+        valid_results = [r for r in results if "error" not in r]
 
         if not valid_results:
-            return {'error': 'No valid results'}
+            return {"error": "No valid results"}
 
         # Sort by character count (more characters = better extraction)
-        sorted_results = sorted(valid_results, key=lambda x: x['char_count'], reverse=True)
+        sorted_results = sorted(valid_results, key=lambda x: x["char_count"], reverse=True)
         best = sorted_results[0]
 
         return {
-            'best_method': best['method'],
-            'best_char_count': best['char_count'],
-            'best_text_preview': best['text'][:200] + '...' if len(best['text']) > 200 else best['text'],
-            'best_psm_mode': best['psm_mode'],
-            'improvement_over_raw': best['char_count'] - next((r['char_count'] for r in valid_results if r['method'] == 'raw'), 0),
-            'all_results': {r['method']: r['char_count'] for r in valid_results}
+            "best_method": best["method"],
+            "best_char_count": best["char_count"],
+            "best_text_preview": best["text"][:200] + "..."
+            if len(best["text"]) > 200
+            else best["text"],
+            "best_psm_mode": best["psm_mode"],
+            "improvement_over_raw": best["char_count"]
+            - next((r["char_count"] for r in valid_results if r["method"] == "raw"), 0),
+            "all_results": {r["method"]: r["char_count"] for r in valid_results},
         }
 
 
@@ -235,22 +237,22 @@ Examples:
 
   # Compare with Apple Vision results
   python test_tesseract_preprocessing.py compare test_samples/
-        """
+        """,
     )
 
-    subparsers = parser.add_subparsers(dest='command', help='Testing modes')
+    subparsers = parser.add_subparsers(dest="command", help="Testing modes")
 
     # Single image test
-    single_parser = subparsers.add_parser('single', help='Test single image')
-    single_parser.add_argument('image', type=Path, help='Path to image file')
+    single_parser = subparsers.add_parser("single", help="Test single image")
+    single_parser.add_argument("image", type=Path, help="Path to image file")
 
     # Batch test
-    batch_parser = subparsers.add_parser('batch', help='Test multiple images')
-    batch_parser.add_argument('directory', type=Path, help='Directory containing images')
+    batch_parser = subparsers.add_parser("batch", help="Test multiple images")
+    batch_parser.add_argument("directory", type=Path, help="Directory containing images")
 
     # Compare with Apple Vision
-    compare_parser = subparsers.add_parser('compare', help='Compare with Apple Vision')
-    compare_parser.add_argument('directory', type=Path, help='Directory containing images')
+    compare_parser = subparsers.add_parser("compare", help="Compare with Apple Vision")
+    compare_parser.add_argument("directory", type=Path, help="Directory containing images")
 
     args = parser.parse_args()
 
@@ -260,7 +262,7 @@ Examples:
 
     preprocessor = TesseractPreprocessor()
 
-    if args.command == 'single':
+    if args.command == "single":
         if not args.image.exists():
             print(f"Image not found: {args.image}")
             return 1
@@ -268,28 +270,31 @@ Examples:
         results = preprocessor.test_all_methods(args.image)
         analysis = preprocessor.analyze_best_method(results)
 
-        print(f"\\n📊 ANALYSIS RESULTS:")
-        if 'error' in analysis:
+        print("\\n📊 ANALYSIS RESULTS:")
+        if "error" in analysis:
             print(f"❌ {analysis['error']}")
         else:
             print(f"🏆 Best method: {analysis['best_method']}")
             print(f"📈 Character count: {analysis['best_char_count']}")
             print(f"⚡ Improvement over raw: +{analysis['improvement_over_raw']} chars")
             print(f"🔧 Best PSM mode: {analysis['best_psm_mode']}")
-            print(f"\\n📝 Best text preview:")
+            print("\\n📝 Best text preview:")
             print(f"{analysis['best_text_preview']}")
 
-            print(f"\\n📋 All methods comparison:")
-            for method, count in analysis['all_results'].items():
+            print("\\n📋 All methods comparison:")
+            for method, count in analysis["all_results"].items():
                 print(f"  {method}: {count} chars")
 
-    elif args.command == 'batch':
+    elif args.command == "batch":
         if not args.directory.exists():
             print(f"Directory not found: {args.directory}")
             return 1
 
-        image_files = [f for f in args.directory.iterdir()
-                      if f.suffix.lower() in ['.jpg', '.jpeg', '.png', '.tif', '.tiff']]
+        image_files = [
+            f
+            for f in args.directory.iterdir()
+            if f.suffix.lower() in [".jpg", ".jpeg", ".png", ".tif", ".tiff"]
+        ]
 
         if not image_files:
             print(f"No image files found in {args.directory}")
@@ -303,12 +308,14 @@ Examples:
             analysis = preprocessor.analyze_best_method(results)
             batch_results[image_file.name] = analysis
 
-        print(f"\\n📊 BATCH ANALYSIS:")
+        print("\\n📊 BATCH ANALYSIS:")
         for filename, analysis in batch_results.items():
-            if 'error' not in analysis:
-                print(f"📁 {filename}: {analysis['best_method']} → {analysis['best_char_count']} chars")
+            if "error" not in analysis:
+                print(
+                    f"📁 {filename}: {analysis['best_method']} → {analysis['best_char_count']} chars"
+                )
 
-    elif args.command == 'compare':
+    elif args.command == "compare":
         print("\\n🔄 Comparison with Apple Vision coming soon...")
         print("Use the enhanced test_real_ocr_performance.py script for full comparison")
 

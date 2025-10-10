@@ -8,7 +8,6 @@ import sqlite3
 import tempfile
 import threading
 import time
-from http.server import HTTPServer
 import requests
 import pytest
 
@@ -64,7 +63,7 @@ def web_server():
                 conn=conn,
                 images_dir=images_dir,
                 commit="test_commit",
-                export="test_export"
+                export="test_export",
             )
 
             server_thread = threading.Thread(target=server.serve_forever)

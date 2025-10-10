@@ -12,7 +12,7 @@ from rich.console import Console
 from rich.layout import Layout
 from rich.live import Live
 from rich.panel import Panel
-from rich.progress import BarColumn, Progress, TextColumn, TimeRemainingColumn
+from rich.progress import BarColumn, Progress, TextColumn
 from rich.table import Table
 
 from ..engine import BatchMonitorEngine
@@ -58,9 +58,7 @@ class BatchDashboard:
             table.add_row("Failed:", f"[red]{status.progress.failed}[/red]")
 
         # Timing info
-        table.add_row(
-            "Elapsed:", f"{status.timing.elapsed_minutes:.1f} min"
-        )
+        table.add_row("Elapsed:", f"{status.timing.elapsed_minutes:.1f} min")
 
         if status.completion_eta_seconds and status.completion_eta_seconds > 0:
             eta_min = status.completion_eta_seconds / 60
@@ -92,9 +90,7 @@ class BatchDashboard:
 
         return layout
 
-    def monitor(
-        self, batch_ids: List[str], refresh_interval: int = 30, auto_exit: bool = True
-    ):
+    def monitor(self, batch_ids: List[str], refresh_interval: int = 30, auto_exit: bool = True):
         """
         Monitor batch jobs with live updating display.
 

@@ -19,6 +19,7 @@ from typing import Dict, Optional, Any
 
 class FragmentType(Enum):
     """Processing stages in the herbarium workflow."""
+
     CAMERA_CAPTURE = "camera_capture"
     IMAGE_PROCESSING = "image_processing"
     OCR_EXTRACTION = "ocr_extraction"
@@ -52,7 +53,7 @@ class ProvenanceFragment:
             "source": self.source_identifier,
             "process": f"{self.process_operation}:{self.process_agent_id}",
             "output": self.output_identifier,
-            "timestamp": self.timestamp.isoformat()
+            "timestamp": self.timestamp.isoformat(),
         }
         content_str = json.dumps(content, sort_keys=True)
         return hashlib.sha256(content_str.encode()).hexdigest()
@@ -64,25 +65,24 @@ class ProvenanceFragment:
             "fragment_type": self.fragment_type.value,
             "timestamp": self.timestamp.isoformat(),
             "source": {
-                "type": "processed_image" if self.fragment_type == FragmentType.OCR_EXTRACTION else "raw_image",
+                "type": "processed_image"
+                if self.fragment_type == FragmentType.OCR_EXTRACTION
+                else "raw_image",
                 "identifier": self.source_identifier,
-                "previous_fragment_id": self.previous_fragment_id
+                "previous_fragment_id": self.previous_fragment_id,
             },
             "process": {
                 "operation": self.process_operation,
-                "agent": {
-                    "type": self.process_agent_type,
-                    "identifier": self.process_agent_id
-                },
+                "agent": {"type": self.process_agent_type, "identifier": self.process_agent_id},
                 "parameters": self.parameters,
-                "batch_id": self.batch_id
+                "batch_id": self.batch_id,
             },
             "output": {
                 "type": self.output_type,
                 "identifier": self.output_identifier,
-                "quality_metrics": self.quality_metrics
+                "quality_metrics": self.quality_metrics,
             },
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
     def to_jsonl(self) -> str:
@@ -98,7 +98,7 @@ def create_extraction_fragment(
     temperature: Optional[float] = None,
     confidence_scores: Optional[Dict[str, float]] = None,
     institution: str = "AAFC",
-    previous_fragment_id: Optional[str] = None
+    previous_fragment_id: Optional[str] = None,
 ) -> ProvenanceFragment:
     """
     Create provenance fragment for OCR extraction stage.
@@ -121,18 +121,16 @@ def create_extraction_fragment(
     output_hash = hashlib.sha256(output_content.encode()).hexdigest()
 
     # Build parameters
-    parameters = {
-        "model": model,
-        "strategy": "few-shot",
-        "response_format": "json_object"
-    }
+    parameters = {"model": model, "strategy": "few-shot", "response_format": "json_object"}
     if temperature is not None:
         parameters["temperature"] = temperature
 
     # Build quality metrics
     quality_metrics = {}
     if confidence_scores:
-        avg_confidence = sum(confidence_scores.values()) / len(confidence_scores) if confidence_scores else 0
+        avg_confidence = (
+            sum(confidence_scores.values()) / len(confidence_scores) if confidence_scores else 0
+        )
         quality_metrics["average_confidence"] = avg_confidence
         quality_metrics["field_confidences"] = confidence_scores
 
@@ -141,7 +139,7 @@ def create_extraction_fragment(
         "institution": institution,
         "project": "aafc-herbarium-digitization-2025",
         "compliance": ["DarwinCore", "GBIF", "Federal_Data_Governance"],
-        "purpose": "biodiversity_research"
+        "purpose": "biodiversity_research",
     }
 
     return ProvenanceFragment(
@@ -156,14 +154,11 @@ def create_extraction_fragment(
         batch_id=batch_id,
         parameters=parameters,
         quality_metrics=quality_metrics,
-        metadata=metadata
+        metadata=metadata,
     )
 
 
-def write_provenance_fragments(
-    fragments: list[ProvenanceFragment],
-    output_path: Path
-) -> None:
+def write_provenance_fragments(fragments: list[ProvenanceFragment], output_path: Path) -> None:
     """
     Write provenance fragments to JSONL file (append-only).
 

@@ -3,39 +3,39 @@
     <xs:annotation>
         <xs:documentation xml:lang="en">
             The Generic Darwin Core schema defining all property terms as global elements.
-            
-            Domain classes are not defined here, but in a separate schema 
-            (tdwg_dwc_classes.xsd) with the same namespace. There are two ways in which 
+
+            Domain classes are not defined here, but in a separate schema
+            (tdwg_dwc_classes.xsd) with the same namespace. There are two ways in which
             references to domains can be defined:
-            a) through an abstract base term anyXXXTerm, which is derived from the type 
-               dwc:anyPropery and which all properties for that domain use as their 
-               substitution group. If you refer to dwc:anyXXXTerm in your schema, you 
-               will be able to reference any of the terms, but it will be impossible to 
-               create a sequence of all terms occurring only once. 
-            b) through a group of elements called XXXTerms, which reference properties 
-               exactly once as a sequence. This group can be used to refer to all the 
-               domain properties only once each. In order to make a property required, 
-               you must create your own group referring to the individual dwc terms. If 
-               you want to specify every term once at most and in any order, you will 
-               also have to refer to the individual dwc term yourself - a limitation of 
+            a) through an abstract base term anyXXXTerm, which is derived from the type
+               dwc:anyPropery and which all properties for that domain use as their
+               substitution group. If you refer to dwc:anyXXXTerm in your schema, you
+               will be able to reference any of the terms, but it will be impossible to
+               create a sequence of all terms occurring only once.
+            b) through a group of elements called XXXTerms, which reference properties
+               exactly once as a sequence. This group can be used to refer to all the
+               domain properties only once each. In order to make a property required,
+               you must create your own group referring to the individual dwc terms. If
+               you want to specify every term once at most and in any order, you will
+               also have to refer to the individual dwc term yourself - a limitation of
                the xs:all model.
         </xs:documentation>
     </xs:annotation>
 
-    
+
     <xs:include schemaLocation="tdwg_basetypes.xsd" />
     <xs:import namespace="http://purl.org/dc/terms/" schemaLocation="http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd" />
     <xs:import namespace="http://purl.org/dc/elements/1.1/" schemaLocation="http://dublincore.org/schemas/xmls/qdc/dc.xsd" />
     <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/03/xml.xsd" />
 
-    
+
     <xs:element name="any" abstract="true" />
 
-    
+
     <xs:element name="anyIdentifier" abstract="true" substitutionGroup="dwc:any" />
     <xs:group name="IdentifierTerms">
         <xs:annotation>
-            <xs:documentation>Group of all Darwin Core class identifier terms as a 
+            <xs:documentation>Group of all Darwin Core class identifier terms as a
                convenience to construct other schemas</xs:documentation>
         </xs:annotation>
         <xs:sequence>
@@ -54,18 +54,18 @@
         </xs:sequence>
     </xs:group>
 
-    
-    <xs:element name="anyProperty" abstract="true" substitutionGroup="dwc:any" />
-    
 
-    
+    <xs:element name="anyProperty" abstract="true" substitutionGroup="dwc:any" />
+
+
+
     <xs:element name="anyClass" abstract="true" substitutionGroup="dwc:any" />
 
-    
-    
+
+
     <xs:element name="anyRecordLevelTerm" abstract="true" substitutionGroup="dwc:anyProperty" />
-    
-    
+
+
     <xs:element name="institutionID" substitutionGroup="dwc:anyRecordLevelTerm" type="xs:string" />
     <xs:element name="collectionID" substitutionGroup="dwc:anyRecordLevelTerm" type="xs:string" />
     <xs:element name="datasetID" substitutionGroup="dwc:anyRecordLevelTerm" type="xs:string" />
@@ -101,10 +101,10 @@
         </xs:sequence>
     </xs:group>
 
-    
+
     <xs:element name="anyOccurrenceTerm" abstract="true" substitutionGroup="dwc:anyProperty" />
     <xs:element name="occurrenceID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyIdentifier" />
-    
+
     <xs:element name="catalogNumber" type="xs:string" substitutionGroup="dwc:anyOccurrenceTerm" />
     <xs:element name="recordNumber" type="xs:string" substitutionGroup="dwc:anyOccurrenceTerm" />
     <xs:element name="recordedBy" type="xs:string" substitutionGroup="dwc:anyOccurrenceTerm" />
@@ -158,10 +158,10 @@
         </xs:sequence>
     </xs:group>
 
-    
+
     <xs:element name="anyOrganismTerm" abstract="true" substitutionGroup="dwc:anyProperty" />
     <xs:element name="organismID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyIdentifier" />
-    
+
     <xs:element name="organismName" type="xs:string" substitutionGroup="dwc:anyOrganismTerm" />
     <xs:element name="organismScope" type="xs:string" substitutionGroup="dwc:anyOrganismTerm" />
     <xs:element name="associatedOrganisms" type="xs:string" substitutionGroup="dwc:anyOrganismTerm" />
@@ -177,10 +177,10 @@
         </xs:sequence>
     </xs:group>
 
-    
+
     <xs:element name="anyMaterialEntityTerm" abstract="true" substitutionGroup="dwc:anyProperty" />
     <xs:element name="materialEntityID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyIdentifier" />
-    
+
     <xs:element name="preparations" type="xs:string" substitutionGroup="dwc:anyMaterialEntityTerm" />
     <xs:element name="disposition" type="xs:string" substitutionGroup="dwc:anyMaterialEntityTerm" />
     <xs:element name="verbatimLabel" type="xs:string" substitutionGroup="dwc:anyMaterialEntityTerm" />
@@ -196,15 +196,15 @@
         </xs:sequence>
     </xs:group>
 
-    
+
     <xs:element name="anyMaterialSampleTerm" abstract="true" substitutionGroup="dwc:anyProperty" />
     <xs:element name="materialSampleID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyIdentifier" />
-    
 
-    
+
+
     <xs:element name="anyEventTerm" abstract="true" substitutionGroup="dwc:anyProperty" />
     <xs:element name="eventID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyIdentifier" />
-    
+
     <xs:element name="parentEventID" type="xs:string" substitutionGroup="dwc:anyEventTerm" />
     <xs:element name="eventType" type="xs:string" substitutionGroup="dwc:anyEventTerm" />
     <xs:element name="fieldNumber" type="xs:string" substitutionGroup="dwc:anyEventTerm" />
@@ -246,10 +246,10 @@
         </xs:sequence>
     </xs:group>
 
-    
+
     <xs:element name="anyLocationTerm" abstract="true" substitutionGroup="dwc:anyProperty" />
     <xs:element name="locationID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyIdentifier" />
-    
+
     <xs:element name="higherGeographyID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyLocationTerm" />
     <xs:element name="higherGeography" type="xs:string" substitutionGroup="dwc:anyLocationTerm" />
     <xs:element name="continent" type="xs:string" substitutionGroup="dwc:anyLocationTerm" />
@@ -341,10 +341,10 @@
         </xs:sequence>
     </xs:group>
 
-    
+
     <xs:element name="anyGeologicalContextTerm" abstract="true" substitutionGroup="dwc:anyProperty" />
     <xs:element name="geologicalContextID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyIdentifier" />
-    
+
     <xs:element name="earliestEonOrLowestEonothem" type="xs:string" substitutionGroup="dwc:anyGeologicalContextTerm" />
     <xs:element name="latestEonOrHighestEonothem" type="xs:string" substitutionGroup="dwc:anyGeologicalContextTerm" />
     <xs:element name="earliestEraOrLowestErathem" type="xs:string" substitutionGroup="dwc:anyGeologicalContextTerm" />
@@ -384,10 +384,10 @@
         </xs:sequence>
     </xs:group>
 
-    
+
     <xs:element name="anyIdentificationTerm" abstract="true" substitutionGroup="dwc:anyProperty" />
     <xs:element name="identificationID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyIdentifier" />
-    
+
     <xs:element name="verbatimIdentification" type="xs:string" substitutionGroup="dwc:anyIdentificationTerm" />
     <xs:element name="identificationQualifier" type="xs:string" substitutionGroup="dwc:anyIdentificationTerm" />
     <xs:element name="typeStatus" type="xs:string" substitutionGroup="dwc:anyIdentificationTerm" />
@@ -411,10 +411,10 @@
         </xs:sequence>
     </xs:group>
 
-    
+
     <xs:element name="anyTaxonTerm" abstract="true" substitutionGroup="dwc:anyProperty" />
     <xs:element name="taxonID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyIdentifier" />
-    
+
     <xs:element name="scientificNameID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyTaxonTerm" />
     <xs:element name="acceptedNameUsageID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyTaxonTerm" />
     <xs:element name="parentNameUsageID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyTaxonTerm" />
@@ -498,10 +498,10 @@
         </xs:sequence>
     </xs:group>
 
-    
+
     <xs:element name="anyMeasurementTerm" abstract="true" substitutionGroup="dwc:anyProperty" />
     <xs:element name="measurementID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyIdentifier" />
-    
+
     <xs:element name="parentMeasurementID" type="xs:string" substitutionGroup="dwc:anyMeasurementTerm" />
     <xs:element name="measurementType" type="xs:string" substitutionGroup="dwc:anyMeasurementTerm" />
     <xs:element name="measurementValue" type="xs:string" substitutionGroup="dwc:anyMeasurementTerm" />
@@ -525,10 +525,10 @@
         </xs:sequence>
     </xs:group>
 
-    
+
     <xs:element name="anyResourceRelationshipTerm" abstract="true" substitutionGroup="dwc:anyProperty" />
     <xs:element name="resourceRelationshipID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyIdentifier" />
-    
+
     <xs:element name="resourceID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyResourceRelationshipTerm" />
     <xs:element name="relationshipOfResourceID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyResourceRelationshipTerm" />
     <xs:element name="relatedResourceID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyResourceRelationshipTerm" />
@@ -548,10 +548,10 @@
         </xs:sequence>
     </xs:group>
 
-    
+
     <xs:element name="anyChronometricAgeTerm" abstract="true" substitutionGroup="dwc:anyProperty" />
     <xs:element name="chronometriAgeID" type="dwc:nonEmptyString" substitutionGroup="dwc:anyIdentifier" />
-    
+
     <xs:element name="verbatimChronometricAge" type="dwc:nonEmptyString" substitutionGroup="dwc:anyChronometricAgeTerm" />
     <xs:element name="chronometricAgeProtocol" type="dwc:nonEmptyString" substitutionGroup="dwc:anyChronometricAgeTerm" />
     <xs:element name="uncalibratedChronometricAge" type="dwc:nonEmptyString" substitutionGroup="dwc:anyChronometricAgeTerm" />

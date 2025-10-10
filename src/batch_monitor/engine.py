@@ -59,9 +59,7 @@ class BatchMonitorEngine:
         timing = TimeMetrics(
             created_at=datetime.fromtimestamp(batch.created_at),
             started_at=(
-                datetime.fromtimestamp(batch.in_progress_at)
-                if batch.in_progress_at
-                else None
+                datetime.fromtimestamp(batch.in_progress_at) if batch.in_progress_at else None
             ),
             completed_at=(
                 datetime.fromtimestamp(batch.completed_at) if batch.completed_at else None

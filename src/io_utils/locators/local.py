@@ -4,7 +4,7 @@ import mimetypes
 from pathlib import Path
 from typing import Iterator, Optional
 
-from ..locator import ImageLocator, ImageMetadata
+from ..locator import ImageMetadata
 
 
 class LocalFilesystemLocator:

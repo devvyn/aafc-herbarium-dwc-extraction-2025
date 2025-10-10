@@ -32,7 +32,12 @@ def load_messages(task: str, prompt_dir: Optional[Path] = None) -> List[Dict[str
 
 
 def image_to_dwc(
-    image: Path, instructions: str, *, model: str, dry_run: bool = False, prompt_dir: Optional[Path] = None
+    image: Path,
+    instructions: str,
+    *,
+    model: str,
+    dry_run: bool = False,
+    prompt_dir: Optional[Path] = None,
 ) -> Tuple[Dict[str, str], Dict[str, float]]:
     """Map an image and instructions to Darwin Core terms using a GPT model.
 
@@ -68,19 +73,12 @@ def image_to_dwc(
     # Convert last message to vision format
     messages[-1]["content"] = [
         {"type": "text", "text": messages[-1]["content"]},
-        {
-            "type": "image_url",
-            "image_url": {
-                "url": f"data:image/jpeg;base64,{b64}"
-            }
-        },
+        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}},
     ]
 
     try:
         resp = client.chat.completions.create(
-            model=model,
-            messages=messages,
-            response_format={"type": "json_object"}
+            model=model, messages=messages, response_format={"type": "json_object"}
         )
     except Exception as exc:  # pragma: no cover - network issues
         raise EngineError("API_ERROR", str(exc)) from exc

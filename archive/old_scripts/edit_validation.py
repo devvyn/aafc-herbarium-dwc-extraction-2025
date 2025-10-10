@@ -12,13 +12,13 @@ records = []
 for line in open(validation_file):
     records.append(json.loads(line))
 
-print("\n" + "="*70)
+print("\n" + "=" * 70)
 print("Validation Record Editor")
-print("="*70)
+print("=" * 70)
 
 # Show all records
 for i, record in enumerate(records, 1):
-    corr = record['corrected']
+    corr = record["corrected"]
     print(f"\n{i}. {record['sha256'][:16]}...")
     print(f"   catalogNumber: {corr['catalogNumber']}")
     print(f"   scientificName: {corr['scientificName']}")
@@ -26,10 +26,10 @@ for i, record in enumerate(records, 1):
     print(f"   recordedBy: {corr['recordedBy']}")
     print(f"   locality: {corr['locality']}")
 
-print("\n" + "="*70)
+print("\n" + "=" * 70)
 choice = input("\nWhich record to edit? (1-{}, or 'q' to quit): ".format(len(records))).strip()
 
-if choice.lower() == 'q':
+if choice.lower() == "q":
     print("Exiting without changes.")
     sys.exit(0)
 
@@ -44,14 +44,14 @@ except ValueError:
 
 # Edit the selected record
 record = records[idx]
-corr = record['corrected']
+corr = record["corrected"]
 
 print(f"\n{'='*70}")
 print(f"Editing Record {choice}: {record['sha256'][:16]}...")
 print(f"{'='*70}")
 print("\nEnter new values (press Enter to keep current value):")
 
-for field in ['catalogNumber', 'scientificName', 'eventDate', 'recordedBy', 'locality']:
+for field in ["catalogNumber", "scientificName", "eventDate", "recordedBy", "locality"]:
     current = corr[field]
     new_value = input(f"  {field} [{current}]: ").strip()
     if new_value:
@@ -61,12 +61,12 @@ for field in ['catalogNumber', 'scientificName', 'eventDate', 'recordedBy', 'loc
 backup_file = validation_file + ".backup"
 Path(backup_file).write_text(Path(validation_file).read_text())
 
-with open(validation_file, 'w') as f:
+with open(validation_file, "w") as f:
     for rec in records:
-        f.write(json.dumps(rec) + '\n')
+        f.write(json.dumps(rec) + "\n")
 
-print(f"\n✅ Changes saved!")
+print("\n✅ Changes saved!")
 print(f"   Backup created: {backup_file}")
-print(f"\nUpdated values:")
-for field in ['catalogNumber', 'scientificName', 'eventDate', 'recordedBy', 'locality']:
+print("\nUpdated values:")
+for field in ["catalogNumber", "scientificName", "eventDate", "recordedBy", "locality"]:
     print(f"  {field}: {corr[field]}")

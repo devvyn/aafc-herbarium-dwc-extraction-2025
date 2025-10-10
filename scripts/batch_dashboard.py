@@ -34,9 +34,7 @@ from batch_monitor.terminal import BatchDashboard
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Live terminal dashboard for batch monitoring"
-    )
+    parser = argparse.ArgumentParser(description="Live terminal dashboard for batch monitoring")
     parser.add_argument(
         "--batch-id",
         action="append",

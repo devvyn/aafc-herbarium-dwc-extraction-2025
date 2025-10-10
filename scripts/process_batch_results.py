@@ -30,6 +30,7 @@ except ImportError:
 
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     pass
@@ -94,7 +95,7 @@ def parse_batch_response(response: Dict) -> Optional[Dict]:
                 "sha256": sha256,
                 "custom_id": custom_id,
                 "error": response["error"],
-                "status": "failed"
+                "status": "failed",
             }
 
         body = response.get("response", {}).get("body", {})
@@ -105,7 +106,7 @@ def parse_batch_response(response: Dict) -> Optional[Dict]:
                 "sha256": sha256,
                 "custom_id": custom_id,
                 "error": "No choices in response",
-                "status": "failed"
+                "status": "failed",
             }
 
         # Parse content
@@ -121,7 +122,7 @@ def parse_batch_response(response: Dict) -> Optional[Dict]:
                 "custom_id": custom_id,
                 "error": f"JSON parse error: {e}",
                 "status": "failed",
-                "raw_content": content
+                "raw_content": content,
             }
 
         # Extract DWC fields and confidences
@@ -173,7 +174,7 @@ def parse_batch_response(response: Dict) -> Optional[Dict]:
             "sha256": response.get("custom_id", "unknown").replace("specimen-", ""),
             "custom_id": response.get("custom_id"),
             "error": f"Processing error: {e}",
-            "status": "failed"
+            "status": "failed",
         }
 
 
@@ -224,27 +225,15 @@ def generate_statistics(extractions: List[Dict]) -> Dict:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Process OpenAI Batch API results"
-    )
+    parser = argparse.ArgumentParser(description="Process OpenAI Batch API results")
 
     # Either batch output file or batch ID
     input_group = parser.add_mutually_exclusive_group(required=True)
-    input_group.add_argument(
-        "--input",
-        type=Path,
-        help="Batch output JSONL file"
-    )
-    input_group.add_argument(
-        "--batch-id",
-        type=str,
-        help="Batch job ID (will download results)"
-    )
+    input_group.add_argument("--input", type=Path, help="Batch output JSONL file")
+    input_group.add_argument("--batch-id", type=str, help="Batch job ID (will download results)")
 
     parser.add_argument(
-        "--output-dir",
-        type=Path,
-        help="Output directory (default: same as input file)"
+        "--output-dir", type=Path, help="Output directory (default: same as input file)"
     )
 
     args = parser.parse_args()
@@ -282,7 +271,7 @@ def main():
             batch_id = "unknown"
 
     # Process results
-    print(f"\n🔄 Processing batch responses...")
+    print("\n🔄 Processing batch responses...")
     print(f"📋 Batch ID: {batch_id}")
 
     extractions = []
@@ -311,7 +300,7 @@ def main():
                             darwin_core_data=extraction["dwc"],
                             batch_id=batch_id,
                             model=extraction.get("engine_version", "gpt-4o-mini"),
-                            confidence_scores=extraction.get("dwc_confidence", {})
+                            confidence_scores=extraction.get("dwc_confidence", {}),
                         )
                         provenance_fragments.append(fragment)
 
@@ -331,7 +320,7 @@ def main():
         for extraction in extractions:
             f.write(json.dumps(extraction) + "\n")
 
-    print(f"\n💾 Saved extractions:")
+    print("\n💾 Saved extractions:")
     print(f"   {output_path}")
     print(f"   {len(extractions):,} records")
 
@@ -339,10 +328,9 @@ def main():
     if provenance_fragments:
         provenance_path = output_dir / "provenance.jsonl"
         write_provenance_fragments(provenance_fragments, provenance_path)
-        print(f"\n🔗 Saved provenance chain:")
+        print("\n🔗 Saved provenance chain:")
         print(f"   {provenance_path}")
         print(f"   {len(provenance_fragments):,} fragments (scientific lineage)")
-
 
     # Write errors if any
     if errors:
@@ -351,7 +339,7 @@ def main():
             for error in errors:
                 f.write(json.dumps(error) + "\n")
 
-        print(f"\n⚠️  Saved errors:")
+        print("\n⚠️  Saved errors:")
         print(f"   {error_path}")
         print(f"   {len(errors):,} failed extractions")
 
@@ -362,17 +350,17 @@ def main():
     with open(stats_path, "w", encoding="utf-8") as f:
         json.dump(stats, f, indent=2)
 
-    print(f"\n📊 Statistics:")
+    print("\n📊 Statistics:")
     print(f"   Total specimens:    {stats['total_specimens']:,}")
-    print(f"   Successful:         {stats['successful_extractions']:,} ({stats['success_rate']:.1%})")
+    print(
+        f"   Successful:         {stats['successful_extractions']:,} ({stats['success_rate']:.1%})"
+    )
     print(f"   Failed:             {stats['failed_extractions']:,}")
 
     # Field coverage summary
-    print(f"\n📋 Top 10 Fields by Coverage:")
+    print("\n📋 Top 10 Fields by Coverage:")
     sorted_fields = sorted(
-        stats["field_coverage_percentage"].items(),
-        key=lambda x: x[1],
-        reverse=True
+        stats["field_coverage_percentage"].items(), key=lambda x: x[1], reverse=True
     )[:10]
 
     for field, pct in sorted_fields:
@@ -385,12 +373,12 @@ def main():
     print("\n" + "=" * 70)
     print("✅ BATCH PROCESSING COMPLETE")
     print("=" * 70)
-    print(f"\n📍 Next steps:")
-    print(f"   1. Validate results:")
-    print(f"      python scripts/validate_extraction.py \\")
-    print(f"        deliverables/validation/human_validation.jsonl \\")
+    print("\n📍 Next steps:")
+    print("   1. Validate results:")
+    print("      python scripts/validate_extraction.py \\")
+    print("        deliverables/validation/human_validation.jsonl \\")
     print(f"        {output_path}")
-    print(f"\n   2. Export to Darwin Core Archive:")
+    print("\n   2. Export to Darwin Core Archive:")
     print(f"      python export_darwin_core.py {output_path}")
 
 

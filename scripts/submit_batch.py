@@ -21,6 +21,7 @@ from pathlib import Path
 
 try:
     from dotenv import load_dotenv
+
     load_dotenv()  # Load .env file
 except ImportError:
     pass  # dotenv optional, environment may already be set
@@ -45,28 +46,23 @@ def submit_batch(input_file: Path, endpoint: str = "/v1/chat/completions") -> di
     """
     client = OpenAI()
 
-    print(f"📤 Uploading batch input file...")
+    print("📤 Uploading batch input file...")
     print(f"   File: {input_file}")
     print(f"   Size: {input_file.stat().st_size / 1024 / 1024:.1f} MB")
 
     # Upload file
     with open(input_file, "rb") as f:
-        file_obj = client.files.create(
-            file=f,
-            purpose="batch"
-        )
+        file_obj = client.files.create(file=f, purpose="batch")
 
     print(f"✅ File uploaded: {file_obj.id}")
 
     # Create batch job
-    print(f"\n📋 Creating batch job...")
+    print("\n📋 Creating batch job...")
     batch = client.batches.create(
-        input_file_id=file_obj.id,
-        endpoint=endpoint,
-        completion_window="24h"
+        input_file_id=file_obj.id, endpoint=endpoint, completion_window="24h"
     )
 
-    print(f"✅ Batch job created:")
+    print("✅ Batch job created:")
     print(f"   Batch ID: {batch.id}")
     print(f"   Status: {batch.status}")
     print(f"   Endpoint: {batch.endpoint}")
@@ -89,7 +85,7 @@ def save_batch_info(batch: dict, output_dir: Path):
     with open(batch_id_file, "w") as f:
         f.write(batch.id)
 
-    print(f"\n💾 Saved batch ID:")
+    print("\n💾 Saved batch ID:")
     print(f"   {batch_id_file}")
 
     # Save complete batch info
@@ -116,8 +112,10 @@ def save_batch_info(batch: dict, output_dir: Path):
         "request_counts": {
             "total": batch.request_counts.total,
             "completed": batch.request_counts.completed,
-            "failed": batch.request_counts.failed
-        } if batch.request_counts else None,
+            "failed": batch.request_counts.failed,
+        }
+        if batch.request_counts
+        else None,
         "metadata": batch.metadata,
         "submitted_at": datetime.now().isoformat(),
     }
@@ -140,15 +138,15 @@ def estimate_completion(batch: dict):
         expires = datetime.fromtimestamp(batch.expires_at)
         time_until = expires - now
 
-        print(f"\n⏱️  Estimated completion:")
+        print("\n⏱️  Estimated completion:")
         print(f"   Submitted: {now.strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"   Expires: {expires.strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"   Time remaining: {time_until.total_seconds() / 3600:.1f} hours")
-        print(f"\n💡 Tip: Most batches complete in 12-20 hours, not the full 24 hours")
+        print("\n💡 Tip: Most batches complete in 12-20 hours, not the full 24 hours")
     else:
         # Fallback estimate
         estimated = now + timedelta(hours=18)
-        print(f"\n⏱️  Estimated completion:")
+        print("\n⏱️  Estimated completion:")
         print(f"   Submitted: {now.strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"   Estimated: {estimated.strftime('%Y-%m-%d %H:%M:%S')} (18 hours)")
 
@@ -157,17 +155,9 @@ def main():
     parser = argparse.ArgumentParser(
         description="Submit OpenAI Batch API job for herbarium extraction"
     )
+    parser.add_argument("--input", type=Path, required=True, help="Batch input JSONL file")
     parser.add_argument(
-        "--input",
-        type=Path,
-        required=True,
-        help="Batch input JSONL file"
-    )
-    parser.add_argument(
-        "--endpoint",
-        type=str,
-        default="/v1/chat/completions",
-        help="OpenAI API endpoint"
+        "--endpoint", type=str, default="/v1/chat/completions", help="OpenAI API endpoint"
     )
 
     args = parser.parse_args()
@@ -200,12 +190,14 @@ def main():
         print("=" * 70)
         print(f"\n📋 Batch ID: {batch.id}")
         print(f"📊 Total requests: {batch.request_counts.total if batch.request_counts else 'N/A'}")
-        print(f"\n📍 Next steps:")
-        print(f"   1. Monitor progress:")
+        print("\n📍 Next steps:")
+        print("   1. Monitor progress:")
         print(f"      python scripts/monitor_batch.py --batch-id {batch.id}")
-        print(f"\n   2. Or check status manually:")
-        print(f"      python -c \"from openai import OpenAI; print(OpenAI().batches.retrieve('{batch.id}').status)\"")
-        print(f"\n   3. When complete, process results:")
+        print("\n   2. Or check status manually:")
+        print(
+            f"      python -c \"from openai import OpenAI; print(OpenAI().batches.retrieve('{batch.id}').status)\""
+        )
+        print("\n   3. When complete, process results:")
         print(f"      python scripts/process_batch_results.py --batch-id {batch.id}")
 
         # Cost estimate
@@ -216,8 +208,9 @@ def main():
             est_input_tokens = batch.request_counts.total * 5000
             est_output_tokens = batch.request_counts.total * 1000
 
-            est_cost = (est_input_tokens / 1_000_000 * 0.150 * 0.5) + \
-                      (est_output_tokens / 1_000_000 * 0.600 * 0.5)
+            est_cost = (est_input_tokens / 1_000_000 * 0.150 * 0.5) + (
+                est_output_tokens / 1_000_000 * 0.600 * 0.5
+            )
 
             print(f"\n💰 Estimated cost: ${est_cost:.2f} (50% batch discount)")
             print(f"   (Regular API would cost: ${est_cost * 2:.2f})")

@@ -1,6 +1,4 @@
 import sys
-import os
-from pathlib import Path
 
 try:
     import Vision
@@ -35,7 +33,7 @@ try:
         for observation in observations:
             text_lines.append(observation.text())
 
-        return '\n'.join(text_lines)
+        return "\n".join(text_lines)
 
     if __name__ == "__main__":
         image_path = sys.argv[1]

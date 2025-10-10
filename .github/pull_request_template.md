@@ -10,4 +10,3 @@
 List any issues closed by this PR using the `Resolves #<issue-number>` syntax.
 
 - Resolves #
-

@@ -23,14 +23,13 @@ def report_generator(tmp_path):
 @pytest.fixture(scope="session")
 def test_report():
     """Create shared test report for session."""
-    return TestReport(
-        suite_name="Slash Command Validation Suite",
-        environment="test"
-    )
+    return TestReport(suite_name="Slash Command Validation Suite", environment="test")
 
 
 @pytest.mark.specify
-@pytest.mark.skip(reason="Slash commands require Claude Code agent execution - use manual validation (see MANUAL_VALIDATION.md)")
+@pytest.mark.skip(
+    reason="Slash commands require Claude Code agent execution - use manual validation (see MANUAL_VALIDATION.md)"
+)
 def test_specify_command(executor, test_report):
     """Test /specify command completes without errors.
 
@@ -43,7 +42,7 @@ def test_specify_command(executor, test_report):
     command = TestCommand(
         name="/specify",
         parameters=["Test validation feature"],
-        expected_behavior="Creates spec.md file"
+        expected_behavior="Creates spec.md file",
     )
 
     result = executor.execute_command(command)
@@ -54,7 +53,9 @@ def test_specify_command(executor, test_report):
 
 
 @pytest.mark.plan
-@pytest.mark.skip(reason="Slash commands require Claude Code agent execution - use manual validation (see MANUAL_VALIDATION.md)")
+@pytest.mark.skip(
+    reason="Slash commands require Claude Code agent execution - use manual validation (see MANUAL_VALIDATION.md)"
+)
 def test_plan_command(executor, test_report):
     """Test /plan command completes without errors.
 
@@ -65,9 +66,7 @@ def test_plan_command(executor, test_report):
     4. Verify: No errors in output
     """
     command = TestCommand(
-        name="/plan",
-        parameters=[],
-        expected_behavior="Creates plan.md and design docs"
+        name="/plan", parameters=[], expected_behavior="Creates plan.md and design docs"
     )
 
     result = executor.execute_command(command)
@@ -78,7 +77,9 @@ def test_plan_command(executor, test_report):
 
 
 @pytest.mark.tasks
-@pytest.mark.skip(reason="Slash commands require Claude Code agent execution - use manual validation (see MANUAL_VALIDATION.md)")
+@pytest.mark.skip(
+    reason="Slash commands require Claude Code agent execution - use manual validation (see MANUAL_VALIDATION.md)"
+)
 def test_tasks_command(executor, test_report):
     """Test /tasks command completes without errors.
 
@@ -88,11 +89,7 @@ def test_tasks_command(executor, test_report):
     3. Verify: Tasks are properly formatted
     4. Verify: No errors in output
     """
-    command = TestCommand(
-        name="/tasks",
-        parameters=[],
-        expected_behavior="Creates tasks.md"
-    )
+    command = TestCommand(name="/tasks", parameters=[], expected_behavior="Creates tasks.md")
 
     result = executor.execute_command(command)
     test_report.add_result(result)
@@ -102,7 +99,9 @@ def test_tasks_command(executor, test_report):
 
 
 @pytest.mark.implement
-@pytest.mark.skip(reason="Slash commands require Claude Code agent execution - use manual validation (see MANUAL_VALIDATION.md)")
+@pytest.mark.skip(
+    reason="Slash commands require Claude Code agent execution - use manual validation (see MANUAL_VALIDATION.md)"
+)
 def test_implement_command(executor, test_report):
     """Test /implement command completes without errors.
 
@@ -113,9 +112,7 @@ def test_implement_command(executor, test_report):
     4. Verify: No errors in output
     """
     command = TestCommand(
-        name="/implement",
-        parameters=[],
-        expected_behavior="Tracks implementation progress"
+        name="/implement", parameters=[], expected_behavior="Tracks implementation progress"
     )
 
     result = executor.execute_command(command)
@@ -137,6 +134,7 @@ def test_report_generation(report_generator, test_report):
 
     # Verify YAML is valid
     import yaml
+
     with open(yaml_path) as f:
         data = yaml.safe_load(f)
         assert data["suite_name"] == test_report.suite_name

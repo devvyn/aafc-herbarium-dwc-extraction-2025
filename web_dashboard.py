@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """Modern web dashboard for herbarium OCR system."""
 
-import json
 import sqlite3
-import asyncio
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional, Any
@@ -19,12 +17,11 @@ except ImportError:
     print("❌ FastAPI required: pip install fastapi uvicorn jinja2")
     exit(1)
 
-from io_utils.candidates import fetch_candidates_sqlite
-
 
 @dataclass
 class ProcessingStatus:
     """Real-time processing status."""
+
     total_images: int = 0
     processed: int = 0
     successful: int = 0
@@ -87,7 +84,7 @@ def create_templates():
     templates_dir.mkdir(exist_ok=True)
 
     # Main dashboard template
-    dashboard_html = '''<!DOCTYPE html>
+    dashboard_html = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -382,7 +379,7 @@ def create_templates():
         }
     </script>
 </body>
-</html>'''
+</html>"""
 
     with open(templates_dir / "dashboard.html", "w") as f:
         f.write(dashboard_html)
@@ -474,7 +471,9 @@ async def get_results(db_path: str):
             total_candidates = cursor.fetchone()[0]
 
             # Engine breakdown
-            cursor.execute("SELECT engine, COUNT(*) FROM candidates GROUP BY engine ORDER BY COUNT(*) DESC")
+            cursor.execute(
+                "SELECT engine, COUNT(*) FROM candidates GROUP BY engine ORDER BY COUNT(*) DESC"
+            )
             engines = dict(cursor.fetchall())
 
             # Average confidence by engine
@@ -494,7 +493,7 @@ async def get_results(db_path: str):
                     "value": row[1][:100] + "..." if len(row[1]) > 100 else row[1],
                     "engine": row[2],
                     "confidence": row[3],
-                    "error": bool(row[4])
+                    "error": bool(row[4]),
                 }
                 for row in cursor.fetchall()
             ]
@@ -503,7 +502,7 @@ async def get_results(db_path: str):
                 "total_candidates": total_candidates,
                 "engines": engines,
                 "avg_confidence": avg_confidence,
-                "recent_candidates": recent
+                "recent_candidates": recent,
             }
 
     except Exception as e:
@@ -521,12 +520,14 @@ async def list_images():
             if path.is_dir():
                 image_count = len(list(path.glob("*.jpg")) + list(path.glob("*.png")))
                 if image_count > 0:
-                    image_dirs.append({
-                        "path": str(path),
-                        "name": path.name,
-                        "image_count": image_count,
-                        "modified": path.stat().st_mtime
-                    })
+                    image_dirs.append(
+                        {
+                            "path": str(path),
+                            "name": path.name,
+                            "image_count": image_count,
+                            "modified": path.stat().st_mtime,
+                        }
+                    )
 
     return {"image_directories": sorted(image_dirs, key=lambda x: x["modified"], reverse=True)}
 

@@ -6,11 +6,9 @@ enabling reproducible image references for testing, documentation, and developme
 """
 
 import argparse
-import json
-import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 try:
     import boto3
@@ -42,9 +40,9 @@ def check_aws_credentials() -> bool:
 def list_s3_buckets() -> List[str]:
     """List available S3 buckets."""
     try:
-        s3_client = boto3.client('s3')
+        s3_client = boto3.client("s3")
         response = s3_client.list_buckets()
-        return [bucket['Name'] for bucket in response['Buckets']]
+        return [bucket["Name"] for bucket in response["Buckets"]]
     except ClientError as e:
         print(f"Error listing buckets: {e}")
         return []
@@ -53,22 +51,20 @@ def list_s3_buckets() -> List[str]:
 def explore_bucket_contents(bucket_name: str, prefix: str = "", max_keys: int = 100) -> List[Dict]:
     """Explore contents of an S3 bucket with optional prefix filter."""
     try:
-        s3_client = boto3.client('s3')
-        response = s3_client.list_objects_v2(
-            Bucket=bucket_name,
-            Prefix=prefix,
-            MaxKeys=max_keys
-        )
+        s3_client = boto3.client("s3")
+        response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=prefix, MaxKeys=max_keys)
 
         objects = []
-        if 'Contents' in response:
-            for obj in response['Contents']:
-                objects.append({
-                    'key': obj['Key'],
-                    'size': obj['Size'],
-                    'last_modified': obj['LastModified'].isoformat(),
-                    'etag': obj['ETag'].strip('"')
-                })
+        if "Contents" in response:
+            for obj in response["Contents"]:
+                objects.append(
+                    {
+                        "key": obj["Key"],
+                        "size": obj["Size"],
+                        "last_modified": obj["LastModified"].isoformat(),
+                        "etag": obj["ETag"].strip('"'),
+                    }
+                )
 
         return objects
     except ClientError as e:
@@ -88,40 +84,42 @@ def generate_public_urls(bucket_name: str, keys: List[str], region: str = "us-ea
 def categorize_images(objects: List[Dict]) -> Dict[str, List[str]]:
     """Categorize images based on filename patterns (basic heuristic)."""
     categories = {
-        'readable_specimens': [],
-        'minimal_text_specimens': [],
-        'unlabeled_specimens': [],
-        'poor_quality_specimens': [],
-        'multilingual_specimens': []
+        "readable_specimens": [],
+        "minimal_text_specimens": [],
+        "unlabeled_specimens": [],
+        "poor_quality_specimens": [],
+        "multilingual_specimens": [],
     }
 
     # Basic categorization heuristics - can be refined based on actual naming patterns
     for obj in objects:
-        key = obj['key'].lower()
+        key = obj["key"].lower()
 
         # Skip non-image files
-        if not any(key.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.tif', '.tiff']):
+        if not any(key.endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".tif", ".tiff"]):
             continue
 
         # Simple heuristics - these would need refinement based on actual data
-        if 'clear' in key or 'readable' in key or 'good' in key:
-            categories['readable_specimens'].append(obj['key'])
-        elif 'minimal' in key or 'basic' in key:
-            categories['minimal_text_specimens'].append(obj['key'])
-        elif 'unlabeled' in key or 'specimen' in key:
-            categories['unlabeled_specimens'].append(obj['key'])
-        elif 'poor' in key or 'damaged' in key or 'blurry' in key:
-            categories['poor_quality_specimens'].append(obj['key'])
-        elif any(lang in key for lang in ['french', 'german', 'spanish', 'latin']):
-            categories['multilingual_specimens'].append(obj['key'])
+        if "clear" in key or "readable" in key or "good" in key:
+            categories["readable_specimens"].append(obj["key"])
+        elif "minimal" in key or "basic" in key:
+            categories["minimal_text_specimens"].append(obj["key"])
+        elif "unlabeled" in key or "specimen" in key:
+            categories["unlabeled_specimens"].append(obj["key"])
+        elif "poor" in key or "damaged" in key or "blurry" in key:
+            categories["poor_quality_specimens"].append(obj["key"])
+        elif any(lang in key for lang in ["french", "german", "spanish", "latin"]):
+            categories["multilingual_specimens"].append(obj["key"])
         else:
             # Default to readable specimens for uncategorized images
-            categories['readable_specimens'].append(obj['key'])
+            categories["readable_specimens"].append(obj["key"])
 
     return categories
 
 
-def update_image_sources_config(bucket_name: str, region: str, categories: Dict[str, List[str]]) -> None:
+def update_image_sources_config(
+    bucket_name: str, region: str, categories: Dict[str, List[str]]
+) -> None:
     """Update the image sources configuration with discovered S3 content."""
     config_path = Path("config/image_sources.toml")
 
@@ -130,59 +128,59 @@ def update_image_sources_config(bucket_name: str, region: str, categories: Dict[
         return
 
     # Read existing config
-    with open(config_path, 'rb') as f:
+    with open(config_path, "rb") as f:
         config = tomllib.load(f)
 
     # Generate URLs for each category (taking first 10 items as examples)
     updated_config = []
 
     # Update sources section
-    updated_config.append(f'[sources]')
+    updated_config.append("[sources]")
     updated_config.append(f'primary_bucket = "{bucket_name}"')
     updated_config.append(f'public_base_url = "https://{bucket_name}.s3.{region}.amazonaws.com"')
     updated_config.append(f'region = "{region}"')
-    updated_config.append('')
+    updated_config.append("")
 
     # Update test images section
-    updated_config.append('[test_images]')
+    updated_config.append("[test_images]")
     for category, keys in categories.items():
         if keys:
             updated_config.append(f'# {category.replace("_", " ").title()}')
-            updated_config.append(f'{category} = [')
+            updated_config.append(f"{category} = [")
             for key in keys[:5]:  # Take first 5 as examples
                 url = f'    "https://{bucket_name}.s3.{region}.amazonaws.com/{key}",'
                 updated_config.append(url)
             if len(keys) > 5:
-                updated_config.append(f'    # ... and {len(keys) - 5} more images')
-            updated_config.append(']')
-            updated_config.append('')
+                updated_config.append(f"    # ... and {len(keys) - 5} more images")
+            updated_config.append("]")
+            updated_config.append("")
 
     # Add public access section
-    updated_config.append('[public_access]')
-    updated_config.append('enable_public_urls = true')
+    updated_config.append("[public_access]")
+    updated_config.append("enable_public_urls = true")
     updated_config.append(f'region = "{region}"')
-    updated_config.append('')
+    updated_config.append("")
 
     # Write back the updated config
-    config_text = '\n'.join(updated_config)
+    config_text = "\n".join(updated_config)
 
     # Read the rest of the original config (metadata, quality categories, etc.)
-    with open(config_path, 'r') as f:
+    with open(config_path, "r") as f:
         original_lines = f.readlines()
 
     # Find where to insert the new config (after the existing sources/test_images)
     insert_point = 0
     for i, line in enumerate(original_lines):
-        if line.strip().startswith('[sample_collections]'):
+        if line.strip().startswith("[sample_collections]"):
             insert_point = i
             break
 
     # Combine new config with the rest
     if insert_point > 0:
-        remaining_config = ''.join(original_lines[insert_point:])
-        config_text += '\n' + remaining_config
+        remaining_config = "".join(original_lines[insert_point:])
+        config_text += "\n" + remaining_config
 
-    with open(config_path, 'w') as f:
+    with open(config_path, "w") as f:
         f.write(config_text)
 
     print(f"Updated {config_path} with S3 bucket configuration")

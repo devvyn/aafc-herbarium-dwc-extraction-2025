@@ -21,6 +21,7 @@ from typing import Dict, List
 
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     pass
@@ -41,7 +42,7 @@ EXPERIMENTS = [
         "output_dir": "full_dataset_processing/gpt4omini_batch_test",
         "batch_id": "batch_68e47d3796d08190b99e9e73fd5aca52",  # Already submitted
         "status": "submitted",
-        "cost": 0.03
+        "cost": 0.03,
     },
     {
         "name": "few_shot",
@@ -50,7 +51,7 @@ EXPERIMENTS = [
         "output_dir": "full_dataset_processing/gpt4omini_batch_few_shot",
         "batch_id": None,
         "status": "pending",
-        "cost": 0.03
+        "cost": 0.03,
     },
     {
         "name": "chain_of_thought",
@@ -59,7 +60,7 @@ EXPERIMENTS = [
         "output_dir": "full_dataset_processing/gpt4omini_batch_cot",
         "batch_id": None,
         "status": "pending",
-        "cost": 0.03
+        "cost": 0.03,
     },
     {
         "name": "ocr_first",
@@ -68,18 +69,17 @@ EXPERIMENTS = [
         "output_dir": "full_dataset_processing/gpt4omini_batch_ocr_first",
         "batch_id": None,
         "status": "pending",
-        "cost": 0.03
-    }
+        "cost": 0.03,
+    },
 ]
 
 
 def save_experiments(experiments: List[Dict], filepath: Path = Path("experiments.json")):
     """Save experiment state to JSON."""
     with open(filepath, "w") as f:
-        json.dump({
-            "last_updated": datetime.now().isoformat(),
-            "experiments": experiments
-        }, f, indent=2)
+        json.dump(
+            {"last_updated": datetime.now().isoformat(), "experiments": experiments}, f, indent=2
+        )
     print(f"💾 Saved experiment state: {filepath}")
 
 
@@ -103,19 +103,27 @@ def submit_batch(experiment: Dict) -> str:
 
     # Create batch request
     cmd_create = [
-        "uv", "run", "python", "scripts/create_batch_request.py",
-        "--input", "/tmp/imgcache",
-        "--output", experiment["output_dir"],
-        "--limit", "10",
-        "--task", experiment["task"],
-        "--prompt-dir", "config/prompts"
+        "uv",
+        "run",
+        "python",
+        "scripts/create_batch_request.py",
+        "--input",
+        "/tmp/imgcache",
+        "--output",
+        experiment["output_dir"],
+        "--limit",
+        "10",
+        "--task",
+        experiment["task"],
+        "--prompt-dir",
+        "config/prompts",
     ]
 
-    print(f"📋 Creating batch request...")
+    print("📋 Creating batch request...")
     result = subprocess.run(cmd_create, capture_output=True, text=True)
 
     if result.returncode != 0:
-        print(f"❌ Error creating batch request:")
+        print("❌ Error creating batch request:")
         print(result.stderr)
         return None
 
@@ -123,16 +131,13 @@ def submit_batch(experiment: Dict) -> str:
 
     # Submit batch
     batch_input = Path(experiment["output_dir"]) / "batch_input.jsonl"
-    cmd_submit = [
-        "uv", "run", "python", "scripts/submit_batch.py",
-        "--input", str(batch_input)
-    ]
+    cmd_submit = ["uv", "run", "python", "scripts/submit_batch.py", "--input", str(batch_input)]
 
-    print(f"📤 Submitting to OpenAI Batch API...")
+    print("📤 Submitting to OpenAI Batch API...")
     result = subprocess.run(cmd_submit, capture_output=True, text=True)
 
     if result.returncode != 0:
-        print(f"❌ Error submitting batch:")
+        print("❌ Error submitting batch:")
         print(result.stderr)
         return None
 
@@ -151,9 +156,9 @@ def submit_all_experiments():
     """Submit all pending experiments in parallel."""
     experiments = load_experiments()
 
-    print("="*70)
+    print("=" * 70)
     print("EXPERIMENT ORCHESTRATOR - PARALLEL BATCH SUBMISSION")
-    print("="*70)
+    print("=" * 70)
 
     pending = [e for e in experiments if e["status"] == "pending"]
 
@@ -219,7 +224,7 @@ def print_status(experiments: List[Dict] = None):
                     failed = batch.request_counts.failed
 
                     if total > 0:
-                        progress = (completed / total * 100)
+                        progress = completed / total * 100
                         print(f"   Progress: {completed}/{total} ({progress:.0f}%)")
                         if failed > 0:
                             print(f"   ⚠️  Failed: {failed}")
@@ -250,11 +255,9 @@ def compare_experiments():
             batch = client.batches.retrieve(exp["batch_id"])
 
             if batch.status == "completed":
-                completed.append({
-                    "name": exp["name"],
-                    "description": exp["description"],
-                    "batch": batch
-                })
+                completed.append(
+                    {"name": exp["name"], "description": exp["description"], "batch": batch}
+                )
         except Exception as e:
             print(f"⚠️  Error checking {exp['name']}: {e}")
 
@@ -282,23 +285,11 @@ def compare_experiments():
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Orchestrate parallel batch experiments"
-    )
+    parser = argparse.ArgumentParser(description="Orchestrate parallel batch experiments")
+    parser.add_argument("--submit", action="store_true", help="Submit all pending experiments")
+    parser.add_argument("--status", action="store_true", help="Check status of all experiments")
     parser.add_argument(
-        "--submit",
-        action="store_true",
-        help="Submit all pending experiments"
-    )
-    parser.add_argument(
-        "--status",
-        action="store_true",
-        help="Check status of all experiments"
-    )
-    parser.add_argument(
-        "--compare",
-        action="store_true",
-        help="Compare results from completed experiments"
+        "--compare", action="store_true", help="Compare results from completed experiments"
     )
 
     args = parser.parse_args()

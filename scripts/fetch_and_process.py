@@ -73,6 +73,7 @@ def fetch_images_to_cache(manifest_path: Path, cache_dir: Path) -> tuple[int, in
             flat_cache_path = cache_dir / f"{sha256}.jpg"
             if not flat_cache_path.exists():
                 import shutil
+
                 shutil.copy2(cached_path, flat_cache_path)
                 fetched += 1
                 if fetched % 100 == 0:
@@ -86,6 +87,7 @@ def fetch_images_to_cache(manifest_path: Path, cache_dir: Path) -> tuple[int, in
     # (iter_images uses rglob which would find files in both locations)
     print("🧹 Cleaning up hierarchical cache subdirectories...")
     import shutil
+
     for subdir in cache_dir.iterdir():
         if subdir.is_dir():
             shutil.rmtree(subdir)
@@ -115,8 +117,8 @@ def log_provenance(output_dir: Path, manifest_path: Path, cache_dir: Path):
             "image_preparation": "Images manually resized for GPT-4o testing",
             "original_source": "Camera files (DSC_*.JPG format)",
             "lineage_tracking": "TODO: Link resized SHA256 hashes to original filenames",
-            "future_work": "See GitHub issue for comprehensive provenance system"
-        }
+            "future_work": "See GitHub issue for comprehensive provenance system",
+        },
     }
 
     provenance_file = output_dir / "provenance.json"
@@ -124,7 +126,7 @@ def log_provenance(output_dir: Path, manifest_path: Path, cache_dir: Path):
         json.dump(provenance, f, indent=2)
 
     print(f"📝 Provenance logged to {provenance_file}")
-    print(f"   Note: Original→resized lineage tracking pending (see provenance.json)")
+    print("   Note: Original→resized lineage tracking pending (see provenance.json)")
 
 
 def run_processing(cache_dir: Path, output_dir: Path, engine: str = "vision"):
@@ -132,13 +134,18 @@ def run_processing(cache_dir: Path, output_dir: Path, engine: str = "vision"):
     print(f"\n🔬 Starting OCR processing with {engine}")
     print(f"   Input: {cache_dir}")
     print(f"   Output: {output_dir}")
-    print(f"   Estimated time: ~3.3 hours for 2,885 specimens\n")
+    print("   Estimated time: ~3.3 hours for 2,885 specimens\n")
 
     cmd = [
-        "python", "cli.py", "process",
-        "--input", str(cache_dir),
-        "--output", str(output_dir),
-        "--engine", engine,
+        "python",
+        "cli.py",
+        "process",
+        "--input",
+        str(cache_dir),
+        "--output",
+        str(output_dir),
+        "--engine",
+        engine,
     ]
 
     subprocess.run(cmd, check=True)
@@ -146,7 +153,9 @@ def run_processing(cache_dir: Path, output_dir: Path, engine: str = "vision"):
 
 def main():
     # Configuration
-    manifest_path = Path.home() / "Documents/GitHub/s3-image-dataset-kit/manifests/inventory-v1.jsonl"
+    manifest_path = (
+        Path.home() / "Documents/GitHub/s3-image-dataset-kit/manifests/inventory-v1.jsonl"
+    )
     cache_dir = Path("/tmp/imgcache")  # From .env CACHE_DIR
     output_dir = Path("full_dataset_processing") / f"run_{datetime.now():%Y%m%d_%H%M%S}"
 

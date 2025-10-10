@@ -142,6 +142,7 @@ def test_verify_locality_empty_response(monkeypatch):
     assert metadata["gbif_locality_verified"] == False
     assert "api_error" in metadata["gbif_issues"]
 
+
 def _bad_json_response():
     class MockResponse:
         def __enter__(self):
@@ -160,9 +161,7 @@ def test_verify_taxonomy_invalid_json(monkeypatch):
     gbif = GbifLookup()
     record = {"scientificName": "Puma concolor"}
 
-    monkeypatch.setattr(
-        gbif_module, "urlopen", lambda url, timeout=None: _bad_json_response()
-    )
+    monkeypatch.setattr(gbif_module, "urlopen", lambda url, timeout=None: _bad_json_response())
     result, metadata = gbif.verify_taxonomy(record)
     assert result == record and result is not record
     assert metadata["gbif_taxonomy_verified"] == False
@@ -172,9 +171,7 @@ def test_verify_taxonomy_invalid_json(monkeypatch):
 def test_verify_locality_invalid_json(monkeypatch):
     gbif = GbifLookup()
     record = {"decimalLatitude": 45.0, "decimalLongitude": -75.0}
-    monkeypatch.setattr(
-        gbif_module, "urlopen", lambda url, timeout=None: _bad_json_response()
-    )
+    monkeypatch.setattr(gbif_module, "urlopen", lambda url, timeout=None: _bad_json_response())
     result, metadata = gbif.verify_locality(record)
     assert result == record and result is not record
     assert metadata["gbif_locality_verified"] == False
@@ -183,19 +180,19 @@ def test_verify_locality_invalid_json(monkeypatch):
 
 def test_verify_locality_invalid_coordinates():
     gbif = GbifLookup()
-    
+
     # Test invalid latitude
     record = {"decimalLatitude": 95.0, "decimalLongitude": -75.0}  # Invalid lat > 90
     result, metadata = gbif.verify_locality(record)
     assert metadata["gbif_locality_verified"] == False
     assert "invalid_latitude" in metadata["gbif_issues"]
-    
+
     # Test invalid longitude
     record = {"decimalLatitude": 45.0, "decimalLongitude": 185.0}  # Invalid lng > 180
     result, metadata = gbif.verify_locality(record)
     assert metadata["gbif_locality_verified"] == False
     assert "invalid_longitude" in metadata["gbif_issues"]
-    
+
     # Test invalid format
     record = {"decimalLatitude": "not_a_number", "decimalLongitude": -75.0}
     result, metadata = gbif.verify_locality(record)
@@ -205,21 +202,17 @@ def test_verify_locality_invalid_coordinates():
 
 def test_validate_occurrence_success(monkeypatch):
     gbif = GbifLookup(enable_occurrence_validation=True)
-    record = {
-        "scientificName": "Puma concolor",
-        "decimalLatitude": 45.0,
-        "decimalLongitude": -75.0
-    }
-    
+    record = {"scientificName": "Puma concolor", "decimalLatitude": 45.0, "decimalLongitude": -75.0}
+
     data = {
         "results": [
             {"key": 123, "scientificName": "Puma concolor"},
-            {"key": 456, "scientificName": "Puma concolor"}
+            {"key": 456, "scientificName": "Puma concolor"},
         ]
     }
-    
+
     monkeypatch.setattr(gbif_module, "urlopen", lambda url, timeout=None: _mock_response(data))
-    
+
     result, metadata = gbif.validate_occurrence(record)
     assert metadata["gbif_occurrence_validated"] == True
     assert metadata["gbif_similar_occurrences"] == 2
@@ -229,7 +222,7 @@ def test_validate_occurrence_success(monkeypatch):
 def test_validate_occurrence_disabled():
     gbif = GbifLookup(enable_occurrence_validation=False)
     record = {"scientificName": "Puma concolor"}
-    
+
     result, metadata = gbif.validate_occurrence(record)
     assert metadata["gbif_occurrence_validation"] == "disabled"
 
@@ -237,11 +230,11 @@ def test_validate_occurrence_disabled():
 def test_validate_occurrence_no_results(monkeypatch):
     gbif = GbifLookup(enable_occurrence_validation=True)
     record = {"scientificName": "Nonexistent species"}
-    
+
     data = {"results": []}
-    
+
     monkeypatch.setattr(gbif_module, "urlopen", lambda url, timeout=None: _mock_response(data))
-    
+
     result, metadata = gbif.validate_occurrence(record)
     assert metadata["gbif_occurrence_validated"] == False
     assert metadata["gbif_similar_occurrences"] == 0
@@ -251,15 +244,15 @@ def test_validate_occurrence_no_results(monkeypatch):
 def test_low_confidence_taxonomy(monkeypatch):
     gbif = GbifLookup(min_confidence_score=0.9)  # High threshold
     record = {"scientificName": "Puma concolor"}
-    
+
     data = {
         "scientificName": "Puma concolor",
         "confidence": 70,  # Below threshold (90)
-        "matchType": "FUZZY"
+        "matchType": "FUZZY",
     }
-    
+
     monkeypatch.setattr(gbif_module, "urlopen", lambda url, timeout=None: _mock_response(data))
-    
+
     result, metadata = gbif.verify_taxonomy(record)
     assert metadata["gbif_taxonomy_verified"] == False
     assert "low_confidence_70" in metadata["gbif_issues"]
@@ -269,22 +262,22 @@ def test_low_confidence_taxonomy(monkeypatch):
 def test_fuzzy_matching_disabled(monkeypatch):
     gbif = GbifLookup(enable_fuzzy_matching=False)
     record = {"scientificName": "Puma concolor"}
-    
+
     data = {
         "scientificName": "Puma concolor",
         "confidence": 95,
-        "matchType": "HIGHERRANK"  # This should be rejected when fuzzy matching is disabled
+        "matchType": "HIGHERRANK",  # This should be rejected when fuzzy matching is disabled
     }
-    
+
     monkeypatch.setattr(gbif_module, "urlopen", lambda url, timeout=None: _mock_response(data))
-    
+
     result, metadata = gbif.verify_taxonomy(record)
     assert "poor_match_higherrank" in metadata["gbif_issues"]
 
 
 def test_distance_calculation():
     gbif = GbifLookup()
-    
+
     # Test distance calculation between Ottawa and Montreal (approx 160 km)
     distance = gbif._calculate_distance(45.4215, -75.6972, 45.5017, -73.5673)
     assert 150 < distance < 170  # Approximate distance
@@ -308,7 +301,7 @@ def test_configuration_from_config():
             }
         }
     }
-    
+
     gbif = GbifLookup.from_config(cfg)
     assert gbif.species_match_endpoint == "https://example.org/species"
     assert gbif.reverse_geocode_endpoint == "https://example.org/reverse"

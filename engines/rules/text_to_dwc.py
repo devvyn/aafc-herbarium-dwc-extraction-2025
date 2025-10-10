@@ -5,7 +5,7 @@ No external API calls required - completely free tier compatible.
 """
 
 import re
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple
 
 # Pattern library for Darwin Core field extraction
 PATTERNS = {
@@ -77,8 +77,8 @@ def text_to_dwc(text: str, **kwargs) -> Tuple[Dict[str, str], Dict[str, float]]:
             if match:
                 value = match.group(1).strip()
                 # Clean up extracted value
-                value = re.sub(r'\s+', ' ', value)  # Normalize whitespace
-                value = value.rstrip('.,;:')  # Remove trailing punctuation
+                value = re.sub(r"\s+", " ", value)  # Normalize whitespace
+                value = value.rstrip(".,;:")  # Remove trailing punctuation
                 value = value.strip()  # Remove leading/trailing whitespace
 
                 dwc_data[field] = value
@@ -93,9 +93,26 @@ def text_to_dwc(text: str, **kwargs) -> Tuple[Dict[str, str], Dict[str, float]]:
 
     # Post-processing: Derive country from province if not found
     if not dwc_data.get("country") and dwc_data.get("stateProvince"):
-        canadian_provinces = ["Saskatchewan", "Alberta", "Manitoba", "Ontario", "Quebec",
-                             "British Columbia", "Yukon", "Northwest Territories", "Nunavut",
-                             "SK", "AB", "MB", "ON", "QC", "BC", "YT", "NT", "NU"]
+        canadian_provinces = [
+            "Saskatchewan",
+            "Alberta",
+            "Manitoba",
+            "Ontario",
+            "Quebec",
+            "British Columbia",
+            "Yukon",
+            "Northwest Territories",
+            "Nunavut",
+            "SK",
+            "AB",
+            "MB",
+            "ON",
+            "QC",
+            "BC",
+            "YT",
+            "NT",
+            "NU",
+        ]
         if any(prov in dwc_data["stateProvince"] for prov in canadian_provinces):
             dwc_data["country"] = "Canada"
             confidences["country"] = 0.7  # Derived confidence slightly lower

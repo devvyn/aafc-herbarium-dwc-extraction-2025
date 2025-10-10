@@ -1,9 +1,6 @@
 """Contract tests for ReportGenerator."""
 
 import pytest
-import yaml
-from pathlib import Path
-from src.test_harness.models import TestReport
 
 
 class TestReportGeneratorContract:

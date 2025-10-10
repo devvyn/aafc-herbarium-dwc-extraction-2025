@@ -9,10 +9,6 @@ from pathlib import Path
 from typing import Optional, Union, List
 import subprocess
 import hashlib
-import requests
-from urllib.parse import urlparse
-import tempfile
-import os
 
 
 class ImageSource(ABC):
@@ -110,9 +106,12 @@ class S3ImageSource(ImageSource):
 
         try:
             local_path.parent.mkdir(parents=True, exist_ok=True)
-            result = subprocess.run([
-                'aws', 's3', 'cp', s3_uri, str(local_path)
-            ], capture_output=True, text=True, check=True)
+            result = subprocess.run(
+                ["aws", "s3", "cp", s3_uri, str(local_path)],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
             return local_path.exists()
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
@@ -124,9 +123,9 @@ class S3ImageSource(ImageSource):
             return False
 
         try:
-            result = subprocess.run([
-                'aws', 's3', 'ls', s3_uri
-            ], capture_output=True, text=True, check=True)
+            result = subprocess.run(
+                ["aws", "s3", "ls", s3_uri], capture_output=True, text=True, check=True
+            )
             return len(result.stdout.strip()) > 0
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
@@ -155,10 +154,7 @@ class LocalImageSource(ImageSource):
         if len(sha256_hash) != 64:
             raise ValueError(f"Invalid SHA256 hash length: {len(sha256_hash)}")
 
-        return (self.base_path /
-                sha256_hash[:2] /
-                sha256_hash[2:4] /
-                f"{sha256_hash}.jpg")
+        return self.base_path / sha256_hash[:2] / sha256_hash[2:4] / f"{sha256_hash}.jpg"
 
     def get_image_path(self, sha256_hash: str) -> Optional[str]:
         """Get local filesystem path for an image."""
@@ -176,7 +172,7 @@ class LocalImageSource(ImageSource):
 
         try:
             local_path.parent.mkdir(parents=True, exist_ok=True)
-            subprocess.run(['cp', source_path, str(local_path)], check=True)
+            subprocess.run(["cp", source_path, str(local_path)], check=True)
             return local_path.exists()
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
@@ -234,20 +230,19 @@ class ImageSourceConfig:
         Returns:
             Configured ImageSource instance
         """
-        source_type = config_dict.get('type', 's3')
+        source_type = config_dict.get("type", "s3")
 
-        if source_type == 's3':
+        if source_type == "s3":
             return S3ImageSource(
-                bucket=config_dict['bucket'],
-                region=config_dict.get('region', 'ca-central-1'),
-                prefix=config_dict.get('prefix', 'images')
+                bucket=config_dict["bucket"],
+                region=config_dict.get("region", "ca-central-1"),
+                prefix=config_dict.get("prefix", "images"),
             )
-        elif source_type == 'local':
-            return LocalImageSource(config_dict['base_path'])
-        elif source_type == 'multi':
+        elif source_type == "local":
+            return LocalImageSource(config_dict["base_path"])
+        elif source_type == "multi":
             sources = [
-                ImageSourceConfig.from_config(src_config)
-                for src_config in config_dict['sources']
+                ImageSourceConfig.from_config(src_config) for src_config in config_dict["sources"]
             ]
             return MultiImageSource(sources)
         else:
@@ -272,19 +267,13 @@ def calculate_sha256(file_path: Union[str, Path]) -> str:
 
 # Default configurations
 DEFAULT_S3_CONFIG = {
-    'type': 's3',
-    'bucket': 'devvyn.aafc-srdc.herbarium',
-    'region': 'ca-central-1',
-    'prefix': 'images'
+    "type": "s3",
+    "bucket": "devvyn.aafc-srdc.herbarium",
+    "region": "ca-central-1",
+    "prefix": "images",
 }
 
 DEFAULT_MULTI_CONFIG = {
-    'type': 'multi',
-    'sources': [
-        {
-            'type': 'local',
-            'base_path': './images'
-        },
-        DEFAULT_S3_CONFIG
-    ]
+    "type": "multi",
+    "sources": [{"type": "local", "base_path": "./images"}, DEFAULT_S3_CONFIG],
 }

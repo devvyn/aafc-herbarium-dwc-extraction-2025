@@ -11,9 +11,7 @@ combination to meet requirements while minimizing cost.
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional
-
-from engines import available_engines
+from typing import Dict, List
 
 
 class Deadline(str, Enum):
@@ -200,9 +198,7 @@ class PipelineComposer:
             description="Vision API → Rules Engine (FREE baseline)",
         )
 
-    def _compose_high_quality(
-        self, budget: float, deadline: Deadline
-    ) -> PipelineStrategy:
+    def _compose_high_quality(self, budget: float, deadline: Deadline) -> PipelineStrategy:
         """Compose pipeline for HIGH quality target.
 
         Args:
@@ -257,9 +253,7 @@ class PipelineComposer:
             description=f"Progressive: Vision baseline + GPT for {selective_fraction:.0%} of specimens (${selective_cost:.2f})",
         )
 
-    def _compose_research_grade(
-        self, budget: float, deadline: Deadline
-    ) -> PipelineStrategy:
+    def _compose_research_grade(self, budget: float, deadline: Deadline) -> PipelineStrategy:
         """Compose pipeline for RESEARCH_GRADE quality (ensemble).
 
         Args:
@@ -313,9 +307,7 @@ class PipelineComposer:
         # Fall back to high quality path
         return self._compose_high_quality(budget, deadline)
 
-    def evaluate_all_strategies(
-        self, budget: float, deadline: Deadline
-    ) -> List[PipelineStrategy]:
+    def evaluate_all_strategies(self, budget: float, deadline: Deadline) -> List[PipelineStrategy]:
         """Evaluate all viable strategies for given constraints.
 
         Useful for presenting options to user or meta-project decision agent.
@@ -380,18 +372,14 @@ if __name__ == "__main__":
     print("═" * 60)
     print("SCENARIO 1: Zero Budget, Overnight")
     print("═" * 60)
-    strategy = composer.compose(
-        budget=0.0, deadline=Deadline.OVERNIGHT, quality=Quality.HIGH
-    )
+    strategy = composer.compose(budget=0.0, deadline=Deadline.OVERNIGHT, quality=Quality.HIGH)
     print(format_strategy(strategy))
 
     # Scenario 2: $1.60 budget, immediate deadline
     print("═" * 60)
     print("SCENARIO 2: $1.60 Budget, Immediate Delivery")
     print("═" * 60)
-    strategy = composer.compose(
-        budget=1.60, deadline=Deadline.IMMEDIATE, quality=Quality.HIGH
-    )
+    strategy = composer.compose(budget=1.60, deadline=Deadline.IMMEDIATE, quality=Quality.HIGH)
     print(format_strategy(strategy))
 
     # Scenario 3: Research-grade, flexible timeline
@@ -407,9 +395,7 @@ if __name__ == "__main__":
     print("═" * 60)
     print("ALL VIABLE STRATEGIES ($5 budget, overnight)")
     print("═" * 60)
-    strategies = composer.evaluate_all_strategies(
-        budget=5.0, deadline=Deadline.OVERNIGHT
-    )
+    strategies = composer.evaluate_all_strategies(budget=5.0, deadline=Deadline.OVERNIGHT)
     for i, s in enumerate(strategies, 1):
         print(f"\n{'─' * 60}")
         print(f"Option {i}:")

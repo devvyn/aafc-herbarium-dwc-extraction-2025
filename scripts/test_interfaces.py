@@ -4,6 +4,7 @@
 import sys
 from pathlib import Path
 
+
 def test_dependencies():
     """Test if all dependencies are available."""
     print("🧪 Testing UI Dependencies")
@@ -15,31 +16,35 @@ def test_dependencies():
     try:
         import rich
         from rich.console import Console
-        results['rich'] = "✅ Available"
+
+        results["rich"] = "✅ Available"
     except ImportError:
-        results['rich'] = "❌ Missing - install with: pip install rich"
+        results["rich"] = "❌ Missing - install with: pip install rich"
 
     # Test FastAPI (Web)
     try:
         import fastapi
         import uvicorn
-        results['web'] = "✅ Available"
+
+        results["web"] = "✅ Available"
     except ImportError:
-        results['web'] = "❌ Missing - install with: pip install fastapi uvicorn jinja2"
+        results["web"] = "❌ Missing - install with: pip install fastapi uvicorn jinja2"
 
     # Test progress tracker
     try:
         from progress_tracker import global_tracker, ProgressUpdate
-        results['progress'] = "✅ Available"
+
+        results["progress"] = "✅ Available"
     except ImportError:
-        results['progress'] = "❌ Missing - progress_tracker.py not found"
+        results["progress"] = "❌ Missing - progress_tracker.py not found"
 
     # Test CLI integration
     try:
         from cli import process_cli
-        results['cli'] = "✅ Available"
+
+        results["cli"] = "✅ Available"
     except ImportError:
-        results['cli'] = "❌ Missing - cli.py not found"
+        results["cli"] = "❌ Missing - cli.py not found"
 
     for component, status in results.items():
         print(f"{component.capitalize()}: {status}")
@@ -53,7 +58,7 @@ def test_progress_tracker():
     print("=" * 40)
 
     try:
-        from progress_tracker import ProgressTracker, ProgressUpdate
+        from progress_tracker import ProgressTracker
 
         # Create test tracker
         tracker = ProgressTracker()
@@ -70,6 +75,7 @@ def test_progress_tracker():
 
         # Simulate some processing
         from pathlib import Path
+
         test_image = Path("test.jpg")
 
         tracker.image_started(test_image)
@@ -168,7 +174,7 @@ def test_launcher():
 
         # Test argument parsing
         try:
-            parser = parse_args.__globals__['argparse'].ArgumentParser(description="Test")
+            parser = parse_args.__globals__["argparse"].ArgumentParser(description="Test")
             print("✅ Argument parsing setup works")
         except Exception as e:
             print(f"⚠️  Argument parsing issue: {e}")
@@ -193,14 +199,18 @@ def run_integration_test():
         print("✅ Trial images found - integration test possible")
 
         try:
-            run_integration = input("Run quick integration test with existing trial images? [y/N]: ").lower().startswith('y')
+            run_integration = (
+                input("Run quick integration test with existing trial images? [y/N]: ")
+                .lower()
+                .startswith("y")
+            )
         except (EOFError, KeyboardInterrupt):
             run_integration = False
             print("⏭️  Skipping interactive integration test")
 
         if run_integration:
             try:
-                from progress_tracker import global_tracker, setup_tui_tracking
+                from progress_tracker import setup_tui_tracking
 
                 # Setup TUI tracking
                 setup_tui_tracking()
@@ -212,11 +222,7 @@ def run_integration_test():
                 result_dir = Path("test_ui_results")
                 result_dir.mkdir(exist_ok=True)
 
-                process_cli(
-                    Path("trial_images"),
-                    result_dir,
-                    enabled_engines=["vision"]
-                )
+                process_cli(Path("trial_images"), result_dir, enabled_engines=["vision"])
 
                 print("✅ Integration test completed successfully!")
                 return True
@@ -240,12 +246,12 @@ def main():
     test_results = {}
 
     # Run all tests
-    test_results['dependencies'] = test_dependencies()
-    test_results['progress_tracker'] = test_progress_tracker()
-    test_results['tui'] = test_tui_import()
-    test_results['web'] = test_web_import()
-    test_results['launcher'] = test_launcher()
-    test_results['integration'] = run_integration_test()
+    test_results["dependencies"] = test_dependencies()
+    test_results["progress_tracker"] = test_progress_tracker()
+    test_results["tui"] = test_tui_import()
+    test_results["web"] = test_web_import()
+    test_results["launcher"] = test_launcher()
+    test_results["integration"] = run_integration_test()
 
     # Summary
     print("\n📊 Test Summary")

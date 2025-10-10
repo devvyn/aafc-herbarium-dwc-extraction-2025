@@ -12,7 +12,14 @@ try:
     from rich.console import Console
     from rich.live import Live
     from rich.panel import Panel
-    from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, MofNCompleteColumn, TimeElapsedColumn
+    from rich.progress import (
+        Progress,
+        SpinnerColumn,
+        TextColumn,
+        BarColumn,
+        MofNCompleteColumn,
+        TimeElapsedColumn,
+    )
     from rich.table import Table
     from rich.text import Text
     from rich.align import Align
@@ -26,13 +33,14 @@ except ImportError:
     print("❌ Rich library required: pip install rich")
     exit(1)
 
-from cli import process_cli, load_config
-from io_utils.image_source import ImageSourceConfig, DEFAULT_S3_CONFIG
+from cli import process_cli
+from io_utils.image_source import ImageSourceConfig
 
 
 @dataclass
 class ProcessingStats:
     """Real-time processing statistics."""
+
     total_images: int = 0
     processed: int = 0
     successful: int = 0
@@ -70,7 +78,7 @@ Transform herbarium specimen images into structured biodiversity data using stat
             Markdown(welcome_text),
             title="🔬 [bold blue]AAFC Herbarium Digitization[/bold blue]",
             border_style="blue",
-            padding=(1, 2)
+            padding=(1, 2),
         )
 
         self.console.print(panel)
@@ -107,14 +115,16 @@ Transform herbarium specimen images into structured biodiversity data using stat
             if config_file_str:
                 config_file = Path(config_file_str)
                 if not config_file.exists():
-                    self.console.print(f"[yellow]⚠️  Config file not found: {config_file_str}[/yellow]")
+                    self.console.print(
+                        f"[yellow]⚠️  Config file not found: {config_file_str}[/yellow]"
+                    )
                     config_file = None
 
         return {
-            'input_dir': input_path,
-            'output_dir': output_path,
-            'engine': engine,
-            'config_file': config_file
+            "input_dir": input_path,
+            "output_dir": output_path,
+            "engine": engine,
+            "config_file": config_file,
         }
 
     def create_processing_display(self) -> Table:
@@ -142,13 +152,18 @@ Transform herbarium specimen images into structured biodiversity data using stat
         if self.stats.start_time:
             elapsed = datetime.now() - self.stats.start_time
             rate = processed / elapsed.total_seconds() if elapsed.total_seconds() > 0 else 0
-            stats_table.add_row("⏱️  Elapsed", str(elapsed).split('.')[0])
+            stats_table.add_row("⏱️  Elapsed", str(elapsed).split(".")[0])
             stats_table.add_row("🚀 Rate", f"{rate:.1f} img/sec")
 
             if processed > 0 and processed < total:
                 eta_seconds = (total - processed) / rate if rate > 0 else 0
                 from datetime import timedelta
-                eta = datetime.now().replace(microsecond=0) + timedelta(seconds=eta_seconds) if eta_seconds > 0 else None
+
+                eta = (
+                    datetime.now().replace(microsecond=0) + timedelta(seconds=eta_seconds)
+                    if eta_seconds > 0
+                    else None
+                )
                 if eta:
                     stats_table.add_row("🎯 ETA", eta.strftime("%H:%M:%S"))
 
@@ -166,7 +181,9 @@ Transform herbarium specimen images into structured biodiversity data using stat
 
         total_engine_uses = sum(self.stats.engine_stats.values())
 
-        for engine, count in sorted(self.stats.engine_stats.items(), key=lambda x: x[1], reverse=True):
+        for engine, count in sorted(
+            self.stats.engine_stats.items(), key=lambda x: x[1], reverse=True
+        ):
             percentage = (count / total_engine_uses * 100) if total_engine_uses > 0 else 0
             engine_table.add_row(engine, str(count), f"{percentage:.1f}%")
 
@@ -175,17 +192,13 @@ Transform herbarium specimen images into structured biodiversity data using stat
     def create_error_display(self) -> Panel:
         """Create error log display."""
         if not self.stats.errors:
-            return Panel(
-                "[dim]No errors reported[/dim]",
-                title="🛡️ Error Log",
-                border_style="green"
-            )
+            return Panel("[dim]No errors reported[/dim]", title="🛡️ Error Log", border_style="green")
 
         error_text = "\n".join(self.stats.errors[-5:])  # Show last 5 errors
         return Panel(
             error_text,
             title=f"⚠️ Recent Errors ({len(self.stats.errors)} total)",
-            border_style="red"
+            border_style="red",
         )
 
     async def run_processing_with_ui(self, config: Dict[str, Any]):
@@ -194,7 +207,8 @@ Transform herbarium specimen images into structured biodiversity data using stat
 
         # Count total images
         from io_utils.read import iter_images
-        image_list = list(iter_images(config['input_dir']))
+
+        image_list = list(iter_images(config["input_dir"]))
         self.stats.total_images = len(image_list)
 
         if self.stats.total_images == 0:
@@ -211,10 +225,8 @@ Transform herbarium specimen images into structured biodiversity data using stat
             console=self.console,
             transient=True,
         ) as progress:
-
             overall_task = progress.add_task(
-                f"🔄 Processing {self.stats.total_images} images...",
-                total=self.stats.total_images
+                f"🔄 Processing {self.stats.total_images} images...", total=self.stats.total_images
             )
 
             # Create live display
@@ -222,9 +234,8 @@ Transform herbarium specimen images into structured biodiversity data using stat
                 self.create_main_layout(),
                 console=self.console,
                 refresh_per_second=2,
-                transient=False
+                transient=False,
             ) as live:
-
                 # Run real processing with progress updates
                 await self.run_real_processing(config, progress, overall_task, live)
 
@@ -235,53 +246,44 @@ Transform herbarium specimen images into structured biodiversity data using stat
         """Create the main live display layout."""
         # Create layout columns
         left_column = Panel(
-            self.create_processing_display(),
-            title="📊 Processing Status",
-            border_style="blue"
+            self.create_processing_display(), title="📊 Processing Status", border_style="blue"
         )
 
-        right_column = Columns([
-            Panel(
-                self.create_engine_stats(),
-                title="🤖 Engine Stats",
-                border_style="yellow"
-            ),
-            Panel(
-                self.create_error_display(),
-                title="🛡️ Status Log",
-                border_style="green"
-            )
-        ])
+        right_column = Columns(
+            [
+                Panel(self.create_engine_stats(), title="🤖 Engine Stats", border_style="yellow"),
+                Panel(self.create_error_display(), title="🛡️ Status Log", border_style="green"),
+            ]
+        )
 
         main_layout = Columns([left_column, right_column])
 
         return Panel(
             main_layout,
             title="🌿 [bold green]Herbarium OCR Processing[/bold green]",
-            border_style="bright_green"
+            border_style="bright_green",
         )
 
     async def run_real_processing(self, config, progress, overall_task, live):
         """Run real processing with progress updates."""
         from progress_tracker import global_tracker
-        from cli import process_cli
         import threading
 
         # Setup progress callback to update our UI
         def ui_update_callback(update):
-            if update.type == 'progress' and update.data.get('current_image'):
-                self.stats.current_image = update.data['current_image']
+            if update.type == "progress" and update.data.get("current_image"):
+                self.stats.current_image = update.data["current_image"]
                 live.update(self.create_main_layout())
-            elif update.type == 'success':
+            elif update.type == "success":
                 self.stats.successful += 1
-                engine = update.data.get('engine', 'unknown')
+                engine = update.data.get("engine", "unknown")
                 self.stats.engine_stats[engine] = self.stats.engine_stats.get(engine, 0) + 1
                 self.stats.processed += 1
                 progress.update(overall_task, advance=1)
                 live.update(self.create_main_layout())
-            elif update.type == 'error':
+            elif update.type == "error":
                 self.stats.failed += 1
-                self.stats.errors.append(update.data.get('error', update.message))
+                self.stats.errors.append(update.data.get("error", update.message))
                 self.stats.processed += 1
                 progress.update(overall_task, advance=1)
                 live.update(self.create_main_layout())
@@ -293,12 +295,12 @@ Transform herbarium specimen images into structured biodiversity data using stat
             processing_thread = threading.Thread(
                 target=process_cli,
                 args=(
-                    config['input_dir'],
-                    config['output_dir'],
-                    config.get('config_file'),
-                    [config['engine']] if config['engine'] else None,
-                    False  # resume
-                )
+                    config["input_dir"],
+                    config["output_dir"],
+                    config.get("config_file"),
+                    [config["engine"]] if config["engine"] else None,
+                    False,  # resume
+                ),
             )
 
             processing_thread.start()
@@ -317,7 +319,7 @@ Transform herbarium specimen images into structured biodiversity data using stat
         """Simulate processing for demo (fallback if real processing fails)."""
         from io_utils.read import iter_images
 
-        for i, img_path in enumerate(iter_images(config['input_dir'])):
+        for i, img_path in enumerate(iter_images(config["input_dir"])):
             self.stats.current_image = img_path.name
 
             # Simulate processing time
@@ -325,13 +327,16 @@ Transform herbarium specimen images into structured biodiversity data using stat
 
             # Simulate success/failure
             import random
+
             if random.random() < 0.9:  # 90% success rate
                 self.stats.successful += 1
-                engine = random.choice(['vision', 'tesseract', 'gpt'])
+                engine = random.choice(["vision", "tesseract", "gpt"])
                 self.stats.engine_stats[engine] = self.stats.engine_stats.get(engine, 0) + 1
             else:
                 self.stats.failed += 1
-                self.stats.errors.append(f"Failed to process {img_path.name}: OCR confidence too low")
+                self.stats.errors.append(
+                    f"Failed to process {img_path.name}: OCR confidence too low"
+                )
 
             self.stats.processed += 1
             progress.update(overall_task, advance=1)
@@ -339,7 +344,9 @@ Transform herbarium specimen images into structured biodiversity data using stat
 
     def display_results(self):
         """Display final processing results."""
-        success_rate = (self.stats.successful / self.stats.processed * 100) if self.stats.processed > 0 else 0
+        success_rate = (
+            (self.stats.successful / self.stats.processed * 100) if self.stats.processed > 0 else 0
+        )
 
         results_text = f"""
 ## 🎉 Processing Complete!
@@ -362,7 +369,7 @@ Transform herbarium specimen images into structured biodiversity data using stat
             Markdown(results_text),
             title="✅ [bold green]Results[/bold green]",
             border_style="green",
-            padding=(1, 2)
+            padding=(1, 2),
         )
 
         self.console.print(panel)
@@ -390,7 +397,7 @@ Transform herbarium specimen images into structured biodiversity data using stat
             choice = Prompt.ask(
                 "\n[bold yellow]Select an action[/bold yellow]",
                 choices=["1", "2", "3", "4", "5", "6", "7"],
-                default="1"
+                default="1",
             )
 
             if choice == "1":
@@ -417,7 +424,7 @@ Transform herbarium specimen images into structured biodiversity data using stat
         config = self.get_processing_config()
 
         # Confirm before processing
-        self.console.print(f"\n[bold yellow]📋 Configuration Summary:[/bold yellow]")
+        self.console.print("\n[bold yellow]📋 Configuration Summary:[/bold yellow]")
         self.console.print(f"Input: {config['input_dir']}")
         self.console.print(f"Output: {config['output_dir']}")
         self.console.print(f"Engine: {config['engine']}")
@@ -456,12 +463,18 @@ Transform herbarium specimen images into structured biodiversity data using stat
 
         # Launch web server (this would be async in real implementation)
         import subprocess
+
         try:
-            subprocess.run([
-                "python", "review_web.py",
-                "--db", str(candidates_db),
-                "--images", str(latest_results.parent / "trial_images")
-            ])
+            subprocess.run(
+                [
+                    "python",
+                    "review_web.py",
+                    "--db",
+                    str(candidates_db),
+                    "--images",
+                    str(latest_results.parent / "trial_images"),
+                ]
+            )
         except KeyboardInterrupt:
             self.console.print("\n[yellow]🛑 Web server stopped[/yellow]")
 
@@ -484,7 +497,12 @@ Transform herbarium specimen images into structured biodiversity data using stat
             for i, d in enumerate(results_dirs, 1):
                 self.console.print(f"{i}. {d.name} ({d.stat().st_mtime})")
 
-            choice = int(Prompt.ask("Select results to export", choices=[str(i) for i in range(1, len(results_dirs) + 1)]))
+            choice = int(
+                Prompt.ask(
+                    "Select results to export",
+                    choices=[str(i) for i in range(1, len(results_dirs) + 1)],
+                )
+            )
             selected_dir = results_dirs[choice - 1]
 
         # Export options
@@ -511,19 +529,12 @@ Transform herbarium specimen images into structured biodiversity data using stat
             bucket = Prompt.ask("S3 bucket name", default="devvyn.aafc-srdc.herbarium")
             region = Prompt.ask("AWS region", default="ca-central-1")
 
-            config = {
-                'type': 's3',
-                'bucket': bucket,
-                'region': region
-            }
+            config = {"type": "s3", "bucket": bucket, "region": region}
 
         elif source_type == "local":
             base_path = Prompt.ask("Local images directory", default="./images")
 
-            config = {
-                'type': 'local',
-                'base_path': base_path
-            }
+            config = {"type": "local", "base_path": base_path}
 
         else:  # multi
             self.console.print("Multi-source setup: local cache with S3 fallback")
@@ -531,11 +542,11 @@ Transform herbarium specimen images into structured biodiversity data using stat
             bucket = Prompt.ask("S3 bucket name", default="devvyn.aafc-srdc.herbarium")
 
             config = {
-                'type': 'multi',
-                'sources': [
-                    {'type': 'local', 'base_path': local_path},
-                    {'type': 's3', 'bucket': bucket, 'region': 'ca-central-1'}
-                ]
+                "type": "multi",
+                "sources": [
+                    {"type": "local", "base_path": local_path},
+                    {"type": "s3", "bucket": bucket, "region": "ca-central-1"},
+                ],
             }
 
         # Test configuration
@@ -545,7 +556,9 @@ Transform herbarium specimen images into structured biodiversity data using stat
             # Test with a known hash
             test_hash = "000e426d6ed12c347a937c47f568088a8daa32cdea3127d90f1eca5653831c84"
             exists = source.exists(test_hash)
-            self.console.print(f"✅ Configuration valid. Test image {'found' if exists else 'not found'}.")
+            self.console.print(
+                f"✅ Configuration valid. Test image {'found' if exists else 'not found'}."
+            )
         except Exception as e:
             self.console.print(f"[red]❌ Configuration error: {e}[/red]")
 
@@ -603,12 +616,14 @@ Transform herbarium specimen images into structured biodiversity data using stat
 - Configuration: `config/` directory
         """
 
-        self.console.print(Panel(
-            Markdown(help_text),
-            title="📖 [bold blue]Help & Documentation[/bold blue]",
-            border_style="blue",
-            padding=(1, 2)
-        ))
+        self.console.print(
+            Panel(
+                Markdown(help_text),
+                title="📖 [bold blue]Help & Documentation[/bold blue]",
+                border_style="blue",
+                padding=(1, 2),
+            )
+        )
 
         Prompt.ask("Press Enter to continue...")
 

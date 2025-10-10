@@ -19,13 +19,12 @@ Usage:
 
 import argparse
 import json
-import sys
-import time
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
+
 
 # Provider configurations
 class Provider(str, Enum):
@@ -39,6 +38,7 @@ class Provider(str, Enum):
 @dataclass
 class ProviderConfig:
     """Configuration for a single provider."""
+
     name: Provider
     cost_per_specimen: float
     batch_api_available: bool
@@ -57,7 +57,7 @@ PROVIDERS = {
         speed_per_hour=1400,
         proven_quality=0.95,
         api_key_env="OPENAI_API_KEY",
-        notes="Proven baseline, 95%+ quality"
+        notes="Proven baseline, 95%+ quality",
     ),
     Provider.GPT4O: ProviderConfig(
         name=Provider.GPT4O,
@@ -66,7 +66,7 @@ PROVIDERS = {
         speed_per_hour=1400,
         proven_quality=None,
         api_key_env="OPENAI_API_KEY",
-        notes="Premium quality, 20× cost"
+        notes="Premium quality, 20× cost",
     ),
     Provider.GEMINI_FLASH_LITE: ProviderConfig(
         name=Provider.GEMINI_FLASH_LITE,
@@ -75,7 +75,7 @@ PROVIDERS = {
         speed_per_hour=600,
         proven_quality=None,
         api_key_env="GOOGLE_API_KEY",
-        notes="Cheapest cross-provider option"
+        notes="Cheapest cross-provider option",
     ),
 }
 
@@ -83,6 +83,7 @@ PROVIDERS = {
 @dataclass
 class ExtractionMetrics:
     """Metrics collected from extraction batch."""
+
     specimens_processed: int
     success_rate: float
     field_coverage: Dict[str, float]
@@ -96,6 +97,7 @@ class ExtractionMetrics:
 @dataclass
 class Decision:
     """Autonomous decision made by orchestrator."""
+
     decision_id: str
     timestamp: datetime
     trigger: str
@@ -118,7 +120,7 @@ class AutonomousOrchestrator:
         quality_floor: float = 0.90,
         confidence_floor: float = 0.70,
         rebalance_interval: int = 500,
-        research_reserve: float = 0.30  # 30% of budget reserved for experiments
+        research_reserve: float = 0.30,  # 30% of budget reserved for experiments
     ):
         """
         Initialize orchestrator.
@@ -171,11 +173,7 @@ class AutonomousOrchestrator:
             # Later phases may use research budget
             self.spent_research += metrics.cost_spent
 
-    def make_decision(
-        self,
-        specimens_remaining: int,
-        trigger: str
-    ) -> Decision:
+    def make_decision(self, specimens_remaining: int, trigger: str) -> Decision:
         """
         Make autonomous decision about next extraction batch.
 
@@ -196,27 +194,35 @@ class AutonomousOrchestrator:
 
             # Calculate average field coverage
             avg_coverage = sum(latest.field_coverage.values()) / len(latest.field_coverage)
-            avg_confidence = sum(latest.average_confidence.values()) / len(latest.average_confidence)
+            avg_confidence = sum(latest.average_confidence.values()) / len(
+                latest.average_confidence
+            )
 
             # Decision logic
             if avg_coverage >= 0.95 and avg_confidence >= self.confidence_floor:
                 # Quality excellent, continue with current provider
                 provider = latest.provider
-                rationale = f"Quality excellent ({avg_coverage:.1%} coverage), continuing with {provider}"
+                rationale = (
+                    f"Quality excellent ({avg_coverage:.1%} coverage), continuing with {provider}"
+                )
 
             elif avg_coverage < self.quality_floor:
                 # Quality below floor, try alternative provider
                 if latest.provider == Provider.GPT4O_MINI:
                     provider = Provider.GEMINI_FLASH_LITE
-                    rationale = f"Quality below floor ({avg_coverage:.1%}), testing Gemini alternative"
+                    rationale = (
+                        f"Quality below floor ({avg_coverage:.1%}), testing Gemini alternative"
+                    )
                 else:
                     provider = Provider.GPT4O
-                    rationale = f"Quality issues persist, escalating to premium GPT-4o"
+                    rationale = "Quality issues persist, escalating to premium GPT-4o"
 
             elif avg_confidence < self.confidence_floor:
                 # Low confidence, use premium for selective extraction
                 provider = Provider.GPT4O
-                rationale = f"Low confidence ({avg_confidence:.2f}), using premium model selectively"
+                rationale = (
+                    f"Low confidence ({avg_confidence:.2f}), using premium model selectively"
+                )
 
             else:
                 # Quality acceptable, continue
@@ -237,13 +243,15 @@ class AutonomousOrchestrator:
                 "specimens_processed": self.specimens_processed,
                 "budget_spent": self.spent_main + self.spent_research,
                 "budget_remaining": self.budget - (self.spent_main + self.spent_research),
-                "latest_quality": self.metrics_history[-1].field_coverage if self.metrics_history else None
+                "latest_quality": self.metrics_history[-1].field_coverage
+                if self.metrics_history
+                else None,
             },
             decision=f"Extract {batch_size} specimens with {provider}",
             provider_selected=provider,
             specimens_affected=batch_size,
             estimated_cost=estimated_cost,
-            rationale=rationale
+            rationale=rationale,
         )
 
         self.decisions.append(decision)
@@ -273,7 +281,7 @@ class AutonomousOrchestrator:
                 "budget_research": self.budget_research,
                 "quality_floor": self.quality_floor,
                 "confidence_floor": self.confidence_floor,
-                "rebalance_interval": self.rebalance_interval
+                "rebalance_interval": self.rebalance_interval,
             },
             "execution_summary": {
                 "specimens_processed": self.specimens_processed,
@@ -281,11 +289,11 @@ class AutonomousOrchestrator:
                 "spent_research": self.spent_research,
                 "spent_total": self.spent_main + self.spent_research,
                 "budget_utilization": (self.spent_main + self.spent_research) / self.budget,
-                "decisions_made": len(self.decisions)
+                "decisions_made": len(self.decisions),
             },
             "metrics_history": [asdict(m) for m in self.metrics_history],
             "decisions": [asdict(d) for d in self.decisions],
-            "providers_used": list(set(m.provider for m in self.metrics_history))
+            "providers_used": list(set(m.provider for m in self.metrics_history)),
         }
 
         report_path = output_dir / "orchestration_report.json"
@@ -301,45 +309,34 @@ def main():
         description="Autonomous progressive balancer for multi-provider extraction"
     )
     parser.add_argument(
-        "--input",
-        type=Path,
-        required=True,
-        help="Input directory containing specimen images"
+        "--input", type=Path, required=True, help="Input directory containing specimen images"
     )
     parser.add_argument(
-        "--output",
-        type=Path,
-        required=True,
-        help="Output directory for extraction results"
+        "--output", type=Path, required=True, help="Output directory for extraction results"
     )
     parser.add_argument(
-        "--budget",
-        type=float,
-        default=150.0,
-        help="Total budget in USD (default: 150)"
+        "--budget", type=float, default=150.0, help="Total budget in USD (default: 150)"
     )
     parser.add_argument(
         "--quality-floor",
         type=float,
         default=0.90,
-        help="Minimum acceptable field coverage (default: 0.90)"
+        help="Minimum acceptable field coverage (default: 0.90)",
     )
     parser.add_argument(
         "--confidence-floor",
         type=float,
         default=0.70,
-        help="Minimum acceptable confidence (default: 0.70)"
+        help="Minimum acceptable confidence (default: 0.70)",
     )
     parser.add_argument(
         "--rebalance-interval",
         type=int,
         default=500,
-        help="Specimens between rebalancing decisions (default: 500)"
+        help="Specimens between rebalancing decisions (default: 500)",
     )
     parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Simulate decisions without executing extractions"
+        "--dry-run", action="store_true", help="Simulate decisions without executing extractions"
     )
 
     args = parser.parse_args()
@@ -352,7 +349,7 @@ def main():
         budget=args.budget,
         quality_floor=args.quality_floor,
         confidence_floor=args.confidence_floor,
-        rebalance_interval=args.rebalance_interval
+        rebalance_interval=args.rebalance_interval,
     )
 
     print("=" * 80)
@@ -381,7 +378,7 @@ def main():
         while specimens_remaining > 0:
             decision = orchestrator.make_decision(
                 specimens_remaining=specimens_remaining,
-                trigger=f"rebalance_at_{orchestrator.specimens_processed}"
+                trigger=f"rebalance_at_{orchestrator.specimens_processed}",
             )
 
             print(f"Decision {decision.decision_id}:")
@@ -400,8 +397,10 @@ def main():
                 field_coverage={"catalogNumber": 0.95, "scientificName": 0.98},
                 average_confidence={"catalogNumber": 0.85, "scientificName": 0.88},
                 cost_spent=decision.estimated_cost,
-                time_elapsed=decision.specimens_affected / PROVIDERS[decision.provider_selected].speed_per_hour * 3600,
-                provider=decision.provider_selected
+                time_elapsed=decision.specimens_affected
+                / PROVIDERS[decision.provider_selected].speed_per_hour
+                * 3600,
+                provider=decision.provider_selected,
             )
 
             orchestrator.record_metrics(simulated_metrics)

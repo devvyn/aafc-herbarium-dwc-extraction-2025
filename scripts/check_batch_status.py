@@ -8,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     pass
@@ -30,7 +31,9 @@ for batch_id in batch_ids:
         status = engine.fetch_status(batch_id)
         print(f"{status.status_emoji} {batch_id[:24]}...")
         print(f"   Status: {status.status}")
-        print(f"   Progress: {status.progress.completed}/{status.progress.total} ({status.progress.completion_percentage:.0f}%)")
+        print(
+            f"   Progress: {status.progress.completed}/{status.progress.total} ({status.progress.completion_percentage:.0f}%)"
+        )
         print(f"   Elapsed: {status.timing.elapsed_minutes:.1f} min")
         if status.completion_eta_seconds:
             print(f"   ETA: ~{status.completion_eta_seconds / 60:.1f} min")

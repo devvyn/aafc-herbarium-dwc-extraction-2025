@@ -38,9 +38,7 @@ from batch_monitor.notifications import NotificationManager
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Monitor batches with desktop notifications"
-    )
+    parser = argparse.ArgumentParser(description="Monitor batches with desktop notifications")
     parser.add_argument(
         "--batch-id",
         action="append",

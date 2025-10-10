@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """Demo script for the new UI interfaces - non-interactive version."""
 
-import asyncio
 from pathlib import Path
 from datetime import datetime
 import sys
+
 
 def demo_progress_tracker():
     """Demonstrate the progress tracking system."""
     print("🔄 Progress Tracker Demo")
     print("=" * 50)
 
-    from progress_tracker import ProgressTracker, ProgressUpdate, create_tui_callback
+    from progress_tracker import ProgressTracker, create_tui_callback
 
     # Create tracker with TUI callback
     tracker = ProgressTracker()
@@ -24,7 +24,14 @@ def demo_progress_tracker():
     tracker.start_processing(5, {"engine": "vision"})
 
     import time
-    test_images = ["specimen_001.jpg", "specimen_002.jpg", "specimen_003.jpg", "specimen_004.jpg", "specimen_005.jpg"]
+
+    test_images = [
+        "specimen_001.jpg",
+        "specimen_002.jpg",
+        "specimen_003.jpg",
+        "specimen_004.jpg",
+        "specimen_005.jpg",
+    ]
 
     for i, img_name in enumerate(test_images):
         img_path = Path(img_name)
@@ -41,7 +48,7 @@ def demo_progress_tracker():
 
     # Show final stats
     stats = tracker.get_stats()
-    print(f"\n📊 Final Statistics:")
+    print("\n📊 Final Statistics:")
     print(f"   Total: {stats['processed']}")
     print(f"   Successful: {stats['successful']} ")
     print(f"   Failed: {stats['failed']}")
@@ -117,10 +124,10 @@ def demo_web_components():
             current_image="specimen_008.jpg",
             start_time=datetime.now().isoformat(),
             errors=["Processing error on specimen_003.jpg"],
-            engine_stats={"vision": 5, "tesseract": 1, "gpt": 1}
+            engine_stats={"vision": 5, "tesseract": 1, "gpt": 1},
         )
 
-        print(f"📊 Demo Status Object:")
+        print("📊 Demo Status Object:")
         print(f"   Total Images: {status.total_images}")
         print(f"   Processed: {status.processed}")
         print(f"   Success Rate: {status.successful/status.processed*100:.1f}%")
@@ -166,9 +173,11 @@ def demo_cli_integration():
     # Demo the CLI command that would be run
     demo_output_dir = Path("demo_cli_results")
 
-    print(f"\n💻 CLI Command Demonstration:")
-    print(f"   python cli.py process --input trial_images --output {demo_output_dir} --engine vision")
-    print(f"   (With integrated progress tracking to TUI/Web interfaces)")
+    print("\n💻 CLI Command Demonstration:")
+    print(
+        f"   python cli.py process --input trial_images --output {demo_output_dir} --engine vision"
+    )
+    print("   (With integrated progress tracking to TUI/Web interfaces)")
 
     print("✅ CLI integration ready")
 
@@ -191,7 +200,7 @@ def demo_unified_launcher():
             "🌐 Web Dashboard",
             "⚡ CLI (Command Line)",
             "🔄 Quick Trial",
-            "❓ Help"
+            "❓ Help",
         ]
 
         print("\n🎯 Available Interfaces:")
@@ -256,6 +265,7 @@ def main():
     except Exception as e:
         print(f"\n❌ Demo failed: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 

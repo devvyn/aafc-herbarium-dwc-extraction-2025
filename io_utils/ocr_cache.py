@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Optional, Dict, Any
 
 from sqlalchemy import Float, String, Text, Boolean, JSON, create_engine, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
@@ -57,7 +57,9 @@ class RunLineage(Base):
 
     run_id: Mapped[str] = mapped_column(String, primary_key=True)
     specimen_id: Mapped[str] = mapped_column(String, primary_key=True)
-    processing_status: Mapped[str] = mapped_column(String)  # "completed", "failed", "skipped", "cached"
+    processing_status: Mapped[str] = mapped_column(
+        String
+    )  # "completed", "failed", "skipped", "cached"
     processed_at: Mapped[str | None] = mapped_column(String, nullable=True)
     cache_hit: Mapped[bool] = mapped_column(Boolean, default=False)
 
@@ -206,13 +208,13 @@ def get_cache_stats(session: Session, run_id: str) -> Dict[str, int]:
     stats = {
         "total": len(lineages),
         "cache_hits": sum(1 for l in lineages if l.cache_hit),
-        "new_ocr": sum(1 for l in lineages if not l.cache_hit and l.processing_status == "completed"),
+        "new_ocr": sum(
+            1 for l in lineages if not l.cache_hit and l.processing_status == "completed"
+        ),
         "failed": sum(1 for l in lineages if l.processing_status == "failed"),
         "skipped": sum(1 for l in lineages if l.processing_status == "skipped"),
     }
-    stats["cache_hit_rate"] = (
-        stats["cache_hits"] / stats["total"] if stats["total"] > 0 else 0.0
-    )
+    stats["cache_hit_rate"] = stats["cache_hits"] / stats["total"] if stats["total"] > 0 else 0.0
     return stats
 
 

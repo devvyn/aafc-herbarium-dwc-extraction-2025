@@ -37,67 +37,66 @@ def simple_extract_dwc(ocr_text: str) -> Dict[str, str]:
     # Scientific name (usually early in label, often with botanical formatting)
     # Look for Latin binomial pattern
     sci_name_match = re.search(
-        r'\b([A-Z][a-z]+\s+[a-z]+(?:\s+(?:var\.|subsp\.|f\.)\s+[a-z]+)?)',
-        text
+        r"\b([A-Z][a-z]+\s+[a-z]+(?:\s+(?:var\.|subsp\.|f\.)\s+[a-z]+)?)", text
     )
     if sci_name_match:
-        dwc['scientificName'] = sci_name_match.group(1).strip()
+        dwc["scientificName"] = sci_name_match.group(1).strip()
 
     # Collector name
     # Look for "Collector" label followed by name
     collector_match = re.search(
-        r'(?:Collector[:\.]?|Coll\.)\s*([A-Z][A-Za-z\.\s]+?)(?:\s*Date|$)',
-        text,
-        re.IGNORECASE
+        r"(?:Collector[:\.]?|Coll\.)\s*([A-Z][A-Za-z\.\s]+?)(?:\s*Date|$)", text, re.IGNORECASE
     )
     if collector_match:
-        dwc['recordedBy'] = collector_match.group(1).strip()
+        dwc["recordedBy"] = collector_match.group(1).strip()
 
     # Collection date
     # Look for dates in various formats
     date_patterns = [
-        r'(?:Date[:\.]?)\s*([A-Z][a-z]+\.?\s+\d{1,2},?\s+\d{4})',  # Aug. 22, 1985
-        r'(?:Date[:\.]?)\s*(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})',  # 22-08-1985
-        r'(\d{4})',  # Just year
+        r"(?:Date[:\.]?)\s*([A-Z][a-z]+\.?\s+\d{1,2},?\s+\d{4})",  # Aug. 22, 1985
+        r"(?:Date[:\.]?)\s*(\d{1,2}[-/]\d{1,2}[-/]\d{2,4})",  # 22-08-1985
+        r"(\d{4})",  # Just year
     ]
     for pattern in date_patterns:
         date_match = re.search(pattern, text, re.IGNORECASE)
         if date_match:
-            dwc['eventDate'] = date_match.group(1).strip()
+            dwc["eventDate"] = date_match.group(1).strip()
             break
 
     # Locality
     # Look for location-related keywords
     locality_match = re.search(
-        r'(?:Locality|Location|Habitat)[:\.]?\s*([A-Za-z0-9\s,\-]+?)(?:\s*(?:Collector|Date|Host)|$)',
+        r"(?:Locality|Location|Habitat)[:\.]?\s*([A-Za-z0-9\s,\-]+?)(?:\s*(?:Collector|Date|Host)|$)",
         text,
-        re.IGNORECASE
+        re.IGNORECASE,
     )
     if locality_match:
-        dwc['locality'] = locality_match.group(1).strip()
+        dwc["locality"] = locality_match.group(1).strip()
 
     # Country (default to Canada for AAFC specimens)
-    if 'CANADA' in text.upper() or 'REGINA' in text.upper() or 'SASKATCHEWAN' in text.upper():
-        dwc['country'] = 'Canada'
-        dwc['stateProvince'] = 'Saskatchewan'
+    if "CANADA" in text.upper() or "REGINA" in text.upper() or "SASKATCHEWAN" in text.upper():
+        dwc["country"] = "Canada"
+        dwc["stateProvince"] = "Saskatchewan"
 
     # Institution code (if AAFC/Agriculture Canada mentioned)
-    if 'AGRICULTURE CANADA' in text.upper() or 'AAFC' in text.upper():
-        dwc['institutionCode'] = 'AAFC'
-        dwc['collectionCode'] = 'REGINA'
+    if "AGRICULTURE CANADA" in text.upper() or "AAFC" in text.upper():
+        dwc["institutionCode"] = "AAFC"
+        dwc["collectionCode"] = "REGINA"
 
     # Catalog number (look for specimen numbers)
-    catalog_match = re.search(r'(?:No\.|Number|#)\s*([A-Z]?[-]?\d+)', text, re.IGNORECASE)
+    catalog_match = re.search(r"(?:No\.|Number|#)\s*([A-Z]?[-]?\d+)", text, re.IGNORECASE)
     if catalog_match:
-        dwc['catalogNumber'] = catalog_match.group(1).strip()
+        dwc["catalogNumber"] = catalog_match.group(1).strip()
 
     # Basis of record (always PreservedSpecimen for herbarium)
-    dwc['basisOfRecord'] = 'PreservedSpecimen'
+    dwc["basisOfRecord"] = "PreservedSpecimen"
 
     return dwc
 
 
-def gpt_extract_dwc(ocr_text: str, model: str = "gpt-4o-mini") -> Tuple[Dict[str, str], Dict[str, float]]:
+def gpt_extract_dwc(
+    ocr_text: str, model: str = "gpt-4o-mini"
+) -> Tuple[Dict[str, str], Dict[str, float]]:
     """Extract Darwin Core fields using GPT API.
 
     Requires OPENAI_API_KEY environment variable.
@@ -123,16 +122,23 @@ Label text:
         response = client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": "You are a botanical data extraction expert. Extract Darwin Core fields from specimen labels."},
-                {"role": "user", "content": prompt + ocr_text}
+                {
+                    "role": "system",
+                    "content": "You are a botanical data extraction expert. Extract Darwin Core fields from specimen labels.",
+                },
+                {"role": "user", "content": prompt + ocr_text},
             ],
             response_format={"type": "json_object"},
             temperature=0.1,
         )
 
         data = json.loads(response.choices[0].message.content)
-        dwc = {k: v.get("value", "") for k, v in data.items() if isinstance(v, dict) and v.get("value")}
-        confidences = {k: float(v.get("confidence", 0.0)) for k, v in data.items() if isinstance(v, dict)}
+        dwc = {
+            k: v.get("value", "") for k, v in data.items() if isinstance(v, dict) and v.get("value")
+        }
+        confidences = {
+            k: float(v.get("confidence", 0.0)) for k, v in data.items() if isinstance(v, dict)
+        }
 
         return dwc, confidences
 
@@ -142,9 +148,7 @@ Label text:
 
 
 def process_run_directory(
-    run_dir: Path,
-    method: str = "simple",
-    limit: Optional[int] = None
+    run_dir: Path, method: str = "simple", limit: Optional[int] = None
 ) -> Tuple[List[Dict[str, str]], Dict[str, any]]:
     """Process all records in a run directory using candidates.db for OCR text."""
 
@@ -189,10 +193,14 @@ def process_run_directory(
             ocr_confidence = row["confidence"]
             has_error = row["error"]
 
-            specimen_id = Path(image_name).stem if image_name else f"record_{stats['total_records']}"
+            specimen_id = (
+                Path(image_name).stem if image_name else f"record_{stats['total_records']}"
+            )
 
             if not ocr_text or has_error:
-                print(f"WARNING: No OCR text for {specimen_id} (error={has_error})", file=sys.stderr)
+                print(
+                    f"WARNING: No OCR text for {specimen_id} (error={has_error})", file=sys.stderr
+                )
                 stats["empty_ocr_text"] += 1
                 continue
 
@@ -249,7 +257,7 @@ def write_occurrence_csv(records: List[Dict[str, str]], output_path: Path):
     # Sort fields for consistent column order
     fieldnames = sorted(all_fields)
 
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+    with open(output_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(records)
@@ -286,20 +294,20 @@ def main():
 
     write_occurrence_csv(records, occurrence_csv)
 
-    with open(report_json, 'w') as f:
+    with open(report_json, "w") as f:
         json.dump(stats, f, indent=2, default=str)
 
     # Print summary
     print(f"\n{'='*60}")
-    print(f"EXTRACTION SUMMARY")
+    print("EXTRACTION SUMMARY")
     print(f"{'='*60}")
     print(f"Total records processed: {stats['total_records']}")
     print(f"Successful extractions: {stats['successful_extractions']}")
     print(f"Failed extractions: {stats['failed_extractions']}")
     print(f"Empty OCR text: {stats['empty_ocr_text']}")
-    print(f"\nField coverage (top 10):")
-    for field, count in stats['field_coverage'].most_common(10):
-        pct = (count / stats['total_records'] * 100) if stats['total_records'] > 0 else 0
+    print("\nField coverage (top 10):")
+    for field, count in stats["field_coverage"].most_common(10):
+        pct = (count / stats["total_records"] * 100) if stats["total_records"] > 0 else 0
         print(f"  {field:30s}: {count:4d} ({pct:5.1f}%)")
     print(f"\nOutputs written to: {output_dir}")
     print(f"  - {occurrence_csv.name}")
