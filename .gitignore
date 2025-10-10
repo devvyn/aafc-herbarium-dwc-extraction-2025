@@ -269,3 +269,4 @@ examples/.DS_Store
 *.coordination.json
 *-status.json
 archive/
+.claude/settings.local.json
