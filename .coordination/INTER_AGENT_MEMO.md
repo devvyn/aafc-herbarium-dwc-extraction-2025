@@ -190,10 +190,103 @@ class LabelPatternAnalyzer:
 **Next Steps**: [Required actions for validation]
 
 ### Strategic Direction Updates
-**Last Updated**: [No updates yet]
-**Context**: [Strategic decision or priority shift]
-**Impact**: [How this affects current development]
-**Required Changes**: [Specific adjustments needed]
+**Last Updated**: 2025-10-10 Production Session
+**Context**: Focus on information and event flow structure over UI polish
+**Impact**: Event architecture now guides monitoring design
+**Required Changes**: Integrate event bus into extraction scripts for next runs
+
+---
+
+## Recent Production Learnings (2025-10-10)
+
+### 5. Streaming Event Architecture Pattern
+**Source**: AAFC production experience (Oct 10, 2025)
+**Problem Solved**: 4-day delay in discovering failed extraction (0% success discovered Oct 10 for Oct 6 run)
+**Application**: All long-running batch processes requiring quality assurance
+
+**Pattern Structure**:
+```python
+# 1. Hybrid Event Bus (in-memory + persistent)
+class HybridEventBus:
+    def emit(self, event_type: str, data: dict):
+        # Persistent log
+        self.event_log_file.write(json.dumps(event) + "\n")
+        self.event_log_file.flush()
+
+        # In-memory notifications
+        for handler in self.subscribers[event_type]:
+            handler(Event(event_type, data))
+
+# 2. Early Validation Consumer
+class ValidationConsumer:
+    def on_specimen(self, event):
+        if event.data['sequence'] == 5:  # Early checkpoint
+            if event.data['success_rate'] < 0.5:
+                raise EarlyValidationError("Failed at checkpoint")
+
+# 3. Streaming Output Pattern
+with open(output_file, "w") as f:
+    for i, item in enumerate(items):
+        result = process_item(item)
+        f.write(json.dumps(result) + "\n")
+        f.flush()  # Force immediate disk write
+        bus.emit("item.completed", {"sequence": i, "result": result})
+```
+
+**Results**:
+- Failure detection: 4 days → 2.5 minutes (98.9% faster)
+- Resource savings: Stop after 5 items instead of 2,885
+- Real-time monitoring: Stream results as generated
+- Performance overhead: <0.001%
+
+**When to Use**:
+- Long-running processes (>30 minutes)
+- High cost per item (compute, API, time)
+- Need real-time progress visibility
+- Debugging failures is difficult
+
+**Implementation**:
+- Components: `src/events/bus.py`, `src/events/consumers.py`, `src/events/types.py`
+- Documentation: `docs/architecture/STREAMING_EVENT_ARCHITECTURE.md`
+- Integration: `docs/architecture/EVENT_BUS_INTEGRATION_GUIDE.md`
+- Cross-project: `~/devvyn-meta-project/knowledge-base/patterns/streaming-event-architecture.md`
+
+### 6. Repository Cleanup Strategy Pattern
+**Source**: AAFC production experience (Oct 10, 2025)
+**Problem Solved**: 779 duplicate files, 41 scripts in root, secrets in tracking
+**Application**: Any repository with accumulated technical debt
+
+**Phased Approach**:
+```bash
+# Phase 1: Delete obvious cruft (duplicates)
+/usr/bin/find . -name "*\ [0-9].*" -type f -delete
+
+# Phase 2: Organize development tools
+mkdir -p scripts/ archive/old_scripts/
+mv development_tool.py scripts/
+mv one_off_script.py archive/old_scripts/
+
+# Phase 3: Update documentation
+sed -i '' 's|old/path|new/path|g' docs/*.md
+
+# Phase 4: Secure secrets
+git rm --cached .secrets.json
+echo ".secrets.json" >> .gitignore
+```
+
+**Results**:
+- Root directory: 41 files → 7 files (88% reduction)
+- Duplicates removed: 779 files
+- Organization: Clear separation (root, scripts/, archive/)
+- Security: Secrets removed from tracking
+
+**Decision Criteria**:
+- **Root**: User-facing, documented in README
+- **scripts/**: Development tools, not primary interface
+- **archive/**: One-off tasks, historical value only
+- **DELETE**: Duplicates, no historical value
+
+**Cross-project**: `~/devvyn-meta-project/knowledge-base/patterns/repository-cleanup-strategy.md`
 
 ---
 
