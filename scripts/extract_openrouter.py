@@ -20,19 +20,34 @@ Usage:
 import argparse
 import base64
 import json
+import logging
 import os
+import subprocess
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import requests
 from tqdm import tqdm
 
+# Setup logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from src.utils.environment import save_environment_snapshot
+from src.utils.environment import save_environment_snapshot  # noqa: E402
+
+# Load approved API keys
+sys.path.insert(0, str(Path.home() / "Secrets" / "approved-for-agents"))
+try:
+    from load_keys import load_api_keys
+
+    load_api_keys()  # Load OPENROUTER_API_KEY into os.environ
+except ImportError:
+    pass  # Fallback to manual key or env var
 
 
 # OpenRouter model registry
@@ -104,8 +119,82 @@ def create_vision_message(image_path: Path, system_prompt: str, user_prompt: str
     return messages
 
 
-def call_openrouter(messages: List[Dict], model: str, api_key: str, max_retries: int = 3) -> Dict:
-    """Call OpenRouter API with retry logic."""
+def provision_fresh_api_key() -> Optional[str]:
+    """
+    Automatically provision fresh OpenRouter API key.
+
+    Uses provisioning script to create new key with $15 limit.
+    Reloads keys into environment.
+
+    Returns:
+        New API key if successful, None otherwise
+    """
+    try:
+        logger.warning("🔑 API key expired/invalid - attempting auto-rotation...")
+
+        # Call provisioning script
+        provision_script = Path.home() / "devvyn-meta-project/scripts/provision-openrouter-key.sh"
+
+        if not provision_script.exists():
+            logger.error(f"❌ Provisioning script not found: {provision_script}")
+            return None
+
+        result = subprocess.run(
+            ["bash", str(provision_script), "--name", "auto-rotation", "--limit", "15.00"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+        if result.returncode != 0:
+            logger.error(f"❌ Provisioning failed: {result.stderr}")
+            return None
+
+        logger.info("✅ New key provisioned successfully")
+
+        # Reload keys into environment
+        try:
+            sys.path.insert(0, str(Path.home() / "Secrets" / "approved-for-agents"))
+            from load_keys import load_api_keys
+
+            load_api_keys()
+
+            new_key = os.environ.get("OPENROUTER_API_KEY")
+            if new_key:
+                logger.info(f"✅ Fresh key loaded: {new_key[:20]}...")
+                return new_key
+            else:
+                logger.error("❌ Key provisioned but not loaded into environment")
+                return None
+
+        except ImportError as e:
+            logger.error(f"❌ Failed to reload keys: {e}")
+            return None
+
+    except subprocess.TimeoutExpired:
+        logger.error("❌ Provisioning script timed out")
+        return None
+    except Exception as e:
+        logger.error(f"❌ Auto-provisioning error: {e}")
+        return None
+
+
+def call_openrouter(
+    messages: List[Dict], model: str, api_key: str, max_retries: int = 3, _key_rotated: bool = False
+) -> Dict:
+    """
+    Call OpenRouter API with retry logic and automatic key rotation.
+
+    Args:
+        messages: API messages
+        model: Model ID
+        api_key: Current API key
+        max_retries: Maximum retry attempts
+        _key_rotated: Internal flag to prevent infinite rotation loops
+
+    Returns:
+        API response as dictionary
+    """
     url = "https://openrouter.ai/api/v1/chat/completions"
 
     headers = {
@@ -125,17 +214,37 @@ def call_openrouter(messages: List[Dict], model: str, api_key: str, max_retries:
 
         except requests.exceptions.Timeout:
             if attempt < max_retries - 1:
-                wait = 2**attempt
-                print(f"  Timeout, retrying in {wait}s...")
-                time.sleep(wait)
+                logger.warning(f"Timeout, retrying in {2**attempt}s...")
+                time.sleep(2**attempt)
             else:
                 raise
 
         except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 429:  # Rate limit
+            if e.response.status_code == 401:  # Unauthorized - API key expired/invalid
+                if not _key_rotated:
+                    # Attempt automatic key rotation (once only)
+                    fresh_key = provision_fresh_api_key()
+                    if fresh_key:
+                        logger.info("🔄 Retrying with fresh API key...")
+                        # Retry with fresh key (mark as rotated to prevent loops)
+                        return call_openrouter(
+                            messages, model, fresh_key, max_retries, _key_rotated=True
+                        )
+                    else:
+                        logger.error("❌ Auto-rotation failed. Manual intervention required.")
+                        logger.error(
+                            "   Run: bash ~/devvyn-meta-project/scripts/provision-openrouter-key.sh"
+                        )
+                        raise
+                else:
+                    # Already tried rotation, don't loop
+                    logger.error("❌ Fresh key also failed. Check OpenRouter service status.")
+                    raise
+
+            elif e.response.status_code == 429:  # Rate limit
                 if attempt < max_retries - 1:
                     wait = 5 * (2**attempt)
-                    print(f"  Rate limited, waiting {wait}s...")
+                    logger.warning(f"Rate limited, waiting {wait}s...")
                     time.sleep(wait)
                 else:
                     raise

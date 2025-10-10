@@ -1,4 +1,9 @@
+import sys
 from pathlib import Path
+
+# Add scripts directory to path for import
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
+
 from io_utils.candidates import Candidate, init_db, insert_candidate
 from io_utils.candidate_models import Candidate as CandidateModel, Decision as DecisionModel
 from review import review_candidates
