@@ -10,24 +10,28 @@
       
       
       
-        <link rel="canonical" href="https://aafc.devvyn.ca/status/EXECUTIVE_SUMMARY/">
+        <link rel="canonical" href="https://aafc.devvyn.ca/decisions/">
       
       
+        <link rel="prev" href="../getting-started/installation/">
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+        <link rel="next" href="001-documentation-quality-gates/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.21">
     
     
       
-        <title>AAFC Herbarium Digitization - Executive Summary - Herbarium DWC Extraction</title>
+        <title>Overview - Herbarium DWC Extraction</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.2a3383ac.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.2a3383ac.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -46,9 +50,9 @@
       
     
     
-      <link rel="stylesheet" href="../../css/timeago.css">
+      <link rel="stylesheet" href="../css/timeago.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
   
@@ -76,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#aafc-herbarium-digitization-executive-summary" class="md-skip">
+        <a href="#architecture-decision-records-adrs" class="md-skip">
           Skip to content
         </a>
       
@@ -94,7 +98,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Herbarium DWC Extraction" class="md-header__button md-logo" aria-label="Herbarium DWC Extraction" data-md-component="logo">
+    <a href=".." title="Herbarium DWC Extraction" class="md-header__button md-logo" aria-label="Herbarium DWC Extraction" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8"/></svg>
@@ -114,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              AAFC Herbarium Digitization - Executive Summary
+              Overview
             
           </span>
         </div>
@@ -227,7 +231,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href=".." class="md-tabs__link">
         
   
   
@@ -248,7 +252,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../getting-started/installation/" class="md-tabs__link">
+        <a href="../getting-started/installation/" class="md-tabs__link">
           
   
   
@@ -264,11 +268,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../decisions/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
           
   
   
@@ -302,7 +308,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Herbarium DWC Extraction" class="md-nav__button md-logo" aria-label="Herbarium DWC Extraction" data-md-component="logo">
+    <a href=".." title="Herbarium DWC Extraction" class="md-nav__button md-logo" aria-label="Herbarium DWC Extraction" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8"/></svg>
@@ -332,7 +338,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -397,7 +403,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/installation/" class="md-nav__link">
+      <a href="../getting-started/installation/" class="md-nav__link">
         
   
   
@@ -424,26 +430,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -456,7 +467,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Patterns
@@ -467,10 +478,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../decisions/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -481,6 +514,95 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-are-adrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      What are ADRs?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-are-pattern-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      What are Pattern Records?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#index" class="md-nav__link">
+    <span class="md-ellipsis">
+      Index
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Index">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Patterns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#format" class="md-nav__link">
+    <span class="md-ellipsis">
+      Format
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contributing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related Resources
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -493,7 +615,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../decisions/001-documentation-quality-gates/" class="md-nav__link">
+      <a href="001-documentation-quality-gates/" class="md-nav__link">
         
   
   
@@ -543,46 +665,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#bottom-line" class="md-nav__link">
+  <a href="#what-are-adrs" class="md-nav__link">
     <span class="md-ellipsis">
-      🎯 Bottom Line
+      What are ADRs?
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#proven-results" class="md-nav__link">
+  <a href="#what-are-pattern-records" class="md-nav__link">
     <span class="md-ellipsis">
-      📊 Proven Results
+      What are Pattern Records?
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#ready-to-deploy" class="md-nav__link">
+  <a href="#index" class="md-nav__link">
     <span class="md-ellipsis">
-      🚀 Ready to Deploy
+      Index
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🚀 Ready to Deploy">
+    <nav class="md-nav" aria-label="Index">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#system-capabilities-validated" class="md-nav__link">
+  <a href="#patterns" class="md-nav__link">
     <span class="md-ellipsis">
-      System Capabilities Validated
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#processing-pipeline-ready" class="md-nav__link">
-    <span class="md-ellipsis">
-      Processing Pipeline Ready
+      Patterns
     </span>
   </a>
   
@@ -594,60 +707,27 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#next-actions" class="md-nav__link">
+  <a href="#format" class="md-nav__link">
     <span class="md-ellipsis">
-      📋 Next Actions
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="📋 Next Actions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#this-week-mvp-demonstration" class="md-nav__link">
-    <span class="md-ellipsis">
-      This Week: MVP Demonstration
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#next-week-full-production-pending-approval" class="md-nav__link">
-    <span class="md-ellipsis">
-      Next Week: Full Production (Pending Approval)
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#economic-impact" class="md-nav__link">
-    <span class="md-ellipsis">
-      💰 Economic Impact
+      Format
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#institutional-benefits" class="md-nav__link">
+  <a href="#contributing" class="md-nav__link">
     <span class="md-ellipsis">
-      🏛️ Institutional Benefits
+      Contributing
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#decision-required" class="md-nav__link">
+  <a href="#related-resources" class="md-nav__link">
     <span class="md-ellipsis">
-      ⚡ Decision Required
+      Related Resources
     </span>
   </a>
   
@@ -669,7 +749,7 @@
 
 
   
-    <a href="https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/edit/main/docs/status/EXECUTIVE_SUMMARY.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/edit/main/docs/decisions/README.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -677,107 +757,49 @@
   
 
 
-<h1 id="aafc-herbarium-digitization-executive-summary">AAFC Herbarium Digitization - Executive Summary<a class="headerlink" href="#aafc-herbarium-digitization-executive-summary" title="Permanent link">&para;</a></h1>
-<p><strong>For</strong>: Dr. Chrystel Olivier, Dr. Julia Leeson
-<strong>Status</strong>: ✅ <strong>READY FOR PRODUCTION DEPLOYMENT</strong>
-<strong>Date</strong>: September 25, 2025</p>
-<hr />
-<h2 id="bottom-line">🎯 <strong>Bottom Line</strong><a class="headerlink" href="#bottom-line" title="Permanent link">&para;</a></h2>
-<p><strong>Your 2,800 herbarium specimens can be processed THIS WEEK with 95% accuracy using the validated Apple Vision OCR system.</strong></p>
-<hr />
-<h2 id="proven-results">📊 <strong>Proven Results</strong><a class="headerlink" href="#proven-results" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Metric</th>
-<th>Result</th>
-<th>Impact</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>OCR Accuracy</strong></td>
-<td><strong>95%</strong></td>
-<td>Only 5% need manual review</td>
-</tr>
-<tr>
-<td><strong>Processing Time</strong></td>
-<td><strong>4 hours</strong></td>
-<td>2,800 specimens fully automated</td>
-</tr>
-<tr>
-<td><strong>Cost Savings</strong></td>
-<td><strong>$4,340</strong></td>
-<td>97% reduction vs manual ($4,480)</td>
-</tr>
-<tr>
-<td><strong>Data Quality</strong></td>
-<td><strong>GBIF-ready</strong></td>
-<td>Direct submission format</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="ready-to-deploy">🚀 <strong>Ready to Deploy</strong><a class="headerlink" href="#ready-to-deploy" title="Permanent link">&para;</a></h2>
-<h3 id="system-capabilities-validated"><strong>System Capabilities Validated</strong><a class="headerlink" href="#system-capabilities-validated" title="Permanent link">&para;</a></h3>
+<h1 id="architecture-decision-records-adrs">Architecture Decision Records (ADRs)<a class="headerlink" href="#architecture-decision-records-adrs" title="Permanent link">&para;</a></h1>
+<p>This directory contains Architecture Decision Records (ADRs) and discovered patterns from the AAFC Herbarium DWC Extraction project.</p>
+<h2 id="what-are-adrs">What are ADRs?<a class="headerlink" href="#what-are-adrs" title="Permanent link">&para;</a></h2>
+<p>ADRs document important architectural and technical decisions made during the project, including:
+- <strong>Context:</strong> Why the decision was needed
+- <strong>Decision:</strong> What choice was made
+- <strong>Consequences:</strong> Positive and negative impacts</p>
+<h2 id="what-are-pattern-records">What are Pattern Records?<a class="headerlink" href="#what-are-pattern-records" title="Permanent link">&para;</a></h2>
+<p>Pattern records document reusable solutions to common problems, suitable for application across projects:
+- <strong>Problem:</strong> What challenge is being solved
+- <strong>Solution:</strong> How to solve it
+- <strong>Context:</strong> When to apply it
+- <strong>Results:</strong> Proven outcomes</p>
+<h2 id="index">Index<a class="headerlink" href="#index" title="Permanent link">&para;</a></h2>
+<h3 id="patterns">Patterns<a class="headerlink" href="#patterns" title="Permanent link">&para;</a></h3>
 <ul>
-<li>✅ <strong>Apple Vision OCR</strong>: 95% accuracy on real AAFC specimens</li>
-<li>✅ <strong>Quality Control</strong>: Web-based curator review interface</li>
-<li>✅ <strong>Darwin Core Export</strong>: GBIF-compliant data format</li>
-<li>✅ <strong>Comprehensive Documentation</strong>: Staff training materials complete</li>
+<li><a href="001-documentation-quality-gates/">001 - Documentation Quality Gates</a> - Shift-left validation pattern for docs-as-code (Oct 2025)</li>
+<li><strong>Problem:</strong> Broken links deployed to production</li>
+<li><strong>Solution:</strong> Pre-commit validation hooks</li>
+<li><strong>Status:</strong> Production-validated</li>
+<li><strong>Applicability:</strong> Any static site generator (MkDocs, Sphinx, Docusaurus, Hugo)</li>
 </ul>
-<h3 id="processing-pipeline-ready"><strong>Processing Pipeline Ready</strong><a class="headerlink" href="#processing-pipeline-ready" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Complete workflow (4 hours total)</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python<span class="w"> </span>cli.py<span class="w"> </span>process<span class="w"> </span>--input<span class="w"> </span>~/2800_photos<span class="w"> </span>--output<span class="w"> </span>~/results<span class="w"> </span>--engine<span class="w"> </span>vision
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>python<span class="w"> </span>review_web.py<span class="w"> </span>--db<span class="w"> </span>~/results/candidates.db<span class="w"> </span>--images<span class="w"> </span>~/2800_photos
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>python<span class="w"> </span>cli.py<span class="w"> </span>archive<span class="w"> </span>--output<span class="w"> </span>~/results<span class="w"> </span>--version<span class="w"> </span><span class="m">1</span>.0.0
-</span></code></pre></div>
-<hr />
-<h2 id="next-actions">📋 <strong>Next Actions</strong><a class="headerlink" href="#next-actions" title="Permanent link">&para;</a></h2>
-<h3 id="this-week-mvp-demonstration"><strong>This Week: MVP Demonstration</strong><a class="headerlink" href="#this-week-mvp-demonstration" title="Permanent link">&para;</a></h3>
-<p><div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Generate stakeholder demo with 50 specimens</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>python<span class="w"> </span>scripts/create_mvp_demo.py<span class="w"> </span>--sample-size<span class="w"> </span><span class="m">50</span><span class="w"> </span>--output<span class="w"> </span>stakeholder_demo/
-</span></code></pre></div>
-<strong>Deliverables</strong>: Darwin Core dataset, quality metrics, processing demonstration</p>
-<h3 id="next-week-full-production-pending-approval"><strong>Next Week: Full Production</strong> (Pending Approval)<a class="headerlink" href="#next-week-full-production-pending-approval" title="Permanent link">&para;</a></h3>
+<h2 id="format">Format<a class="headerlink" href="#format" title="Permanent link">&para;</a></h2>
+<p>Each record follows a consistent structure:
+1. Title and metadata
+2. Problem statement
+3. Context and forces
+4. Decision/solution
+5. Consequences and results
+6. References and research</p>
+<h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h2>
+<p>When adding new ADRs:
+1. Use sequential numbering (002, 003, etc.)
+2. Use descriptive filenames (<code>NNN-brief-description.md</code>)
+3. Follow the established template
+4. Update this README index
+5. Link to related ADRs where applicable</p>
+<h2 id="related-resources">Related Resources<a class="headerlink" href="#related-resources" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Process</strong>: All 2,800 captured specimens</li>
-<li><strong>Review</strong>: Dr. Julia Leeson quality control (8-12 hours)</li>
-<li><strong>Deliver</strong>: Complete Darwin Core dataset for institutional database</li>
+<li><a href="https://www.mkdocs.org/">MkDocs Documentation</a></li>
+<li><a href="https://github.com/npryce/adr-tools">ADR Tools</a></li>
+<li><a href="https://www.writethedocs.org/">Write the Docs</a></li>
 </ul>
-<hr />
-<h2 id="economic-impact">💰 <strong>Economic Impact</strong><a class="headerlink" href="#economic-impact" title="Permanent link">&para;</a></h2>
-<p><strong>Manual Transcription Baseline</strong>: $4,480 (112 hours @ $40/hour)</p>
-<p><strong>Apple Vision Processing</strong>:
-- Processing cost: <strong>$0</strong> (native macOS)
-- Curator review: <strong>$140</strong> (3.5 hours @ $40/hour)
-- <strong>Total cost: $140</strong>
-- <strong>Savings: $4,340 (97%)</strong></p>
-<hr />
-<h2 id="institutional-benefits">🏛️ <strong>Institutional Benefits</strong><a class="headerlink" href="#institutional-benefits" title="Permanent link">&para;</a></h2>
-<p><strong>For Research (Dr. Chrystel Olivier)</strong>:
-- Validated OCR methodology suitable for publication
-- Cost-effective digitization model for AAFC collections
-- Research infrastructure for biodiversity informatics</p>
-<p><strong>For Collections (Dr. Julia Leeson)</strong>:
-- 2,800 specimens digitized with minimal curator time
-- GBIF-ready data increases collection visibility
-- Reproducible workflow for ongoing digitization</p>
-<hr />
-<h2 id="decision-required">⚡ <strong>Decision Required</strong><a class="headerlink" href="#decision-required" title="Permanent link">&para;</a></h2>
-<p><strong>Question</strong>: Approve full production processing of 2,800 specimens?</p>
-<p><strong>If YES</strong>:
-- Complete Darwin Core dataset delivered next week
-- Institutional database integration ready
-- Staff training materials provided</p>
-<p><strong>If DEMO FIRST</strong>:
-- 50-specimen demonstration available today
-- Stakeholder review and approval process
-- Full production following demonstration approval</p>
-<hr />
-<p><strong>Contact</strong>: Devvyn Murphy
-<strong>System Status</strong>: Production Ready
-<strong>Recommendation</strong>: Proceed with demonstration and production deployment</p>
 
 
 
@@ -800,7 +822,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="October 1, 2025 20:17:13 UTC"><span class="timeago" datetime="2025-10-01T20:17:13+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="October 1, 2025 20:17:13 UTC">2025-10-01</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="October 10, 2025 17:20:47 UTC"><span class="timeago" datetime="2025-10-10T17:20:47+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="October 10, 2025 17:20:47 UTC">2025-10-10</span>
   </span>
 
     
@@ -810,7 +832,7 @@
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="September 26, 2025 03:14:57 UTC"><span class="timeago" datetime="2025-09-26T03:14:57+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="September 26, 2025 03:14:57 UTC">2025-09-26</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="October 10, 2025 17:20:47 UTC"><span class="timeago" datetime="2025-10-10T17:20:47+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="October 10, 2025 17:20:47 UTC">2025-10-10</span>
   </span>
 
     
@@ -947,14 +969,14 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.tracking", "search.highlight", "search.suggest", "content.code.copy", "content.action.edit", "toc.follow"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.tracking", "search.highlight", "search.suggest", "content.code.copy", "content.action.edit", "toc.follow"], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      <script src="../assets/javascripts/bundle.f55a23d4.min.js"></script>
       
-        <script src="../../js/timeago.min.js"></script>
+        <script src="../js/timeago.min.js"></script>
       
-        <script src="../../js/timeago_mkdocs_material.js"></script>
+        <script src="../js/timeago_mkdocs_material.js"></script>
       
     
   </body>
