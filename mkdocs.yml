@@ -40,6 +40,9 @@ nav:
   - Home: index.md
   - Getting Started:
     - Installation: getting-started/installation.md
+  - Patterns:
+    - Overview: decisions/README.md
+    - Documentation Quality Gates: decisions/001-documentation-quality-gates.md
 
 markdown_extensions:
   - pymdownx.highlight:
