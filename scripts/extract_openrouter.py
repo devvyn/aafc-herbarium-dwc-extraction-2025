@@ -38,6 +38,7 @@ logger = logging.getLogger(__name__)
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
+from src.events import ExtractionEvent, HybridEventBus, LoggingConsumer, ValidationConsumer  # noqa: E402
 from src.utils.environment import save_environment_snapshot  # noqa: E402
 
 # Load approved API keys
@@ -255,9 +256,23 @@ def call_openrouter(
 
 
 def extract_specimen(
-    image_path: Path, model: str, api_key: str, system_prompt: str, user_prompt: str
+    image_path: Path,
+    model: str,
+    api_key: str,
+    system_prompt: str,
+    user_prompt: str,
+    bus: Optional[HybridEventBus] = None,
+    sequence: int = 0,
 ) -> Dict:
     """Extract Darwin Core data from single specimen image."""
+    specimen_id = image_path.name
+
+    # Emit processing event
+    if bus:
+        bus.emit(
+            ExtractionEvent.SPECIMEN_PROCESSING, {"specimen_id": specimen_id, "sequence": sequence}
+        )
+
     try:
         # Create vision message
         messages = create_vision_message(image_path, system_prompt, user_prompt)
@@ -360,52 +375,104 @@ def main():
     print(f"Environment snapshot: {env_snapshot_path}")
     print()
 
-    # Process images with streaming + early validation
+    # Initialize event bus with persistent log
+    event_log_path = args.output / "events.jsonl"
+    print(f"Event log: {event_log_path}")
+    print()
+
+    # Process images with streaming + event-driven monitoring
     output_file = args.output / "raw.jsonl"
 
     successful = 0
     failed = 0
 
-    with open(output_file, "w") as f:
-        for i, image_path in enumerate(tqdm(images, desc="Extracting")):
-            result = extract_specimen(image_path, model_id, api_key, system_prompt, user_prompt)
+    with HybridEventBus(event_log_path=event_log_path) as bus:
+        # Initialize consumers for monitoring and validation
+        _validator = ValidationConsumer(
+            bus, early_checkpoint=5, early_threshold=0.5, warning_interval=50
+        )
+        _logger = LoggingConsumer(bus, verbose=False)
 
-            # Stream result immediately
-            f.write(json.dumps(result) + "\n")
-            f.flush()  # Force write to disk
+        # Emit extraction started event
+        bus.emit(
+            ExtractionEvent.STARTED,
+            {
+                "run_id": run_id,
+                "total_specimens": len(images),
+                "model": model_config["name"],
+                "model_id": model_id,
+                "offset": args.offset,
+            },
+        )
 
-            # Track success/failure
-            if "dwc" in result and result["dwc"]:
-                successful += 1
-            else:
-                failed += 1
+        with open(output_file, "w") as f:
+            for i, image_path in enumerate(tqdm(images, desc="Extracting")):
+                sequence = args.offset + i + 1  # Global sequence number
 
-            # EARLY VALIDATION: Check after first 5 specimens
-            if i == 4:  # Zero-indexed, so 5th specimen
-                success_rate = successful / 5
-                if success_rate < 0.5:
-                    print(
-                        f"\n❌ EARLY FAILURE DETECTED: {successful}/5 successful ({success_rate:.0%})"
+                # Extract specimen with event bus integration
+                result = extract_specimen(
+                    image_path,
+                    model_id,
+                    api_key,
+                    system_prompt,
+                    user_prompt,
+                    bus=bus,
+                    sequence=sequence,
+                )
+
+                # Stream result immediately
+                f.write(json.dumps(result) + "\n")
+                f.flush()  # Force write to disk
+
+                # Track success/failure and emit appropriate event
+                is_success = "dwc" in result and result["dwc"]
+                if is_success:
+                    successful += 1
+                    bus.emit(
+                        ExtractionEvent.SPECIMEN_COMPLETED,
+                        {
+                            "specimen_id": image_path.name,
+                            "sequence": sequence,
+                            "result": {"success": True, "fields_extracted": len(result["dwc"])},
+                            "metrics": {
+                                "total_processed": i + 1,
+                                "success_count": successful,
+                                "failed_count": failed,
+                                "success_rate": successful / (i + 1),
+                            },
+                        },
                     )
-                    print("First 5 specimens show <50% success rate.")
-                    print(
-                        "Check prompts, API key, or configuration before processing all 2,885 specimens!"
-                    )
-                    sys.exit(1)
                 else:
-                    print(
-                        f"\n✅ Early validation passed: {successful}/5 successful ({success_rate:.0%})"
+                    failed += 1
+                    bus.emit(
+                        ExtractionEvent.SPECIMEN_FAILED,
+                        {
+                            "specimen_id": image_path.name,
+                            "sequence": sequence,
+                            "error": result.get("error", "Unknown error"),
+                            "metrics": {
+                                "total_processed": i + 1,
+                                "success_count": successful,
+                                "failed_count": failed,
+                                "success_rate": successful / (i + 1) if (i + 1) > 0 else 0,
+                            },
+                        },
                     )
 
-            # Progress check every 50 specimens
-            if i > 0 and (i + 1) % 50 == 0:
-                current_rate = successful / (i + 1)
-                print(f"\nProgress: {i+1}/{len(images)} - {current_rate:.1%} success rate")
-                if current_rate < 0.7:
-                    print(f"⚠️  WARNING: Success rate dropped to {current_rate:.1%}")
+                # Small delay to avoid rate limits
+                time.sleep(0.5)
 
-            # Small delay to avoid rate limits
-            time.sleep(0.5)
+        # Emit extraction completed event
+        bus.emit(
+            ExtractionEvent.EXTRACTION_COMPLETED,
+            {
+                "run_id": run_id,
+                "total_processed": len(images),
+                "successful": successful,
+                "failed": failed,
+                "success_rate": successful / len(images) if len(images) > 0 else 0,
+            },
+        )
 
     # Generate statistics from file
     results = []
