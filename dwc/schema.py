@@ -5,7 +5,7 @@ import urllib.request
 import urllib.error
 from importlib import resources
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List, Optional
 from xml.etree import ElementTree as ET
 from dataclasses import dataclass
 from datetime import datetime
@@ -454,11 +454,51 @@ class DwcRecord(BaseModel):
     verbatimLabel: Optional[str] = None
     flags: Optional[str] = None
 
+    # v2.0.0-alpha Accessibility Fields (Phase 2A - Data Model Enrichment)
+    # These fields support information parity across sensory modalities
+    # All are optional for backward compatibility
+    presentation_metadata: Optional[Dict[str, Any]] = None  # Multi-modal presentation guidance
+    quality_indicator: Optional[Dict[str, Any]] = (
+        None  # Quality/status with multi-modal representation
+    )
+    image_metadata: Optional[Dict[str, Any]] = (
+        None  # Specimen image accessibility (keyboard nav, ARIA)
+    )
+
     def to_dict(self) -> Dict[str, str]:
         """Return a dictionary representation suitable for CSV writing.
 
         Any ``None`` values are converted to empty strings and only known
         Darwin Core terms are returned.
+
+        Note: Accessibility fields (presentation_metadata, quality_indicator, image_metadata)
+        are not included in CSV output as they are meant for UI/API consumption.
+        Use to_dict_with_accessibility() for full data including accessibility fields.
         """
 
         return {term: getattr(self, term) or "" for term in DWC_TERMS}
+
+    def to_dict_with_accessibility(self) -> Dict[str, Any]:
+        """Return a complete dictionary including accessibility metadata.
+
+        Returns:
+            Dictionary with:
+            - All Darwin Core fields (as strings)
+            - presentation_metadata (dict or None)
+            - quality_indicator (dict or None)
+            - image_metadata (dict or None)
+
+        This method is intended for JSON/API responses where multi-modal
+        presentation data is needed for accessible interfaces.
+        """
+        result = self.to_dict()
+
+        # Add accessibility fields if present
+        if self.presentation_metadata is not None:
+            result["presentation_metadata"] = self.presentation_metadata
+        if self.quality_indicator is not None:
+            result["quality_indicator"] = self.quality_indicator
+        if self.image_metadata is not None:
+            result["image_metadata"] = self.image_metadata
+
+        return result
