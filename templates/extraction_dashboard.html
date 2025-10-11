@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌿 Herbarium Extraction Monitor</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Unified Design System - Matches TUI */
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-red: #ef4444;
+            --accent-yellow: #fbbf24;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        /* Consistent Card Style */
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid #475569;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Stats Cards - Matches TUI Layout */
+        .stat-card {
+            padding: 1.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        /* Progress Bar - Matches TUI */
+        .progress-bar-container {
+            position: relative;
+            height: 2rem;
+            background: #374151;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+            transition: width 0.5s ease-out;
+        }
+
+        .progress-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        /* Status Indicator */
+        .status-dot {
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 9999px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Event Stream - Matches TUI */
+        .event-item {
+            border-left: 3px solid var(--accent-blue);
+            padding-left: 0.75rem;
+            margin-bottom: 0.5rem;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Field Quality Bars - Matches TUI */
+        .field-bar-container {
+            height: 0.5rem;
+            background: #374151;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .field-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+            transition: width 0.3s ease-out;
+        }
+
+        .mono {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body class="p-6" x-data="monitor()">
+
+    <!-- Header - Matches TUI -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold mb-1">🌿 Herbarium Extraction Monitor</h1>
+        <p class="text-gray-400 text-sm">Real-time Darwin Core extraction pipeline</p>
+        <p class="text-gray-500 mono text-xs mt-1" x-text="state.run_id"></p>
+    </div>
+
+    <!-- Stats Cards Row - MATCHES TUI EXACTLY -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="card stat-card">
+            <div class="stat-label">Total Specimens</div>
+            <div class="stat-value text-blue-400" x-text="state.total_specimens.toLocaleString()">0</div>
+        </div>
+        <div class="card stat-card">
+            <div class="stat-label">✅ Completed</div>
+            <div class="stat-value text-green-400" x-text="state.completed.toLocaleString()">0</div>
+        </div>
+        <div class="card stat-card">
+            <div class="stat-label">📈 Success Rate</div>
+            <div class="stat-value text-purple-400" x-text="state.success_rate.toFixed(1) + '%'">0%</div>
+        </div>
+        <div class="card stat-card">
+            <div class="stat-label">❌ Failed</div>
+            <div class="stat-value text-red-400" x-text="state.failed.toLocaleString()">0</div>
+        </div>
+    </div>
+
+    <!-- Hero Progress Card - MATCHES TUI -->
+    <div class="card p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-3">
+                <div class="status-dot bg-green-500" x-show="state.status === 'RUNNING'"></div>
+                <div class="status-dot bg-blue-500" x-show="state.status === 'COMPLETE'" style="animation: none;"></div>
+                <span class="text-xl font-semibold" :class="state.status === 'RUNNING' ? 'text-green-400' : 'text-blue-400'" x-text="state.status">LOADING</span>
+            </div>
+            <div class="text-right">
+                <div class="text-2xl font-bold" x-text="state.completion_percentage.toFixed(1) + '%'">0%</div>
+                <div class="text-xs text-gray-400">complete</div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar-container mb-4">
+            <div class="progress-bar" :style="'width: ' + state.completion_percentage + '%'"></div>
+            <div class="progress-text">
+                <span x-text="state.completed + ' / ' + state.total_specimens + ' specimens'">0 / 0 specimens</span>
+            </div>
+        </div>
+
+        <!-- Timing Info - MATCHES TUI -->
+        <div class="flex justify-between text-sm text-gray-400">
+            <div>⏱️ <span x-text="formatDuration(state.elapsed_seconds)">0m</span> elapsed</div>
+            <div>🎯 <span x-text="estimateETA()">calculating...</span> remaining</div>
+            <div>⚡ <span x-text="state.throughput ? state.throughput.toFixed(1) : '0'">0</span> specimens/min</div>
+        </div>
+    </div>
+
+    <!-- Main Panels - MATCHES TUI SIDE-BY-SIDE LAYOUT -->
+    <div class="grid grid-cols-2 gap-6 mb-6">
+
+        <!-- Live Event Stream - LEFT PANEL -->
+        <div class="card p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold">🔴 Live Event Stream</h2>
+                <span class="text-xs text-gray-500 mono" x-text="formatTime(state.timestamp)">--:--:--</span>
+            </div>
+            <div class="space-y-2 max-h-96 overflow-y-auto">
+                <template x-for="event in state.latest_events" :key="event.specimen_id">
+                    <div class="event-item">
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center space-x-2">
+                                <span x-text="event.success ? '✅' : '❌'" :class="event.success ? 'text-green-400' : 'text-red-400'"></span>
+                                <span class="mono text-xs" x-text="event.specimen_id">specimen</span>
+                                <span class="text-gray-400" x-show="event.success" x-text="event.fields_extracted + ' fields'"></span>
+                                <span class="text-red-400 text-xs" x-show="!event.success" x-text="'Error: ' + event.error">error</span>
+                            </div>
+                            <span class="text-xs text-gray-500">just now</span>
+                        </div>
+                    </div>
+                </template>
+                <div x-show="state.latest_events.length === 0" class="text-center py-8 text-gray-500">
+                    Waiting for events...
+                </div>
+            </div>
+        </div>
+
+        <!-- Field Extraction Quality - RIGHT PANEL -->
+        <div class="card p-6">
+            <h2 class="text-lg font-bold mb-4">🎯 Field Extraction Quality</h2>
+            <div class="space-y-3 max-h-96 overflow-y-auto">
+                <template x-for="[field, rate] in Object.entries(state.field_stats)" :key="field">
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-300" x-text="field">field</span>
+                            <span class="text-gray-400" x-text="rate.toFixed(0) + '%'">0%</span>
+                        </div>
+                        <div class="field-bar-container">
+                            <div class="field-bar" :style="'width: ' + rate + '%'"></div>
+                        </div>
+                    </div>
+                </template>
+                <div x-show="Object.keys(state.field_stats).length === 0" class="text-center py-8 text-gray-500">
+                    No data yet...
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Cost Tracker -->
+    <div class="card p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-semibold mb-1">💰 Cost Tracking</h3>
+                <p class="text-sm text-gray-400">Free tier usage - no charges</p>
+            </div>
+            <div class="text-right">
+                <div class="text-3xl font-bold text-green-400">$0.00</div>
+                <div class="text-sm text-gray-400">Qwen 2.5 VL 72B (FREE)</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script>
+        function monitor() {
+            return {
+                state: {
+                    run_id: '',
+                    model_name: '',
+                    total_specimens: 0,
+                    completed: 0,
+                    failed: 0,
+                    successful: 0,
+                    success_rate: 0,
+                    completion_percentage: 0,
+                    field_stats: {},
+                    latest_events: [],
+                    elapsed_seconds: 0,
+                    throughput: 0,
+                    timestamp: '',
+                    status: 'LOADING'
+                },
+
+                init() {
+                    this.connectSSE();
+                },
+
+                connectSSE() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const refresh = urlParams.get('refresh') || 5;
+                    const runDir = urlParams.get('run_dir') || '';
+
+                    const eventSource = new EventSource(`/stream?run_dir=${runDir}&refresh=${refresh}`);
+
+                    eventSource.onmessage = (event) => {
+                        const data = JSON.parse(event.data);
+
+                        if (data.complete) {
+                            this.state.status = 'COMPLETE';
+                            eventSource.close();
+                            return;
+                        }
+
+                        if (data.error) {
+                            console.error('Stream error:', data.error);
+                            this.state.status = 'ERROR';
+                            return;
+                        }
+
+                        // Update state
+                        this.state = {
+                            ...this.state,
+                            ...data,
+                            status: data.is_complete ? 'COMPLETE' : 'RUNNING'
+                        };
+                    };
+
+                    eventSource.onerror = (error) => {
+                        console.error('SSE Error:', error);
+                        this.state.status = 'DISCONNECTED';
+                        eventSource.close();
+                        setTimeout(() => this.connectSSE(), 5000);
+                    };
+                },
+
+                formatDuration(seconds) {
+                    if (!seconds || seconds < 0) return '-';
+
+                    const hours = Math.floor(seconds / 3600);
+                    const minutes = Math.floor((seconds % 3600) / 60);
+
+                    if (hours > 0) {
+                        return `${hours}h ${minutes}m`;
+                    } else if (minutes > 0) {
+                        return `${minutes}m`;
+                    } else {
+                        return `${Math.floor(seconds)}s`;
+                    }
+                },
+
+                estimateETA() {
+                    if (!this.state.throughput || this.state.throughput === 0) {
+                        return 'calculating...';
+                    }
+
+                    const remaining = this.state.total_specimens - this.state.completed;
+                    const minutesRemaining = remaining / this.state.throughput;
+
+                    if (minutesRemaining < 60) {
+                        return Math.round(minutesRemaining) + 'm';
+                    } else {
+                        const hours = Math.floor(minutesRemaining / 60);
+                        const mins = Math.round(minutesRemaining % 60);
+                        return `${hours}h ${mins}m`;
+                    }
+                },
+
+                formatTime(isoString) {
+                    if (!isoString) return '--:--:--';
+                    return new Date(isoString).toLocaleTimeString();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
