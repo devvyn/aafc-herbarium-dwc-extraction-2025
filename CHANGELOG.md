@@ -2,10 +2,124 @@
 
 ## [Unreleased]
 
-### Future Development
-- 🔮 16 Darwin Core fields (9 additional: habitat, elevation, recordNumber, etc.)
-- 🔮 Layout-aware prompts (TOP vs BOTTOM label distinction)
-- 🔮 Ensemble voting for research-grade quality
+## [2.0.0-alpha.1] - 2025-10-11 (In Development)
+
+### 🎯 Accessibility-First Architecture Redesign
+
+**Major Change**: Ground-up redesign with information parity as foundational principle
+
+This alpha release establishes the architectural blueprint for v2.0.0. All changes are in planning/early implementation phase.
+
+#### Design Philosophy
+- **Information Parity**: Architecture works equally well across all sensory modalities
+- **Accessibility as Constraint**: Not a feature to add, but a design requirement from day one
+- **Multi-Modal Data Models**: Visual + auditory + textual + structured representations
+- **Keyboard-First**: Mouse is enhancement, not requirement
+- **Screen Reader Native**: VoiceOver compatibility validated before release
+
+#### Architectural Blueprint
+- **Document**: `docs/architecture/V2_ACCESSIBILITY_FIRST_DESIGN.md`
+- **Complete Analysis**: Current architecture assessment + accessibility-first redesign
+- **Implementation Phases**: 6 phases (2A-2F) over 4-6 weeks
+- **Migration Strategy**: Progressive adoption while maintaining v1.1.x stability
+
+#### Planned Implementation Phases
+
+**Phase 2A**: Data Model Enrichment
+- `PresentationMetadata` class (visual, auditory, textual, keyboard hints)
+- `QualityIndicator` with multi-modal representation
+- `LabelRegion` for structured non-visual navigation
+- Backward-compatible extensions to `DarwinCoreRecord`
+
+**Phase 2B**: API Enhancement
+- Multi-modal response guidance (how to announce changes)
+- Keyboard interaction documentation in endpoints
+- ARIA announcement patterns
+- v1 compatibility layer
+
+**Phase 2C**: Event System Upgrade
+- `AccessibleEvent` with all modalities at emission
+- ARIA live region consumers
+- Structured logging for automation
+- Multi-sensory dispatcher
+
+**Phase 2D**: Interface Refactor
+- Semantic HTML (proper elements, not div soup)
+- Comprehensive ARIA labels
+- Keyboard shortcuts system (j/k navigation, 1-9 label regions)
+- Focus management and logical tab order
+
+**Phase 2E**: Testing Infrastructure
+- axe-core integration (zero violations required)
+- Playwright keyboard-only tests
+- Screen reader announcement validation
+- VoiceOver workflow testing
+- Lighthouse accessibility score ≥ 95
+
+**Phase 2F**: Documentation & Training
+- Developer guide with accessibility patterns
+- VoiceOver user guide
+- Keyboard shortcuts help system
+- Accessibility checklist in PR template
+
+#### Key Architectural Changes
+
+**Data Models**: Richer presentation metadata
+```python
+@dataclass
+class QualityIndicator:
+    score: float
+    level: Literal["critical", "high", "medium", "low"]
+    visual: dict  # color, icon, text
+    auditory: str  # screen reader announcement
+    aria_label: str  # full context
+    keyboard_shortcut: str
+```
+
+**APIs**: Self-documenting with accessibility guidance
+```json
+{
+  "data": {...},
+  "presentation": {
+    "visual": "...",
+    "auditory": "...",
+    "aria_label": "...",
+    "keyboard_shortcuts": {...}
+  }
+}
+```
+
+**Events**: Multi-sensory from emission
+```python
+event = AccessibleEvent(
+    event_type="extraction_complete",
+    visual=VisualPresentation(...),
+    auditory=AuditoryPresentation(...),
+    aria_announcement=ARIAPresentation(...),
+    structured={...}
+)
+```
+
+#### Breaking Changes
+- **Data Models**: New optional fields (backward-compatible serialization)
+- **APIs**: Enhanced response format (v1 compatibility layer provided)
+- **Events**: Multi-sensory structure (v1 events still emitted in parallel)
+
+#### Quality Gates
+- All v1.1.1 functionality preserved
+- Data format compatibility maintained
+- Scientific validation requirements unchanged
+- Accessibility metrics enforced:
+  - Lighthouse score ≥ 95
+  - Zero critical axe-core violations
+  - Complete keyboard workflow
+  - VoiceOver validated
+
+### Status: Planning & Architecture
+**Current State**: Architectural blueprint complete, implementation pending
+**Next Milestone**: Phase 2A - Data model enrichment
+**Stability**: Experimental - not recommended for production use
+**Use v1.1.x-stable for production workflows**
 
 ## [1.1.1] - 2025-10-11
 
@@ -516,7 +630,8 @@ None - fully backward compatible with v1.0.0
 - :bug: handle missing git commit metadata
 - :bug: correct mapper schema override
 
-[Unreleased]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v2.0.0-alpha.1...HEAD
+[2.0.0-alpha.1]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.1.1...v2.0.0-alpha.1
 [1.1.1]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.0.0-beta.2...v1.0.0
