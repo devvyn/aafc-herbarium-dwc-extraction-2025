@@ -9,12 +9,36 @@ Supports vision models including:
 - Gemini models
 - 400+ other models
 
+Features:
+- JIT image caching (prevents /tmp cleanup failures)
+- Path registry for multi-location tracking
+- Automatic API key rotation on expiration
+- Event-driven monitoring integration
+- Graceful error handling and resumption
+
 Usage:
+    # Basic extraction with caching
     python scripts/extract_openrouter.py \\
-        --input /tmp/imgcache \\
+        --input ~/.persistent_cache \\
         --output openrouter_results \\
-        --model qwen/qwen-2.5-vl-72b-instruct:free \\
+        --model qwen-vl-72b-free \\
         --limit 100
+
+    # Resume from offset (continue previous run)
+    python scripts/extract_openrouter.py \\
+        --input ~/.persistent_cache \\
+        --output openrouter_results_resume \\
+        --model qwen-vl-72b-free \\
+        --offset 549 \\
+        --limit 2230
+
+    # Custom cache configuration
+    python scripts/extract_openrouter.py \\
+        --input ~/.persistent_cache \\
+        --output openrouter_results \\
+        --cache-dir ~/.cache/my-extraction \\
+        --cache-ttl 7200 \\
+        --model qwen-vl-72b-free
 """
 
 import argparse
@@ -38,6 +62,7 @@ logger = logging.getLogger(__name__)
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
+from io_utils import JITImageCache, ImagePathRegistry  # noqa: E402
 from src.events import ExtractionEvent, HybridEventBus, LoggingConsumer, ValidationConsumer  # noqa: E402
 from src.utils.environment import save_environment_snapshot  # noqa: E402
 
@@ -255,6 +280,63 @@ def call_openrouter(
     raise Exception("Max retries exceeded")
 
 
+def resolve_image_path(
+    image_identifier: str,
+    cache: JITImageCache,
+    registry: ImagePathRegistry,
+    fallback_dirs: Optional[List[Path]] = None,
+) -> Optional[Path]:
+    """
+    Resolve image to local path using cache and registry.
+
+    Strategy:
+    1. Check JIT cache first
+    2. Check registry for known locations
+    3. Fall back to searching fallback directories
+
+    Args:
+        image_identifier: Image filename or hash
+        cache: JIT cache instance
+        registry: Path registry instance
+        fallback_dirs: Optional directories to search if not in cache/registry
+
+    Returns:
+        Local path to image, or None if not found
+    """
+    # Try cache first (fast path)
+    cached_path = cache.get(image_identifier)
+    if cached_path and cached_path.exists():
+        return cached_path
+
+    # Try registry for known locations
+    locations = registry.get_locations(image_identifier, verified_only=False)
+    for loc in locations:
+        loc_path = Path(loc.path)
+        if loc.location_type in ("cache", "local", "persistent") and loc_path.exists():
+            # Re-cache it
+            cache.put(image_identifier, loc_path, source=loc.source)
+            return loc_path
+
+    # Fall back to directory search
+    if fallback_dirs:
+        for fb_dir in fallback_dirs:
+            for pattern in ["**/*.jpg", "**/*.JPG"]:
+                for img_path in fb_dir.glob(pattern):
+                    if img_path.name == image_identifier:
+                        # Found it! Register and cache
+                        cache.put(image_identifier, img_path, source="fallback_search")
+                        registry.register_location(
+                            sha256_hash=image_identifier,
+                            path=str(img_path),
+                            location_type="local",
+                            source="fallback_search",
+                        )
+                        return img_path
+
+    logger.warning(f"⚠️  Image not found: {image_identifier}")
+    return None
+
+
 def extract_specimen(
     image_path: Path,
     model: str,
@@ -274,6 +356,10 @@ def extract_specimen(
         )
 
     try:
+        # Verify image still exists (handle /tmp cleanup gracefully)
+        if not image_path.exists():
+            raise FileNotFoundError(f"Image file missing (possibly /tmp cleanup): {image_path}")
+
         # Create vision message
         messages = create_vision_message(image_path, system_prompt, user_prompt)
 
@@ -326,6 +412,23 @@ def main():
     )
     parser.add_argument("--limit", type=int, help="Limit number of images to process")
     parser.add_argument("--offset", type=int, default=0, help="Skip first N images")
+    parser.add_argument(
+        "--cache-dir",
+        type=Path,
+        default=Path.home() / ".cache" / "herbarium-extraction",
+        help="JIT cache directory (default: ~/.cache/herbarium-extraction)",
+    )
+    parser.add_argument(
+        "--cache-ttl",
+        type=int,
+        default=14400,
+        help="Cache TTL in seconds (default: 14400 = 4 hours)",
+    )
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Disable JIT caching (not recommended - may fail on /tmp cleanup)",
+    )
 
     args = parser.parse_args()
 
@@ -349,6 +452,27 @@ def main():
     print(f"Cost: ${model_config['cost']}/specimen ({model_config['notes']})")
     print()
 
+    # Initialize JIT cache and path registry (unless disabled)
+    cache = None
+    registry = None
+
+    if not args.no_cache:
+        print("🗄️  Initializing JIT image cache...")
+        cache = JITImageCache(
+            cache_dir=args.cache_dir,
+            default_ttl_seconds=args.cache_ttl,
+            max_size_gb=10.0,  # 10GB cache limit
+        )
+        print(f"   Cache directory: {cache.cache_dir}")
+        print(f"   Cache TTL: {args.cache_ttl}s ({args.cache_ttl / 3600:.1f} hours)")
+
+        registry = ImagePathRegistry(registry_path=args.output / "path_registry.json")
+        print(f"   Path registry: {registry.registry_path}")
+        print()
+    else:
+        print("⚠️  JIT cache DISABLED - may encounter /tmp cleanup failures")
+        print()
+
     # Load prompts (use AAFC-specific prompts)
     prompt_dir = Path("config/prompts")
     system_prompt = (prompt_dir / "image_to_dwc_v2_aafc.system.prompt").read_text()
@@ -356,6 +480,20 @@ def main():
 
     # Get images recursively (handle both .jpg and .JPG, including nested directories)
     all_images = sorted(list(args.input.glob("**/*.jpg")) + list(args.input.glob("**/*.JPG")))
+
+    # If caching enabled, populate registry with discovered images
+    if registry:
+        print("📋 Populating path registry with discovered images...")
+        for img_path in all_images:
+            registry.register_location(
+                sha256_hash=img_path.name,  # Use filename as identifier for now
+                path=str(img_path.absolute()),
+                location_type="local",
+                source=f"input_directory:{args.input}",
+            )
+        print(f"   Registered {len(all_images)} image locations")
+        print()
+
     images = all_images[args.offset :]
     if args.limit:
         images = images[: args.limit]
@@ -406,8 +544,52 @@ def main():
         )
 
         with open(output_file, "w") as f:
-            for i, image_path in enumerate(tqdm(images, desc="Extracting")):
+            for i, original_image_path in enumerate(tqdm(images, desc="Extracting")):
                 sequence = args.offset + i + 1  # Global sequence number
+                specimen_id = original_image_path.name
+
+                # Resolve image path through cache/registry (if enabled)
+                if cache and registry:
+                    resolved_path = resolve_image_path(
+                        image_identifier=specimen_id,
+                        cache=cache,
+                        registry=registry,
+                        fallback_dirs=[args.input],
+                    )
+
+                    if not resolved_path:
+                        # Image not found - emit failure
+                        failed += 1
+                        result = {
+                            "image": specimen_id,
+                            "model": model_id,
+                            "provider": "openrouter",
+                            "error": "Image not found in cache/registry",
+                            "timestamp": datetime.now().isoformat(),
+                        }
+                        f.write(json.dumps(result) + "\n")
+                        f.flush()
+
+                        bus.emit(
+                            ExtractionEvent.SPECIMEN_FAILED,
+                            {
+                                "specimen_id": specimen_id,
+                                "sequence": sequence,
+                                "error": "Image not found",
+                                "metrics": {
+                                    "total_processed": i + 1,
+                                    "success_count": successful,
+                                    "failed_count": failed,
+                                    "success_rate": successful / (i + 1) if (i + 1) > 0 else 0,
+                                },
+                            },
+                        )
+                        continue
+
+                    image_path = resolved_path
+                else:
+                    # No caching - use original path directly
+                    image_path = original_image_path
 
                 # Extract specimen with event bus integration
                 result = extract_specimen(
@@ -431,7 +613,7 @@ def main():
                     bus.emit(
                         ExtractionEvent.SPECIMEN_COMPLETED,
                         {
-                            "specimen_id": image_path.name,
+                            "specimen_id": specimen_id,
                             "sequence": sequence,
                             "result": {"success": True, "fields_extracted": len(result["dwc"])},
                             "metrics": {
@@ -447,7 +629,7 @@ def main():
                     bus.emit(
                         ExtractionEvent.SPECIMEN_FAILED,
                         {
-                            "specimen_id": image_path.name,
+                            "specimen_id": specimen_id,
                             "sequence": sequence,
                             "error": result.get("error", "Unknown error"),
                             "metrics": {
@@ -494,6 +676,27 @@ def main():
     print(f"Failed: {len(failed_results)}")
     print()
     print(f"Results saved: {output_file}")
+
+    # Display cache statistics if caching was enabled
+    if cache:
+        stats = cache.get_stats()
+        print()
+        print("📊 Cache Statistics:")
+        print(f"   Cache hits: {stats['hits']}")
+        print(f"   Cache misses: {stats['misses']}")
+        if stats["hits"] + stats["misses"] > 0:
+            hit_rate = stats["hits"] / (stats["hits"] + stats["misses"]) * 100
+            print(f"   Hit rate: {hit_rate:.1f}%")
+        print(f"   Cache size: {stats['total_size_mb']:.1f} MB")
+        print(f"   Cached entries: {stats['entry_count']}")
+
+    if registry:
+        print()
+        print("📋 Path Registry:")
+        print(f"   Registry saved: {registry.registry_path}")
+        print(
+            f"   Total registered locations: {sum(len(locs) for locs in registry._locations.values())}"
+        )
 
     # Calculate field coverage
     if successful_results:
