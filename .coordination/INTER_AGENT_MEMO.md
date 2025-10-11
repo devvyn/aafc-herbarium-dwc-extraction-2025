@@ -168,6 +168,59 @@ class LabelPatternAnalyzer:
 
 ## Active Feedback from Chat Agent
 
+### Research Request: MCP Browser Feedback Integration
+**Last Updated**: 2025-10-11
+**Requester**: Production session - Web UI development iteration
+**Problem Statement**: Current agent capabilities lack browser rendering feedback, requiring manual screenshot-based QA loop
+**Opportunity**: Model Context Protocol (MCP) may enable browser extensions or system features to close feedback loop
+
+**Current State**:
+- ✅ Agents can: Write HTML/CSS/JS, test APIs, analyze code structure
+- ❌ Agents cannot: View rendered output, capture screenshots autonomously, execute Selenium/Playwright
+- 🔄 Workaround: Human captures screenshot → agent analyzes → agent fixes → repeat
+
+**Research Questions**:
+1. **MCP Browser Extensions**: Can MCP enable browser extensions to capture screenshots/DOM state for agent feedback?
+2. **System-Level Integration**: Can MCP servers expose macOS screenshot APIs (screencapture, CGImage) to agents?
+3. **Headless Browser MCP**: Can MCP wrap Playwright/Puppeteer for agent-controlled browser automation?
+4. **Visual Testing MCP**: Can MCP integrate visual regression tools (Percy, Chromatic) for automated feedback?
+5. **Approval Workflow**: For capabilities requiring screen access, what agent-bridge approval patterns apply?
+
+**Use Cases** (Priority Order):
+1. **Immediate QA**: Agent writes UI → agent captures screenshot → agent validates → agent fixes (closed loop)
+2. **Regression Testing**: Detect visual regressions automatically during development
+3. **Accessibility Validation**: Verify color contrast, font sizes, keyboard navigation
+4. **Cross-Browser Testing**: Test on multiple browsers without manual intervention
+5. **Documentation**: Auto-generate screenshots for documentation
+
+**Technical Investigation Areas**:
+- **MCP Server Development**: Research building custom MCP server for browser control
+- **Security Model**: How to safely grant screenshot/browser access to agents
+- **Existing Solutions**: Survey MCP ecosystem for browser-related servers
+- **Architecture**: Design agent ↔ MCP ↔ browser communication flow
+- **Performance**: Screenshot capture/analysis latency acceptable for iterative development
+
+**Success Criteria**:
+- Agent can request screenshot of URL and receive image data
+- Agent can interact with browser (click, scroll, type) for testing
+- Security model prevents unauthorized screen access
+- Latency <5s for screenshot capture + analysis
+- Works across macOS, Linux, potentially Windows
+
+**Priority**: Medium (high impact on developer velocity, not blocking current work)
+**Estimated Effort**: 2-4 hours research + 4-8 hours prototype implementation
+**Dependencies**: Understanding of MCP server development, macOS security permissions
+**Deliverable**: Research summary + proof-of-concept MCP server OR decision to defer
+
+**Related Context**:
+- This request emerged from review system UI development where zoom/pan functionality was implemented blind
+- Screenshot-based QA worked well (2 issues fixed in <20 min) but could be automated
+- Pattern 2 (Systematic API Exploration) applies to MCP server development approach
+
+**Assignment**: INVESTIGATOR agent or appropriate research-focused agent
+**Coordination**: Document findings in ~/devvyn-meta-project/research/mcp-browser-feedback.md
+**Cross-Project Impact**: If successful, benefits all projects with web UI development
+
 ### Technical Review Queue
 **Last Updated**: 2025-10-01 Work Session
 **Review Context**: OCR engine selection, memory optimization, and scientific validation thresholds

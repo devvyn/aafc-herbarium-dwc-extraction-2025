@@ -18,12 +18,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
+from PIL import Image
 from rich.console import RenderableType
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
+from rich_pixels import Pixels
 from textual.app import App, ComposeResult
-from textual.containers import Horizontal
+from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
 from textual.widgets import Footer, Header, Static
 from textual.timer import Timer
@@ -115,6 +117,49 @@ class EventStreamWidget(Static):
         self.events = self.events + [event]  # Trigger reactive update
 
 
+class SpecimenImageWidget(Static):
+    """Inline specimen image preview using iTerm2/rich-pixels."""
+
+    current_image_path: reactive[Optional[Path]] = reactive(None)
+    specimen_id: reactive[str] = reactive("No specimen")
+
+    def render(self) -> RenderableType:
+        if self.current_image_path and self.current_image_path.exists():
+            try:
+                # Load and resize image for terminal display
+                img = Image.open(self.current_image_path)
+                img.thumbnail((60, 40))  # Terminal character size
+
+                # Convert to rich-pixels
+                pixels = Pixels.from_image(img)
+
+                # Create renderable group with image and label
+                from rich.console import Group
+
+                content = Group(
+                    pixels,
+                    Text(),  # Spacer
+                    Text(self.specimen_id, style="cyan bold", justify="center"),
+                )
+
+                return Panel(
+                    content,
+                    title="[bold]🔬 Current Specimen",
+                    border_style="cyan",
+                )
+            except Exception as e:
+                error_text = Text(f"Error loading image:\n{str(e)}", style="red")
+                return Panel(error_text, title="[bold]🔬 Current Specimen", border_style="red")
+        else:
+            placeholder = Text("No image available\n\nWaiting for extraction...", style="dim")
+            return Panel(placeholder, title="[bold]🔬 Current Specimen", border_style="dim")
+
+    def update_image(self, image_path: Optional[Path], specimen_id: str):
+        """Update the displayed image."""
+        self.current_image_path = image_path
+        self.specimen_id = specimen_id
+
+
 class FieldQualityWidget(Static):
     """Field extraction quality bars."""
 
@@ -178,6 +223,14 @@ class ExtractionMonitorApp(App):
         height: 1fr;
         margin: 1;
     }
+
+    #left_column {
+        width: 2fr;
+    }
+
+    #right_column {
+        width: 1fr;
+    }
     """
 
     BINDINGS = [
@@ -186,18 +239,22 @@ class ExtractionMonitorApp(App):
         ("d", "toggle_dark", "Toggle Dark Mode"),
     ]
 
-    def __init__(self, run_dir: Path):
+    def __init__(self, run_dir: Path, image_dir: Optional[Path] = None):
         super().__init__()
         self.run_dir = run_dir
         self.raw_jsonl = run_dir / "raw.jsonl"
         self.events_jsonl = run_dir / "events.jsonl"
         self.environment_json = run_dir / "environment.json"
 
+        # Image directory for inline previews
+        self.image_dir = image_dir or Path.home() / "Documents/projects/AAFC/pyproj/resized"
+
         # Stats
         self.total_specimens = 0
         self.completed_count = 0
         self.failed_count = 0
         self.field_stats = {}
+        self.current_specimen_id: Optional[str] = None
 
         self.update_timer: Optional[Timer] = None
 
@@ -214,10 +271,16 @@ class ExtractionMonitorApp(App):
         # Progress card
         yield ProgressCard(id="progress_card")
 
-        # Main panels
+        # Main panels with 3-column layout
         with Horizontal(id="main_panels"):
-            yield EventStreamWidget()
-            yield FieldQualityWidget()
+            # Left: Event stream and field quality
+            with Vertical(id="left_column"):
+                yield EventStreamWidget()
+                yield FieldQualityWidget()
+
+            # Right: Specimen image preview
+            with Vertical(id="right_column"):
+                yield SpecimenImageWidget()
 
         yield Footer()
 
@@ -267,10 +330,11 @@ class ExtractionMonitorApp(App):
                 self.update_progress_card()
                 self.update_field_quality()
 
-                # Add latest event to stream
+                # Add latest event to stream and update image
                 if results:
                     latest = results[-1]
                     self.add_event_from_result(latest)
+                    self.update_specimen_image(latest)
 
         except Exception as e:
             self.notify(f"Error updating data: {e}", severity="error")
@@ -330,6 +394,33 @@ class ExtractionMonitorApp(App):
 
         event_widget.add_event(event)
 
+    def update_specimen_image(self, result: dict):
+        """Update the specimen image preview."""
+        specimen_id = result.get("image", "unknown")
+
+        # Skip if same specimen (avoid unnecessary updates)
+        if specimen_id == self.current_specimen_id:
+            return
+
+        self.current_specimen_id = specimen_id
+
+        # Find image in image directory
+        image_path = self.image_dir / specimen_id
+        if not image_path.exists():
+            # Try common extensions
+            for ext in [".JPG", ".jpg", ".jpeg", ".JPEG", ".png", ".PNG"]:
+                test_path = self.image_dir / f"{specimen_id.rsplit('.', 1)[0]}{ext}"
+                if test_path.exists():
+                    image_path = test_path
+                    break
+
+        # Update widget
+        image_widget = self.query_one(SpecimenImageWidget)
+        if image_path.exists():
+            image_widget.update_image(image_path, specimen_id)
+        else:
+            image_widget.update_image(None, specimen_id)
+
     def action_toggle_dark(self) -> None:
         """Toggle dark mode."""
         self.dark = not self.dark
@@ -343,6 +434,12 @@ def main():
         required=True,
         help="Extraction run directory (contains raw.jsonl, events.jsonl, environment.json)",
     )
+    parser.add_argument(
+        "--image-dir",
+        type=Path,
+        default=None,
+        help="Directory containing specimen images (defaults to ~/Documents/projects/AAFC/pyproj/resized)",
+    )
 
     args = parser.parse_args()
 
@@ -350,7 +447,7 @@ def main():
         print(f"❌ Run directory not found: {args.run_dir}")
         return 1
 
-    app = ExtractionMonitorApp(args.run_dir)
+    app = ExtractionMonitorApp(args.run_dir, args.image_dir)
     app.run()
 
 

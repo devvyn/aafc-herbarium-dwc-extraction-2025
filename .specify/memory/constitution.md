@@ -1,5 +1,14 @@
 <!--
-Sync Impact Report (2025-09-27):
+Sync Impact Report:
+
+2025-10-11 (v1.1.0):
+- Added Core Principle VI: Information Parity and Inclusive Design (CONSTITUTIONAL)
+- Elevated accessibility from project-level concern to constitutional principle
+- Cross-references meta-project pattern: ~/devvyn-meta-project/knowledge-base/patterns/information-parity-design.md
+- Templates requiring updates: spec-template.md should reference accessibility requirements
+- Rationale: Design for diverse human configurations from start, not retrofit
+
+2025-09-27 (v1.0.0):
 - Version change: Initial template → 1.0.0
 - Initial constitution creation from project analysis
 - Added sections: Core Principles (5), Scientific Standards, Technical Requirements, Governance
@@ -26,6 +35,21 @@ Proven solutions from INTER_AGENT_MEMO and historical gists take precedence over
 ### V. Production-Ready Quality Gates
 All code passes ruff linting, comprehensive testing, and performance benchmarks before deployment. Memory usage optimized for 2,800+ specimen processing. Error handling comprehensive with audit trails for institutional compliance.
 
+### VI. Information Parity and Inclusive Design (CONSTITUTIONAL)
+**Information architecture must work equally well across all sensory modalities.** Accessibility is not a feature to add but a design constraint that improves systems for everyone. Every feature must specify how information is conveyed visually, auditorily, textually, and structurally. No sensory modality is privileged over others. Design "skeleton" refers to information architecture that doesn't assume visual-first interaction.
+
+**Reference Pattern**: `~/devvyn-meta-project/knowledge-base/patterns/information-parity-design.md`
+
+**Validation Requirements**:
+- All information accessible non-visually
+- All interactions possible via keyboard
+- Screen reader can complete full workflows
+- Focus order is logical throughout interface
+- State changes announced across modalities
+- VoiceOver compatibility verified before release
+
+This principle applies to all interfaces: web, TUI, CLI, and future interaction paradigms. When we design for diverse human configurations from the start, we create superior systems for all users.
+
 ## Scientific Standards
 
 Darwin Core field mapping validated by AAFC domain experts. Taxonomic authority verification through GBIF integration. Specimen interpretation maintains botanical accuracy. Publication-ready outputs meet institutional standards.
@@ -40,4 +64,7 @@ Constitution supersedes conflicting development practices. All feature additions
 
 Code reviews verify constitutional compliance. Pattern adherence documented in commit messages. INTER_AGENT_MEMO patterns referenced for consistency.
 
-**Version**: 1.0.0 | **Ratified**: 2025-09-27 | **Last Amended**: 2025-09-27
+**Version**: 1.1.0 | **Ratified**: 2025-09-27 | **Last Amended**: 2025-10-11
+
+**Amendment Log**:
+- 2025-10-11: Added Core Principle VI - Information Parity and Inclusive Design (constitutional)

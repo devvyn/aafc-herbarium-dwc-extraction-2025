@@ -222,13 +222,101 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            overflow: auto;
+            position: relative;
+            cursor: grab;
+        }
+
+        .image-container:active {
+            cursor: grabbing;
         }
 
         .specimen-image {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
+            transition: transform 0.2s;
+            transform-origin: center;
+        }
+
+        .image-controls {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            display: flex;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 8px;
+            border-radius: 6px;
+            z-index: 10;
+        }
+
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zoom-btn:hover {
+            background: #475569;
+        }
+
+        .zoom-level {
+            padding: 0 8px;
+            display: flex;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        /* Full screen modal */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            cursor: zoom-out;
+        }
+
+        .image-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-modal img {
+            max-width: 95vw;
+            max-height: 95vh;
+            object-fit: contain;
+            transform-origin: center;
+            cursor: move;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
         }
 
         /* Data Panel */
@@ -363,13 +451,16 @@
                     <button class="filter-btn" onclick="filterQueue('CRITICAL')">Critical</button>
                     <button class="filter-btn" onclick="filterQueue('HIGH')">High</button>
                     <button class="filter-btn" onclick="filterQueue('PENDING')">Pending</button>
+                    <button class="filter-btn" onclick="filterQueue('approved')">Approved</button>
+                    <button class="filter-btn" onclick="filterQueue('flagged')">Flagged</button>
+                    <button class="filter-btn" onclick="filterQueue('rejected')">Rejected</button>
                 </div>
             </div>
             <div class="queue-list" id="queueList">
                 <div class="loading">Loading queue...</div>
             </div>
             <div class="shortcuts-hint">
-                ⌨️ <strong>j/k</strong> next/prev • <strong>a</strong> approve • <strong>r</strong> reject • <strong>f</strong> flag
+                ⌨️ <strong>j/k</strong> next/prev • <strong>a/r/f</strong> approve/reject/flag (confirm or 2x) • <strong>+/-</strong> zoom • <strong>0</strong> reset
             </div>
         </div>
 
@@ -399,6 +490,12 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Full screen image modal -->
+    <div class="image-modal" id="imageModal">
+        <button class="modal-close" onclick="closeImageModal()">×</button>
+        <img id="modalImage" src="" alt="Full size specimen">
     </div>
 
     <script>
@@ -461,8 +558,20 @@
 
             // Render image
             if (data.image_url) {
-                document.getElementById('imageContainer').innerHTML =
-                    `<img src="${data.image_url}" class="specimen-image" alt="Specimen">`;
+                document.getElementById('imageContainer').innerHTML = `
+                    <img src="${data.image_url}" class="specimen-image" id="specimenImage" alt="Specimen"
+                         ondblclick="openImageModal()"
+                         ondragstart="return false"
+                         style="pointer-events: auto; user-select: none; -webkit-user-drag: none;">
+                    <div class="image-controls">
+                        <button class="zoom-btn" onclick="zoomImage(-0.2)" title="Zoom out (-)">−</button>
+                        <div class="zoom-level" id="zoomLevel">100%</div>
+                        <button class="zoom-btn" onclick="zoomImage(0.2)" title="Zoom in (+)">+</button>
+                        <button class="zoom-btn" onclick="resetZoom()" title="Reset (0)">↺</button>
+                        <button class="zoom-btn" onclick="openImageModal()" title="Full screen (Dbl-click)">⛶</button>
+                    </div>
+                `;
+                setupImagePan();
             } else {
                 document.getElementById('imageContainer').innerHTML =
                     '<div class="loading">Image not available</div>';
@@ -607,19 +716,229 @@
             loadQueue(filter === 'all' ? null : filter);
         }
 
-        // Keyboard shortcuts
+        // Keyboard shortcuts with confirmation for destructive actions
+        let lastKeyTime = 0;
+        let lastKey = null;
+
         document.addEventListener('keydown', (e) => {
             if (e.target.tagName === 'INPUT') return;
+
+            const now = Date.now();
+            const isDoublePress = (e.key === lastKey && now - lastKeyTime < 500);
+            lastKey = e.key;
+            lastKeyTime = now;
 
             switch(e.key) {
                 case 'j': nextSpecimen(); break;
                 case 'k': prevSpecimen(); break;
-                case 'a': approveSpecimen(); break;
-                case 'r': rejectSpecimen(); break;
-                case 'f': flagSpecimen(); break;
+                case 'a':
+                    if (isDoublePress || confirm('Approve this specimen? (Press A twice quickly to skip confirmation)')) {
+                        approveSpecimen();
+                    }
+                    break;
+                case 'r':
+                    if (isDoublePress || confirm('Reject this specimen? (Press R twice quickly to skip confirmation)')) {
+                        rejectSpecimen();
+                    }
+                    break;
+                case 'f':
+                    if (isDoublePress || confirm('Flag this specimen for review? (Press F twice quickly to skip confirmation)')) {
+                        flagSpecimen();
+                    }
+                    break;
                 case 's': saveCorrections(); break;
+                case '+': case '=': zoomImage(0.2); break;
+                case '-': case '_': zoomImage(-0.2); break;
+                case '0': resetZoom(); break;
+                case 'Escape': closeImageModal(); break;
             }
         });
+
+        // Image zoom/pan functionality with cursor-centered zoom and boundary constraints
+        let currentZoom = 1.0;
+        let isPanning = false;
+        let panStartX = 0;
+        let panStartY = 0;
+        let panX = 0;
+        let panY = 0;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+
+        function updateImageTransform() {
+            const img = document.getElementById('specimenImage');
+            if (!img) return;
+            img.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+        }
+
+        function constrainPan() {
+            const img = document.getElementById('specimenImage');
+            const container = document.getElementById('imageContainer');
+            if (!img || !container) return;
+
+            const containerRect = container.getBoundingClientRect();
+            const imgRect = img.getBoundingClientRect();
+
+            // Only constrain if image is larger than container
+            if (imgRect.width > containerRect.width) {
+                const maxPanX = (imgRect.width - containerRect.width) / 2;
+                panX = Math.max(-maxPanX, Math.min(maxPanX, panX));
+            } else {
+                panX = 0; // Center if smaller
+            }
+
+            if (imgRect.height > containerRect.height) {
+                const maxPanY = (imgRect.height - containerRect.height) / 2;
+                panY = Math.max(-maxPanY, Math.min(maxPanY, panY));
+            } else {
+                panY = 0; // Center if smaller
+            }
+        }
+
+        function zoomImage(delta, mouseX = null, mouseY = null) {
+            const img = document.getElementById('specimenImage');
+            const container = document.getElementById('imageContainer');
+            if (!img || !container) return;
+
+            const oldZoom = currentZoom;
+            currentZoom = Math.max(0.5, Math.min(5.0, currentZoom + delta));
+
+            // If mouse position provided, zoom towards cursor
+            if (mouseX !== null && mouseY !== null) {
+                const containerRect = container.getBoundingClientRect();
+                const mouseXRel = mouseX - containerRect.left - containerRect.width / 2;
+                const mouseYRel = mouseY - containerRect.top - containerRect.height / 2;
+
+                // Adjust pan to keep mouse position fixed
+                const zoomRatio = currentZoom / oldZoom;
+                panX = mouseXRel - zoomRatio * (mouseXRel - panX);
+                panY = mouseYRel - zoomRatio * (mouseYRel - panY);
+            }
+
+            constrainPan();
+            updateImageTransform();
+            document.getElementById('zoomLevel').textContent = `${Math.round(currentZoom * 100)}%`;
+        }
+
+        function resetZoom() {
+            currentZoom = 1.0;
+            panX = 0;
+            panY = 0;
+            updateImageTransform();
+            document.getElementById('zoomLevel').textContent = '100%';
+        }
+
+        function setupImagePan() {
+            const container = document.getElementById('imageContainer');
+            const img = document.getElementById('specimenImage');
+            if (!container || !img) return;
+
+            // Track mouse position for cursor-centered zoom
+            container.addEventListener('mousemove', (e) => {
+                if (!isPanning) {
+                    lastMouseX = e.clientX;
+                    lastMouseY = e.clientY;
+                }
+            });
+
+            // Mouse wheel zoom at cursor position
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                zoomImage(delta, e.clientX, e.clientY);
+            });
+
+            // Pan with mouse drag
+            container.addEventListener('mousedown', (e) => {
+                if (e.target !== img) return;
+                e.preventDefault(); // Prevent drag-and-drop
+                isPanning = true;
+                panStartX = e.clientX - panX;
+                panStartY = e.clientY - panY;
+                container.style.cursor = 'grabbing';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isPanning) return;
+                panX = e.clientX - panStartX;
+                panY = e.clientY - panStartY;
+                constrainPan();
+                updateImageTransform();
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isPanning) {
+                    isPanning = false;
+                    container.style.cursor = 'grab';
+                }
+            });
+        }
+
+        // Full screen modal functionality
+        let modalZoom = 1.0;
+        let modalPanning = false;
+        let modalStartX = 0;
+        let modalStartY = 0;
+        let modalOffsetX = 0;
+        let modalOffsetY = 0;
+
+        function openImageModal() {
+            const img = document.getElementById('specimenImage');
+            if (!img) return;
+
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+
+            modalImg.src = img.src;
+            modal.classList.add('active');
+
+            modalZoom = 1.0;
+            modalOffsetX = 0;
+            modalOffsetY = 0;
+            modalImg.style.transform = 'scale(1)';
+
+            setupModalControls(modalImg, modal);
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.remove('active');
+        }
+
+        function setupModalControls(img, modal) {
+            // Mouse wheel zoom in modal
+            modal.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.2 : 0.2;
+                modalZoom = Math.max(0.5, Math.min(10.0, modalZoom + delta));
+                img.style.transform = `scale(${modalZoom}) translate(${modalOffsetX}px, ${modalOffsetY}px)`;
+            });
+
+            // Pan in modal
+            img.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                modalPanning = true;
+                modalStartX = e.clientX - modalOffsetX;
+                modalStartY = e.clientY - modalOffsetY;
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!modalPanning) return;
+                modalOffsetX = e.clientX - modalStartX;
+                modalOffsetY = e.clientY - modalStartY;
+                img.style.transform = `scale(${modalZoom}) translate(${modalOffsetX}px, ${modalOffsetY}px)`;
+            });
+
+            document.addEventListener('mouseup', () => {
+                modalPanning = false;
+            });
+
+            // Close on background click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeImageModal();
+                }
+            });
+        }
     </script>
 </body>
 </html>
