@@ -7,6 +7,48 @@
 - 🔮 Layout-aware prompts (TOP vs BOTTOM label distinction)
 - 🔮 Ensemble voting for research-grade quality
 
+## [1.1.1] - 2025-10-11
+
+### Added - Accessibility Enhancements
+- 🎨 **Constitutional Principle VI: Information Parity and Inclusive Design**
+  - Elevated accessibility to constitutional status (Core Principle VI)
+  - Cross-reference to meta-project pattern: `information-parity-design.md`
+  - Validation requirements: VoiceOver compatibility, keyboard-first, screen reader native
+
+- ⌨️ **Keyboard-First Review Interface**
+  - Keyboard shortcuts with confirmation dialogs (a/r/f for approve/reject/flag)
+  - Double-press bypass (500ms window) for power users
+  - Prevents accidental actions during review workflow
+
+- 🔍 **Enhanced Image Interaction**
+  - Cursor-centered zoom (focal point under cursor stays stationary)
+  - Pan boundary constraints (prevents image escaping container)
+  - Safari drag-and-drop prevention (ondragstart blocking)
+
+- 🏷️ **Status Filtering**
+  - Filter buttons for All/Critical/High/Pending/Approved/Flagged/Rejected statuses
+  - Quick access to specimens needing review
+  - Visual indication of current filter state
+
+- 🖼️ **TUI Monitor Enhancements**
+  - iTerm2 inline specimen image rendering via rich-pixels
+  - Real-time image preview (60x40 terminal characters)
+  - 3-column layout: event stream + field quality | specimen image
+  - Automatic image updates as extraction progresses
+
+### Changed
+- Review interface improvements for keyboard-first navigation
+- Enhanced TUI monitor with multi-panel layout
+- Updated constitution to v1.1.0 with accessibility principle
+
+### Documentation
+- Added `docs/ACCESSIBILITY_REQUIREMENTS.md` - project-level implementation roadmap
+- Phase 1-3 priorities: Critical fixes → Enhanced accessibility → Documentation
+- Success metrics and testing requirements defined
+
+### Notes
+This patch release prepares the production baseline (v1.1.x-stable) before beginning v2.0.0 accessibility-first redesign. All changes are backward-compatible with v1.1.0.
+
 ## [1.1.0] - 2025-10-09
 
 ### 🎉 Multi-Provider Extraction with FREE Tier Support
@@ -474,7 +516,8 @@ None - fully backward compatible with v1.0.0
 - :bug: handle missing git commit metadata
 - :bug: correct mapper schema override
 
-[Unreleased]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.0.0-beta.2...v1.0.0
 [1.0.0-beta.2]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.0.0-alpha.1...v1.0.0-beta.2
