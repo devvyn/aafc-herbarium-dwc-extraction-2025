@@ -314,7 +314,7 @@ def resolve_image_path(
         loc_path = Path(loc.path)
         if loc.location_type in ("cache", "local", "persistent") and loc_path.exists():
             # Re-cache it
-            cache.put(image_identifier, loc_path, source=loc.source)
+            cache.put(image_identifier, loc_path, source=loc.source_manifest or "registry")
             return loc_path
 
     # Fall back to directory search
@@ -327,9 +327,9 @@ def resolve_image_path(
                         cache.put(image_identifier, img_path, source="fallback_search")
                         registry.register_location(
                             sha256_hash=image_identifier,
-                            path=str(img_path),
                             location_type="local",
-                            source="fallback_search",
+                            path=str(img_path),
+                            source_manifest="fallback_search",
                         )
                         return img_path
 
@@ -487,9 +487,9 @@ def main():
         for img_path in all_images:
             registry.register_location(
                 sha256_hash=img_path.name,  # Use filename as identifier for now
-                path=str(img_path.absolute()),
                 location_type="local",
-                source=f"input_directory:{args.input}",
+                path=str(img_path.absolute()),
+                source_manifest=f"input_directory:{args.input}",
             )
         print(f"   Registered {len(all_images)} image locations")
         print()
@@ -670,10 +670,13 @@ def main():
     print("EXTRACTION COMPLETE")
     print("=" * 70)
     print(f"Total processed: {len(results)}")
-    print(
-        f"Successful: {len(successful_results)} ({len(successful_results)/len(results)*100:.1f}%)"
-    )
-    print(f"Failed: {len(failed_results)}")
+    if len(results) > 0:
+        print(
+            f"Successful: {len(successful_results)} ({len(successful_results)/len(results)*100:.1f}%)"
+        )
+        print(f"Failed: {len(failed_results)}")
+    else:
+        print("No specimens processed")
     print()
     print(f"Results saved: {output_file}")
 
