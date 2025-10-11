@@ -3,294 +3,415 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌿 Herbarium OCR Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <title>🌿 Herbarium Extraction Monitor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        .gradient-bg {
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-red: #ef4444;
         }
-        .processing-animation {
-            animation: pulse 2s infinite;
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid #475569;
+            border-radius: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .stat-card {
-            transition: transform 0.2s ease-in-out;
-        }
-        .stat-card:hover {
+
+        .card:hover {
             transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .pulse-dot {
+            animation: pulse-animation 2s infinite;
+        }
+
+        @keyframes pulse-animation {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .event-item {
+            border-left: 3px solid var(--accent-blue);
+            padding-left: 1rem;
+            margin-bottom: 0.75rem;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .field-bar {
+            height: 24px;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+            border-radius: 4px;
+            transition: width 0.3s ease-out;
+        }
+
+        .model-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .status-running {
+            color: var(--accent-green);
+        }
+
+        .status-complete {
+            color: var(--accent-blue);
+        }
+
+        .cost-free {
+            color: var(--accent-green);
+            font-weight: 700;
+        }
+
+        .mono {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
         }
     </style>
 </head>
-<body class="bg-gray-100" x-data="dashboard()">
+<body class="p-6">
+
     <!-- Header -->
-    <header class="gradient-bg shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center py-6">
-                <div class="flex items-center">
-                    <h1 class="text-3xl font-bold text-white">🌿 Herbarium OCR</h1>
-                    <span class="ml-4 px-3 py-1 bg-white bg-opacity-20 rounded-full text-white text-sm">
-                        v1.0.0
-                    </span>
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-4xl font-bold mb-2">🌿 Herbarium Extraction Monitor</h1>
+                <p class="text-gray-400">Real-time Darwin Core extraction pipeline</p>
+            </div>
+            <div class="text-right">
+                <div class="model-badge text-white mb-2">
+                    <span id="modelName">Loading...</span>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="text-white text-sm">
-                        <span x-show="status.current_image" class="processing-animation">
-                            🔄 Processing: <span x-text="status.current_image"></span>
-                        </span>
-                        <span x-show="!status.current_image">
-                            ⏸️ Ready
-                        </span>
-                    </div>
+                <div class="text-sm text-gray-400">
+                    <span id="runId" class="mono">-</span>
                 </div>
             </div>
         </div>
-    </header>
+    </div>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Images -->
-            <div class="stat-card bg-white overflow-hidden shadow rounded-lg">
-                <div class="p-5">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="text-3xl">📊</div>
-                        </div>
-                        <div class="ml-5 w-0 flex-1">
-                            <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">Total Images</dt>
-                                <dd class="text-3xl font-bold text-gray-900" x-text="status.total_images">0</dd>
-                            </dl>
-                        </div>
-                    </div>
-                </div>
+    <!-- Hero Progress -->
+    <div class="card p-8 mb-6">
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center space-x-4">
+                <div id="statusIndicator" class="pulse-dot w-4 h-4 rounded-full bg-green-500"></div>
+                <span id="statusText" class="text-2xl font-semibold status-running">RUNNING</span>
             </div>
-
-            <!-- Processed -->
-            <div class="stat-card bg-white overflow-hidden shadow rounded-lg">
-                <div class="p-5">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="text-3xl">✅</div>
-                        </div>
-                        <div class="ml-5 w-0 flex-1">
-                            <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">Processed</dt>
-                                <dd class="text-3xl font-bold text-green-600" x-text="status.processed">0</dd>
-                            </dl>
-                        </div>
-                    </div>
-                    <div class="mt-2">
-                        <div class="bg-gray-200 rounded-full h-2">
-                            <div class="bg-green-500 h-2 rounded-full transition-all duration-300"
-                                 :style="`width: ${status.total_images > 0 ? (status.processed / status.total_images * 100) : 0}%`"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Success Rate -->
-            <div class="stat-card bg-white overflow-hidden shadow rounded-lg">
-                <div class="p-5">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="text-3xl">📈</div>
-                        </div>
-                        <div class="ml-5 w-0 flex-1">
-                            <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">Success Rate</dt>
-                                <dd class="text-3xl font-bold text-blue-600"
-                                    x-text="status.processed > 0 ? Math.round(status.successful / status.processed * 100) + '%' : '0%'">0%</dd>
-                            </dl>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Failed -->
-            <div class="stat-card bg-white overflow-hidden shadow rounded-lg">
-                <div class="p-5">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="text-3xl">❌</div>
-                        </div>
-                        <div class="ml-5 w-0 flex-1">
-                            <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">Failed</dt>
-                                <dd class="text-3xl font-bold text-red-600" x-text="status.failed">0</dd>
-                            </dl>
-                        </div>
-                    </div>
-                </div>
+            <div class="text-right">
+                <div class="text-3xl font-bold" id="progressPercentage">0%</div>
+                <div class="text-sm text-gray-400">complete</div>
             </div>
         </div>
 
-        <!-- Charts and Details -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <!-- Engine Usage Chart -->
-            <div class="bg-white shadow rounded-lg p-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">🤖 Engine Usage</h3>
-                <canvas id="engineChart" width="400" height="200"></canvas>
-            </div>
-
-            <!-- Processing Timeline -->
-            <div class="bg-white shadow rounded-lg p-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">⏱️ Processing Timeline</h3>
-                <div x-show="status.start_time">
-                    <p class="text-sm text-gray-600">Started: <span x-text="formatTime(status.start_time)"></span></p>
-                    <p class="text-sm text-gray-600">Elapsed: <span x-text="getElapsedTime()"></span></p>
-                    <p class="text-sm text-gray-600" x-show="status.processed > 0">
-                        Rate: <span x-text="getProcessingRate()"></span> images/sec
-                    </p>
-                </div>
-                <div x-show="!status.start_time" class="text-gray-500 text-center py-8">
-                    No active processing session
-                </div>
+        <!-- Progress Bar -->
+        <div class="relative h-8 bg-gray-700 rounded-full overflow-hidden mb-4">
+            <div id="progressBar" class="absolute inset-y-0 left-0 bg-gradient-to-r from-green-500 to-blue-500 transition-all duration-500" style="width: 0%"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-sm font-semibold">
+                <span id="progressText">0 / 0 specimens</span>
             </div>
         </div>
 
-        <!-- Recent Activity -->
-        <div class="bg-white shadow rounded-lg">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900">📋 Recent Activity</h3>
+        <!-- Timing Info -->
+        <div class="flex justify-between text-sm text-gray-400">
+            <div>⏱️ <span id="elapsedTime">0m</span> elapsed</div>
+            <div>🎯 <span id="etaTime">-</span> remaining</div>
+            <div>⚡ <span id="throughput">0</span> specimens/min</div>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+        <!-- Total -->
+        <div class="card p-6">
+            <div class="text-gray-400 text-sm mb-2">Total Specimens</div>
+            <div class="stat-value text-blue-400" id="totalCount">0</div>
+        </div>
+
+        <!-- Completed -->
+        <div class="card p-6">
+            <div class="text-gray-400 text-sm mb-2">✅ Completed</div>
+            <div class="stat-value text-green-400" id="completedCount">0</div>
+        </div>
+
+        <!-- Success Rate -->
+        <div class="card p-6">
+            <div class="text-gray-400 text-sm mb-2">📈 Success Rate</div>
+            <div class="stat-value text-purple-400" id="successRate">0%</div>
+        </div>
+
+        <!-- Failed -->
+        <div class="card p-6">
+            <div class="text-gray-400 text-sm mb-2">❌ Failed</div>
+            <div class="stat-value text-red-400" id="failedCount">0</div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-2 gap-6">
+
+        <!-- Live Event Stream -->
+        <div class="card p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold">🔴 Live Event Stream</h2>
+                <div class="text-xs text-gray-500 mono" id="lastUpdate">-</div>
             </div>
-            <div class="px-6 py-4">
-                <div class="flow-root">
-                    <ul class="-mb-8">
-                        <template x-for="(error, index) in status.errors.slice(-5)" :key="index">
-                            <li class="relative pb-8">
-                                <div class="flex items-start space-x-3">
-                                    <div class="flex-shrink-0">
-                                        <div class="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center">
-                                            <span class="text-red-500 text-sm">❌</span>
-                                        </div>
-                                    </div>
-                                    <div class="min-w-0 flex-1">
-                                        <div>
-                                            <p class="text-sm text-gray-900" x-text="error"></p>
-                                            <p class="text-xs text-gray-500" x-text="formatTime(new Date().toISOString())"></p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                        </template>
-                        <div x-show="status.errors.length === 0" class="text-center py-8 text-gray-500">
-                            No recent errors
-                        </div>
-                    </ul>
-                </div>
+            <div id="eventStream" class="space-y-2 max-h-96 overflow-y-auto">
+                <div class="text-gray-500 text-center py-8">Waiting for events...</div>
             </div>
         </div>
-    </main>
+
+        <!-- Field Extraction Quality -->
+        <div class="card p-6">
+            <h2 class="text-xl font-bold mb-4">🎯 Field Extraction Quality</h2>
+            <div id="fieldQuality" class="space-y-3 max-h-96 overflow-y-auto">
+                <div class="text-gray-500 text-center py-8">No data yet...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Cost Tracker -->
+    <div class="card p-6 mt-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-semibold mb-1">💰 Cost Tracking</h3>
+                <p class="text-sm text-gray-400">Free tier usage - no charges</p>
+            </div>
+            <div class="text-right">
+                <div class="text-3xl font-bold cost-free">$0.00</div>
+                <div class="text-sm text-gray-400">Estimated full dataset: <span class="text-green-400">FREE</span></div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        function dashboard() {
-            return {
-                status: {
-                    total_images: 0,
-                    processed: 0,
-                    successful: 0,
-                    failed: 0,
-                    current_image: null,
-                    start_time: null,
-                    errors: [],
-                    engine_stats: {}
-                },
-                chart: null,
+        // Dashboard State
+        const state = {
+            batches: [],
+            events: [],
+            fieldStats: {},
+            lastEventTime: null
+        };
 
-                init() {
-                    this.connectWebSocket();
-                    this.initChart();
-                },
+        // Initialize SSE connection
+        function connectSSE() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refresh = urlParams.get('refresh') || 30;
 
-                connectWebSocket() {
-                    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                    const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+            const eventSource = new EventSource(`/stream?batch_ids=&refresh=${refresh}`);
 
-                    ws.onmessage = (event) => {
-                        const data = JSON.parse(event.data);
-                        this.status = { ...this.status, ...data };
-                        this.updateChart();
-                    };
+            eventSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
 
-                    ws.onclose = () => {
-                        console.log('WebSocket connection closed. Attempting to reconnect...');
-                        setTimeout(() => this.connectWebSocket(), 3000);
-                    };
-                },
-
-                initChart() {
-                    const ctx = document.getElementById('engineChart').getContext('2d');
-                    this.chart = new Chart(ctx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: [],
-                            datasets: [{
-                                data: [],
-                                backgroundColor: [
-                                    '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'
-                                ]
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom'
-                                }
-                            }
-                        }
-                    });
-                },
-
-                updateChart() {
-                    if (!this.chart) return;
-
-                    const engines = Object.keys(this.status.engine_stats);
-                    const counts = Object.values(this.status.engine_stats);
-
-                    this.chart.data.labels = engines;
-                    this.chart.data.datasets[0].data = counts;
-                    this.chart.update();
-                },
-
-                formatTime(isoString) {
-                    if (!isoString) return '';
-                    return new Date(isoString).toLocaleTimeString();
-                },
-
-                getElapsedTime() {
-                    if (!this.status.start_time) return '';
-                    const start = new Date(this.status.start_time);
-                    const now = new Date();
-                    const elapsed = Math.floor((now - start) / 1000);
-
-                    const hours = Math.floor(elapsed / 3600);
-                    const minutes = Math.floor((elapsed % 3600) / 60);
-                    const seconds = elapsed % 60;
-
-                    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                },
-
-                getProcessingRate() {
-                    if (!this.status.start_time || this.status.processed === 0) return '0';
-                    const start = new Date(this.status.start_time);
-                    const now = new Date();
-                    const elapsed = (now - start) / 1000;
-
-                    const rate = this.status.processed / elapsed;
-                    return rate.toFixed(1);
+                if (data.complete) {
+                    updateStatus('COMPLETE', false);
+                    eventSource.close();
+                    return;
                 }
+
+                if (data.error) {
+                    console.error('Stream error:', data.error);
+                    return;
+                }
+
+                updateDashboard(data);
+            };
+
+            eventSource.onerror = (error) => {
+                console.error('SSE Error:', error);
+                updateStatus('DISCONNECTED', false);
+                eventSource.close();
+                setTimeout(connectSSE, 5000);
+            };
+        }
+
+        function updateDashboard(data) {
+            if (!data.batches || data.batches.length === 0) return;
+
+            const batch = data.batches[0]; // Show first batch for now
+
+            // Update hero stats
+            document.getElementById('modelName').textContent = batch.batch_id || 'Unknown Model';
+            document.getElementById('runId').textContent = batch.batch_id || '-';
+
+            const progress = batch.progress || {};
+            const total = progress.total || 0;
+            const completed = progress.completed || 0;
+            const failed = progress.failed || 0;
+            const percentage = progress.percentage || 0;
+
+            // Update progress
+            document.getElementById('progressPercentage').textContent = Math.round(percentage) + '%';
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = `${completed} / ${total} specimens`;
+
+            // Update stats
+            document.getElementById('totalCount').textContent = total.toLocaleString();
+            document.getElementById('completedCount').textContent = completed.toLocaleString();
+            document.getElementById('failedCount').textContent = failed.toLocaleString();
+
+            const successRate = completed > 0 ? Math.round(((completed - failed) / completed) * 100) : 0;
+            document.getElementById('successRate').textContent = successRate + '%';
+
+            // Update timing
+            const timing = batch.timing || {};
+            const elapsed = timing.elapsed_minutes || 0;
+            const eta = timing.eta_seconds || 0;
+
+            document.getElementById('elapsedTime').textContent = formatDuration(elapsed * 60);
+            document.getElementById('etaTime').textContent = eta > 0 ? formatDuration(eta) : 'calculating...';
+
+            const throughput = elapsed > 0 ? (completed / elapsed).toFixed(1) : 0;
+            document.getElementById('throughput').textContent = throughput;
+
+            // Update status
+            updateStatus(batch.is_complete ? 'COMPLETE' : 'RUNNING', !batch.is_complete);
+
+            // Update timestamp
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+
+            // Simulate event stream (we'd parse events.jsonl in real implementation)
+            addMockEvent(completed, total);
+        }
+
+        function updateStatus(status, isPulsing) {
+            const indicator = document.getElementById('statusIndicator');
+            const text = document.getElementById('statusText');
+
+            text.textContent = status;
+
+            if (status === 'RUNNING') {
+                indicator.className = 'pulse-dot w-4 h-4 rounded-full bg-green-500';
+                text.className = 'text-2xl font-semibold status-running';
+            } else if (status === 'COMPLETE') {
+                indicator.className = 'w-4 h-4 rounded-full bg-blue-500';
+                text.className = 'text-2xl font-semibold status-complete';
+            } else {
+                indicator.className = 'w-4 h-4 rounded-full bg-gray-500';
+                text.className = 'text-2xl font-semibold text-gray-400';
             }
         }
+
+        function addMockEvent(completed, total) {
+            const eventStream = document.getElementById('eventStream');
+
+            // Clear placeholder
+            if (eventStream.querySelector('.text-gray-500')) {
+                eventStream.innerHTML = '';
+            }
+
+            // Add event
+            const event = document.createElement('div');
+            event.className = 'event-item';
+
+            const isSuccess = Math.random() > 0.2;
+            const fieldsCount = Math.floor(Math.random() * 10) + 25;
+
+            event.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div>
+                        <span class="${isSuccess ? 'text-green-400' : 'text-red-400'}">${isSuccess ? '✅' : '❌'}</span>
+                        <span class="mono text-sm">specimen_${completed.toString().padStart(4, '0')}</span>
+                        ${isSuccess ? `<span class="text-gray-400 text-sm ml-2">${fieldsCount} fields</span>` : '<span class="text-red-400 text-sm ml-2">extraction failed</span>'}
+                    </div>
+                    <div class="text-xs text-gray-500">just now</div>
+                </div>
+            `;
+
+            eventStream.insertBefore(event, eventStream.firstChild);
+
+            // Keep only last 20 events
+            while (eventStream.children.length > 20) {
+                eventStream.removeChild(eventStream.lastChild);
+            }
+
+            // Update field quality
+            if (isSuccess) {
+                updateFieldQuality();
+            }
+        }
+
+        function updateFieldQuality() {
+            const fieldQuality = document.getElementById('fieldQuality');
+
+            // Mock field extraction rates
+            const fields = [
+                { name: 'catalogNumber', rate: 98 },
+                { name: 'scientificName', rate: 92 },
+                { name: 'eventDate', rate: 88 },
+                { name: 'recordedBy', rate: 85 },
+                { name: 'locality', rate: 78 },
+                { name: 'stateProvince', rate: 95 },
+                { name: 'country', rate: 97 },
+                { name: 'decimalLatitude', rate: 65 },
+            ];
+
+            fieldQuality.innerHTML = fields.map(field => `
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-300">${field.name}</span>
+                        <span class="text-gray-400">${field.rate}%</span>
+                    </div>
+                    <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <div class="field-bar h-full" style="width: ${field.rate}%"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatDuration(seconds) {
+            if (!seconds || seconds < 0) return '-';
+
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+
+            if (hours > 0) {
+                return `${hours}h ${minutes}m`;
+            } else if (minutes > 0) {
+                return `${minutes}m`;
+            } else {
+                return `${seconds}s`;
+            }
+        }
+
+        // Initialize
+        connectSSE();
     </script>
 </body>
 </html>
