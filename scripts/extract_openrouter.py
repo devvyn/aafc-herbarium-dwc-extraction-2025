@@ -461,7 +461,7 @@ def main():
         cache = JITImageCache(
             cache_dir=args.cache_dir,
             default_ttl_seconds=args.cache_ttl,
-            max_size_gb=10.0,  # 10GB cache limit
+            max_cache_size_gb=10.0,  # 10GB cache limit
         )
         print(f"   Cache directory: {cache.cache_dir}")
         print(f"   Cache TTL: {args.cache_ttl}s ({args.cache_ttl / 3600:.1f} hours)")
@@ -688,7 +688,7 @@ def main():
             hit_rate = stats["hits"] / (stats["hits"] + stats["misses"]) * 100
             print(f"   Hit rate: {hit_rate:.1f}%")
         print(f"   Cache size: {stats['total_size_mb']:.1f} MB")
-        print(f"   Cached entries: {stats['entry_count']}")
+        print(f"   Cached entries: {stats['entries']}")
 
     if registry:
         print()
