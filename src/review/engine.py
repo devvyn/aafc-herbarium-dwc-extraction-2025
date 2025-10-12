@@ -140,6 +140,104 @@ class SpecimenReview:
             },
         }
 
+    def to_dict_with_accessibility(self) -> dict:
+        """Convert to dictionary with accessibility metadata for v2 API.
+
+        Returns:
+            Dictionary with base review data plus accessibility fields:
+            - quality_indicator: Multi-modal quality/status representation
+            - presentation_metadata: Status presentation (visual, auditory, ARIA)
+            - keyboard_shortcuts: Documented keyboard shortcuts for review actions
+
+        This method is intended for v2 API responses where multi-modal
+        presentation data is needed for accessible interfaces.
+        """
+        from src.accessibility import QualityIndicator
+
+        # Generate quality indicator from score
+        quality_indicator = QualityIndicator.from_score(
+            score=self.quality_score / 100,  # Convert 0-100 to 0-1
+            context="specimen",
+        )
+
+        # Generate presentation metadata for status
+        status_meta = self._generate_status_presentation()
+
+        # Start with base dict
+        result = self.to_dict()
+
+        # Add accessibility fields
+        result["accessibility"] = {
+            "quality_indicator": quality_indicator.to_dict(),
+            "presentation_metadata": status_meta.to_dict() if status_meta else None,
+            "keyboard_shortcuts": {
+                "approve": "a",
+                "reject": "r",
+                "flag": "f",
+                "next": "j",
+                "previous": "k",
+            },
+        }
+
+        return result
+
+    def _generate_status_presentation(self):
+        """Generate presentation metadata based on review status.
+
+        Returns:
+            PresentationMetadata with visual, auditory, and ARIA representations
+        """
+        from src.accessibility import PresentationMetadata
+
+        status_config = {
+            ReviewStatus.PENDING: {
+                "visual": "🟡 Pending Review",
+                "auditory": "Pending review - awaiting curator attention",
+                "textual": "PENDING",
+                "aria_label": f"Status: Pending review for {self.specimen_id}",
+            },
+            ReviewStatus.IN_REVIEW: {
+                "visual": "🔵 In Review",
+                "auditory": "Currently under review",
+                "textual": "IN_REVIEW",
+                "aria_label": f"Status: {self.specimen_id} is being reviewed by {self.reviewed_by}",
+            },
+            ReviewStatus.APPROVED: {
+                "visual": "✅ Approved",
+                "auditory": "Approved for publication",
+                "textual": "APPROVED",
+                "aria_label": f"Status: Approved by {self.reviewed_by}",
+            },
+            ReviewStatus.REJECTED: {
+                "visual": "❌ Rejected",
+                "auditory": "Rejected - requires correction",
+                "textual": "REJECTED",
+                "aria_label": f"Status: Rejected by {self.reviewed_by} - {self.notes or 'no notes'}",
+            },
+            ReviewStatus.FLAGGED: {
+                "visual": "🚩 Flagged",
+                "auditory": "Flagged for expert review",
+                "textual": "FLAGGED",
+                "aria_label": f"Status: Flagged by {self.reviewed_by} - {self.notes or 'requires expert attention'}",
+            },
+        }
+
+        config = status_config.get(self.status, status_config[ReviewStatus.PENDING])
+
+        return PresentationMetadata(
+            visual=config["visual"],
+            auditory=config["auditory"],
+            textual=config["textual"],
+            aria_label=config["aria_label"],
+            keyboard_hint="Press 'a' to approve, 'r' to reject, 'f' to flag",
+            structured={
+                "status": self.status.name,
+                "priority": self.priority.name,
+                "quality_score": self.quality_score,
+                "reviewed": self.reviewed_by is not None,
+            },
+        )
+
 
 class ReviewEngine:
     """
