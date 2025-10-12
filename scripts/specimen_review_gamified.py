@@ -34,9 +34,11 @@ class SessionStats:
         self.reviews_today += 1
 
         # Track taxonomic families for learning progress
-        family = specimen_data.get("extracted_data", {}).get("family", "Unknown")
-        if family != "Unknown":
-            self.families_seen.add(family)
+        extracted = specimen_data.get("extracted_data", {})
+        if isinstance(extracted, dict):
+            family = extracted.get("family", "Unknown")
+            if family and family != "Unknown":
+                self.families_seen.add(family)
 
         # Points system (from gamification design)
         points_earned = 0
@@ -50,7 +52,7 @@ class SessionStats:
             self.flags += 1
             points_earned = 20  # Requires judgment!
 
-        # Priority multiplier
+        # Priority multiplier (with safe access)
         priority = specimen_data.get("priority", "MEDIUM")
         if priority == "CRITICAL":
             points_earned *= 2
@@ -174,23 +176,32 @@ class GamifiedReviewTUI:
         print()
 
         # Basic specimen info
-        print(f"📋 ID: {specimen['specimen_id']}")
-        print(f"🎯 Priority: {specimen['priority']}")
-        print(f"📊 Quality: {specimen['quality_score']:.1f}%")
+        print(f"📋 ID: {specimen.get('specimen_id', 'Unknown')}")
+
+        # Priority from queue data (fallback if not in specimen)
+        priority = specimen.get("priority")
+        if not priority and self.current_index < len(self.queue):
+            priority = self.queue[self.current_index].get("priority", "UNKNOWN")
+        print(f"🎯 Priority: {priority}")
+
+        # Quality score
+        quality_score = specimen.get("quality_score", 0)
+        print(f"📊 Quality: {quality_score:.1f}%")
 
         # Quality indicator (from accessibility metadata)
         if "accessibility" in specimen:
-            qi = specimen["accessibility"]["quality_indicator"]
-            visual = qi["visual"]
-            print(f"\n{visual['icon']} {visual['text']}")
+            qi = specimen["accessibility"].get("quality_indicator", {})
+            visual = qi.get("visual", {})
+            if visual:
+                print(f"\n{visual.get('icon', '❓')} {visual.get('text', 'Unknown')}")
 
         # Extracted data preview
-        if "extracted_data" in specimen:
-            data = specimen["extracted_data"]
-            print(f"\n🔬 Scientific Name: {data.get('scientificName', 'N/A')}")
-            print(f"🏛️ Family: {data.get('family', 'N/A')}")
-            print(f"📍 Location: {data.get('locality', 'N/A')}")
-            print(f"📅 Date: {data.get('eventDate', 'N/A')}")
+        extracted_data = specimen.get("extracted_data", {})
+        if extracted_data:
+            print(f"\n🔬 Scientific Name: {extracted_data.get('scientificName', 'N/A')}")
+            print(f"🏛️ Family: {extracted_data.get('family', 'N/A')}")
+            print(f"📍 Location: {extracted_data.get('locality', 'N/A')}")
+            print(f"📅 Date: {extracted_data.get('eventDate', 'N/A')}")
 
         print()
 
