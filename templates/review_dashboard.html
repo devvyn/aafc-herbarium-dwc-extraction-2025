@@ -419,6 +419,46 @@
             transition: width 0.3s;
         }
 
+        /* Accessibility Quality Indicators from v2 API */
+        .quality-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-left: 12px;
+        }
+
+        .quality-indicator.quality-approved {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid var(--accent-green);
+        }
+
+        .quality-indicator.quality-medium {
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid var(--accent-yellow);
+        }
+
+        .quality-indicator.quality-high {
+            background: rgba(251, 146, 60, 0.2);
+            border: 1px solid #fb923c;
+        }
+
+        .quality-indicator.quality-critical {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--accent-red);
+        }
+
+        .quality-icon {
+            font-size: 16px;
+        }
+
+        .quality-text {
+            letter-spacing: 0.05em;
+        }
+
         /* Loading State */
         .loading {
             display: flex;
@@ -437,6 +477,63 @@
             font-size: 12px;
             color: var(--text-dim);
             margin-top: auto;
+        }
+
+        /* Screen Reader Only Content */
+        .sr-only {
+            position: absolute;
+            left: -10000px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease-out;
+            min-width: 200px;
+        }
+
+        .toast.success { background: var(--accent-green); }
+        .toast.error { background: var(--accent-red); }
+        .toast.warning { background: var(--accent-yellow); color: #1e293b; }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
         }
     </style>
 </head>
@@ -492,6 +589,12 @@
         </div>
     </div>
 
+    <!-- ARIA live region for screen reader announcements -->
+    <div aria-live="polite" aria-atomic="true" class="sr-only" id="ariaAnnouncements"></div>
+
+    <!-- Toast notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
     <!-- Full screen image modal -->
     <div class="image-modal" id="imageModal">
         <button class="modal-close" onclick="closeImageModal()">×</button>
@@ -502,16 +605,28 @@
         let currentQueue = [];
         let currentIndex = -1;
         let currentSpecimen = null;
+        let keyboardShortcuts = null;
 
         // Load queue on startup
         loadQueue();
 
         async function loadQueue(filter = null) {
-            const params = filter ? `?priority=${filter}` : '';
-            const response = await fetch(`/api/queue${params}`);
+            const params = new URLSearchParams();
+            params.append('v', '2');  // v2 API for accessibility metadata
+            if (filter && filter !== 'all') {
+                params.append('priority', filter);
+            }
+
+            const response = await fetch(`/api/queue?${params}`);
             const data = await response.json();
             currentQueue = data.queue;
+            keyboardShortcuts = data.keyboard_shortcuts;  // Store shortcuts from API
             renderQueue();
+
+            // Update keyboard shortcuts hint if available
+            if (keyboardShortcuts) {
+                updateKeyboardHelp(keyboardShortcuts);
+            }
         }
 
         function renderQueue() {
@@ -521,19 +636,33 @@
                 return;
             }
 
-            list.innerHTML = currentQueue.map((item, index) => `
-                <div class="queue-item ${index === currentIndex ? 'active' : ''}" onclick="selectSpecimen(${index})">
-                    <div class="queue-item-header">
-                        <span class="queue-item-id">${item.specimen_id.substring(0, 30)}</span>
-                        <span class="priority-badge priority-${item.priority}">${item.priority}</span>
+            list.innerHTML = currentQueue.map((item, index) => {
+                const indicator = item.quality_indicator;  // v2 API data
+                const ariaLabel = indicator ? indicator.aria_label : `Specimen ${item.specimen_id}`;
+
+                return `
+                    <div class="queue-item ${index === currentIndex ? 'active' : ''}"
+                         onclick="selectSpecimen(${index})"
+                         role="listitem"
+                         aria-label="${ariaLabel}">
+                        <div class="queue-item-header">
+                            <span class="queue-item-id">${item.specimen_id.substring(0, 30)}</span>
+                            <span class="priority-badge priority-${item.priority}">${item.priority}</span>
+                        </div>
+                        <div class="queue-item-stats">
+                            ${indicator ? `
+                                <span style="color: ${indicator.visual.color}">
+                                    ${indicator.visual.icon} ${indicator.visual.text}
+                                </span>
+                            ` : `
+                                <span>Quality: ${item.quality_score.toFixed(0)}%</span>
+                            `}
+                            <span>${item.gbif_verified ? '✓ GBIF' : '✗ GBIF'}</span>
+                            <span>${item.critical_issues} issues</span>
+                        </div>
                     </div>
-                    <div class="queue-item-stats">
-                        <span>Quality: ${item.quality_score.toFixed(0)}%</span>
-                        <span>${item.gbif_verified ? '✓ GBIF' : '✗ GBIF'}</span>
-                        <span>${item.critical_issues} issues</span>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         async function selectSpecimen(index) {
@@ -551,10 +680,15 @@
                 document.getElementById(id).disabled = false;
             });
 
-            // Load full specimen data
-            const response = await fetch(`/api/specimen/${specimen.specimen_id}`);
+            // Load full specimen data with v2 API
+            const response = await fetch(`/api/specimen/${specimen.specimen_id}?v=2`);
             const data = await response.json();
             currentSpecimen = data.specimen;
+
+            // Render accessibility features from v2 API
+            if (data.specimen.accessibility) {
+                renderAccessibilityIndicators(data.specimen.accessibility);
+            }
 
             // Render image
             if (data.image_url) {
@@ -641,35 +775,126 @@
             `;
         }
 
+        // Accessibility Functions for v2 API
+        function renderAccessibilityIndicators(accessibility) {
+            if (!accessibility) return;
+
+            const indicator = accessibility.quality_indicator;
+            const statusMeta = accessibility.presentation_metadata;
+
+            // Update subtitle with quality indicator badge
+            if (indicator) {
+                const qualityBadgeHTML = `
+                    <div class="quality-indicator quality-${indicator.level}"
+                         aria-label="${indicator.aria_label}">
+                        <span class="quality-icon">${indicator.visual.icon}</span>
+                        <span class="quality-text">${indicator.visual.text}</span>
+                    </div>
+                `;
+
+                const subtitle = document.getElementById('specimenSubtitle');
+                subtitle.innerHTML += qualityBadgeHTML;
+
+                // Announce to screen readers
+                announceToScreenReader(indicator.auditory);
+            }
+
+            // Update status presentation
+            if (statusMeta) {
+                announceToScreenReader(statusMeta.auditory);
+            }
+        }
+
+        function announceToScreenReader(message) {
+            const announcer = document.getElementById('ariaAnnouncements');
+            announcer.textContent = message;
+
+            // Clear after 1 second to allow re-announcements
+            setTimeout(() => {
+                announcer.textContent = '';
+            }, 1000);
+        }
+
+        function updateKeyboardHelp(shortcuts) {
+            if (!shortcuts) return;
+
+            const helpText = Object.entries(shortcuts)
+                .map(([action, key]) => `<strong>${key}</strong> ${action}`)
+                .join(' • ');
+
+            document.querySelector('.shortcuts-hint').innerHTML = `⌨️ ${helpText}`;
+        }
+
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+
+            container.appendChild(toast);
+
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease-in forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
         async function approveSpecimen() {
             if (!currentSpecimen) return;
-            await fetch(`/api/specimen/${currentSpecimen.specimen_id}/approve`, {
+
+            const response = await fetch(`/api/specimen/${currentSpecimen.specimen_id}/approve`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ reviewed_by: 'curator' })
             });
+
+            if (response.ok) {
+                const specimenId = currentSpecimen.specimen_id.substring(0, 30);
+                announceToScreenReader(`Specimen ${specimenId} approved`);
+                showNotification('✓ Approved', 'success');
+            }
+
             nextSpecimen();
         }
 
         async function rejectSpecimen() {
             if (!currentSpecimen) return;
             const notes = prompt('Reason for rejection (optional):');
-            await fetch(`/api/specimen/${currentSpecimen.specimen_id}/reject`, {
+
+            const response = await fetch(`/api/specimen/${currentSpecimen.specimen_id}/reject`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ reviewed_by: 'curator', notes })
             });
+
+            if (response.ok) {
+                const specimenId = currentSpecimen.specimen_id.substring(0, 30);
+                const message = `Specimen ${specimenId} rejected${notes ? '. ' + notes : ''}`;
+                announceToScreenReader(message);
+                showNotification('✗ Rejected', 'error');
+            }
+
             nextSpecimen();
         }
 
         async function flagSpecimen() {
             if (!currentSpecimen) return;
             const notes = prompt('Reason for flagging (optional):');
-            await fetch(`/api/specimen/${currentSpecimen.specimen_id}/flag`, {
+
+            const response = await fetch(`/api/specimen/${currentSpecimen.specimen_id}/flag`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ reviewed_by: 'curator', notes })
             });
+
+            if (response.ok) {
+                const specimenId = currentSpecimen.specimen_id.substring(0, 30);
+                const message = `Specimen ${specimenId} flagged for expert review${notes ? '. ' + notes : ''}`;
+                announceToScreenReader(message);
+                showNotification('⚠ Flagged', 'warning');
+            }
+
             nextSpecimen();
         }
 
