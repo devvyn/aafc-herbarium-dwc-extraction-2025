@@ -59,10 +59,13 @@ Your current height: 68% (approaching "Good Progress" → "High Quality")
 - You're "cultivating a perfect dataset"
 - Each specimen is a step toward scientific excellence
 
-## Spaced Repetition: Training Human Sensory Accuracy
+## Spaced Repetition: Training Human Sensory Accuracy + Quality Validation
 
-**Key insight**: Reviewing specimens isn't just data entry—it's expertise building!
+**Key insight**: Reviewing specimens isn't just data entry—it's expertise building AND quality assurance!
 
+**Dual-purpose spaced repetition**:
+
+### 1. Learning Reinforcement (Expertise Building)
 **How it works**:
 1. **First exposure**: New specimen type (e.g., Asteraceae family)
 2. **Recognition challenge**: Similar specimen appears 1 day later
@@ -74,6 +77,44 @@ Your current height: 68% (approaching "Good Progress" → "High Quality")
 - Build pattern recognition for OCR errors
 - Train eye for quality assessment
 - Develop domain expertise naturally
+
+### 2. Quality Reinforcement (Data Refinement) ⭐ NEW!
+**Brilliant insight**: Use spaced repetition to validate uncertain extractions!
+
+**When to re-show a specimen**:
+- 🔴 **Low confidence fields**: OCR/AI extraction scored < 70% confidence
+- ⚠️ **Incomplete extractions**: Critical fields missing (scientificName, locality, date)
+- 🤔 **Conflicting data**: Multiple engines gave different answers
+- 📝 **Flagged specimens**: Previous reviewer marked "needs second opinion"
+
+**How it works**:
+```
+First review:
+  - Specimen has low confidence scientificName (45% confidence)
+  - Reviewer approves with corrections
+  - System notes: "Re-validate in 1 day"
+
+Day 2:
+  - Same specimen re-appears in queue
+  - Reviewer sees: "🔍 Second validation requested"
+  - Fresh look catches what first review missed
+  - System compares: first reading vs. second reading
+  - If consistent → confidence boost!
+  - If different → flag for expert review
+```
+
+**Why this is powerful**:
+1. **Catch OCR errors**: Low confidence = likely mistakes
+2. **Fill gaps**: Missed fields get second chance
+3. **Cross-validation**: Two independent reviews reduce errors
+4. **Distributed quality control**: Spreads review effort over time
+5. **Fresh eyes**: Temporal gap reduces confirmation bias
+
+**Quality metrics tracked**:
+- 📊 Agreement rate: Do reviews 1 & 2 match?
+- 📈 Improvement rate: Did second review fill gaps?
+- 🎯 Confidence calibration: Were low-confidence fields actually wrong?
+- ✨ Refinement score: Dataset quality improvement from re-reviews
 
 ### Spaced Repetition System Design
 
@@ -423,35 +464,136 @@ class LearningTracker:
         else:
             self.mastery_levels[family] = "novice"
 
-class AdaptiveQueue:
-    """Queue that balances priority, learning, and engagement"""
+class QualityTracker:
+    """Track specimens needing quality re-validation"""
 
-    def get_next_specimen(self, reviewer: LearningTracker,
-                          queue: List[SpecimenReview]) -> SpecimenReview:
+    def __init__(self):
+        self.pending_revalidation: Dict[str, dict] = {}  # specimen_id -> review history
+
+    def needs_revalidation(self, specimen: SpecimenReview) -> bool:
+        """Check if specimen needs quality re-validation"""
+        # Check if specimen was previously reviewed with issues
+        if specimen.specimen_id in self.pending_revalidation:
+            last_review = self.pending_revalidation[specimen.specimen_id]
+            days_since = (datetime.now() - last_review["timestamp"]).days
+
+            # Re-show after 1 day for quality check
+            if days_since >= 1:
+                return True
+
+        # Check current extraction quality
+        data = specimen.extracted_data
+
+        # Low confidence fields
+        if "confidence_scores" in data:
+            for field, confidence in data["confidence_scores"].items():
+                if confidence < 0.70:  # < 70% confidence
+                    return True
+
+        # Missing critical fields
+        critical_fields = ["scientificName", "locality", "eventDate"]
+        for field in critical_fields:
+            if not data.get(field) or data.get(field) == "":
+                return True
+
+        # Completeness below threshold
+        if specimen.completeness_score < 0.60:  # < 60% complete
+            return True
+
+        return False
+
+    def record_revalidation(self, specimen_id: str, review_data: dict):
+        """Record that specimen was re-validated"""
+        if specimen_id not in self.pending_revalidation:
+            self.pending_revalidation[specimen_id] = {
+                "reviews": [],
+                "timestamp": datetime.now(),
+            }
+
+        self.pending_revalidation[specimen_id]["reviews"].append({
+            "timestamp": datetime.now(),
+            "data": review_data,
+        })
+
+    def compare_reviews(self, specimen_id: str) -> dict:
+        """Compare multiple reviews of same specimen"""
+        if specimen_id not in self.pending_revalidation:
+            return {"status": "no_history"}
+
+        reviews = self.pending_revalidation[specimen_id]["reviews"]
+        if len(reviews) < 2:
+            return {"status": "insufficient_data"}
+
+        # Compare last two reviews
+        review1 = reviews[-2]["data"]
+        review2 = reviews[-1]["data"]
+
+        agreements = 0
+        disagreements = 0
+        improvements = 0
+
+        for field in ["scientificName", "locality", "eventDate", "collector"]:
+            val1 = review1.get(field, "")
+            val2 = review2.get(field, "")
+
+            if val1 == val2 and val1 != "":
+                agreements += 1
+            elif val1 != val2:
+                disagreements += 1
+                # Check if second review filled a gap
+                if val1 == "" and val2 != "":
+                    improvements += 1
+
+        return {
+            "status": "compared",
+            "agreements": agreements,
+            "disagreements": disagreements,
+            "improvements": improvements,
+            "agreement_rate": agreements / (agreements + disagreements)
+            if (agreements + disagreements) > 0
+            else 0,
+        }
+
+
+class AdaptiveQueue:
+    """Queue that balances priority, learning, quality, and engagement"""
+
+    def get_next_specimen(
+        self,
+        reviewer: LearningTracker,
+        quality_tracker: QualityTracker,
+        queue: List[SpecimenReview],
+    ) -> SpecimenReview:
         """Get next specimen using hybrid strategy"""
 
-        # 1. Critical priority (20% of time)
-        if random.random() < 0.2:
+        # 1. Critical priority (15% of time) - URGENT!
+        if random.random() < 0.15:
             critical = [s for s in queue if s.priority == Priority.CRITICAL]
             if critical:
                 return random.choice(critical)
 
-        # 2. Spaced repetition (30% of time)
-        if random.random() < 0.3:
+        # 2. Quality re-validation (25% of time) - CATCH ERRORS!
+        if random.random() < 0.25:
+            for specimen in queue:
+                if quality_tracker.needs_revalidation(specimen):
+                    return specimen  # Second look with fresh eyes!
+
+        # 3. Learning reinforcement (25% of time) - BUILD EXPERTISE!
+        if random.random() < 0.25:
             for specimen in queue:
                 family = specimen.extracted_data.get("family", "Unknown")
                 if reviewer.should_reinforce(family):
                     return specimen
 
-        # 3. New learning opportunity (20% of time)
-        if random.random() < 0.2:
+        # 4. New learning opportunity (15% of time) - EXPLORE!
+        if random.random() < 0.15:
             families_seen = set(reviewer.family_exposures.keys())
             for specimen in queue:
                 family = specimen.extracted_data.get("family", "Unknown")
                 if family not in families_seen:
                     return specimen  # First exposure!
 
-        # 4. Regular priority queue (30% of time)
+        # 5. Regular priority queue (20% of time) - STEADY PROGRESS!
         return queue[0] if queue else None
 ```
 
@@ -675,25 +817,83 @@ Barkour's Engagement + Vertical Growth + Spaced Repetition
 - Traditional: "Gamify to make boring work tolerable"
 - This system: "Transform tedious work into expertise-building scientific contribution"
 
-### The Virtuous Cycle
+### The Dual-Power Virtuous Cycle ⭐ ENHANCED!
 
+**Traditional cycle** (learning only):
 ```
-Better reviews (spaced repetition training)
-        ↓
-Higher quality dataset (vertical growth)
-        ↓
-Unlocked milestones and achievements (gamification)
-        ↓
-Increased engagement and motivation
-        ↓
-More reviews with better accuracy
-        ↓
-Even better dataset quality
-        ↓
-Faster expertise development
-        ↓
-(cycle continues, compounding benefits)
+Better reviews → Higher quality → More engagement → Faster learning
 ```
+
+**NEW dual-purpose cycle** (learning + quality validation):
+```
+┌────────────────────────────────────────────────────────┐
+│                                                        │
+│  FIRST REVIEW                                          │
+│  - Learn taxonomic family (Asteraceae)                 │
+│  - Approve specimen with low-confidence field          │
+│  - System notes: needs re-validation                   │
+│              ↓                                          │
+│  SPACED REPETITION (1 day later)                       │
+│  - Fresh eyes catch OCR error in locality              │
+│  - Fill missing eventDate field                        │
+│  - Reinforces Asteraceae recognition                   │
+│              ↓                                          │
+│  COMPOUNDING BENEFITS                                  │
+│  ✓ Data quality improved (error caught, gap filled)    │
+│  ✓ Reviewer expertise increased (pattern reinforced)   │
+│  ✓ Confidence calibrated (low confidence WAS wrong!)   │
+│  ✓ Dataset grows vertically (refinement → perfection)  │
+│              ↓                                          │
+│  POSITIVE REINFORCEMENT                                │
+│  - Unlocked achievement: "🔍 Error Hunter"             │
+│  - +30 points (20 for flag + 10 for improvement)       │
+│  - Dataset quality: 68% → 72% ↗️                       │
+│              ↓                                          │
+│  (cycle continues with MORE specimens)                 │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+```
+
+**Why the dual-purpose approach is revolutionary**:
+
+1. **Immediate Value**: Quality improvements show up TODAY, not just after long-term learning
+2. **Reduced Errors**: Two independent reviews catch what one misses
+3. **Efficient Use of Time**: Same review effort achieves both learning AND quality goals
+4. **Measurable Impact**: Can track agreement rates, error catch rates, gap-filling rates
+5. **Sustainable Motivation**: Visible data quality improvements = tangible progress
+
+**Example scenario**:
+```
+Day 1: Review specimen DSC_1234
+  - scientificName: "Aster alpinus" (confidence: 45%)
+  - locality: "" (empty)
+  - Reviewer approves, corrects to "Aster alpinus"
+  - System flags: needs re-validation (low confidence + missing field)
+
+Day 2: Same specimen re-appears
+  - 🔍 "Second validation requested"
+  - Fresh look reveals: scientificName should be "Aster amellus"
+  - Fills in locality: "Rocky Mountain National Park"
+  - System compares: disagreement on name, improvement on locality
+  - Result: Flag for expert review (conflicting readings)
+
+Day 7: Expert reviews flagged specimen
+  - Expert confirms: "Aster amellus" (second review was correct!)
+  - Dataset quality improved: error caught before publication
+  - Reviewer learns: confidence calibration (45% confidence = likely wrong)
+  - Next Aster review will be more careful
+
+Outcome:
+✓ Error prevented from reaching published dataset
+✓ Gap filled (locality)
+✓ Reviewer trained (improved Aster recognition)
+✓ System learned (confidence score reliability validated)
+```
+
+This is the "approaching perfection" metaphor in action:
+- Not just completing tasks (horizontal progress)
+- Actually refining quality toward 95%+ goal (vertical growth)
+- Both data AND human get better together!
 
 ---
 
