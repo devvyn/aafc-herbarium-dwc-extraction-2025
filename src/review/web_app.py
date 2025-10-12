@@ -63,11 +63,22 @@ def create_review_app(
 
     @app.route("/api/queue")
     def get_queue():
-        """Get review queue with filters."""
+        """Get review queue with filters.
+
+        Query parameters:
+            v: API version (1 or 2). Default: 1 (backward compatible)
+            status: Filter by review status
+            priority: Filter by priority level
+            sort: Sort field (priority, quality, completeness)
+            limit: Maximum number of results (default: 100)
+
+        v=2 includes quality indicators and keyboard shortcuts for accessibility.
+        """
         status_str = request.args.get("status")
         priority_str = request.args.get("priority")
         sort_by = request.args.get("sort", "priority")
         limit = int(request.args.get("limit", 100))
+        api_version = request.args.get("v", "1")  # API versioning
 
         # Parse filters
         status = None
@@ -90,6 +101,47 @@ def create_review_app(
         # Limit results
         queue = queue[:limit]
 
+        # v2 API includes quality indicators
+        if api_version == "2":
+            from src.accessibility import QualityIndicator
+
+            queue_items = []
+            for review in queue:
+                quality_ind = QualityIndicator.from_score(
+                    score=review.quality_score / 100, context="specimen"
+                )
+
+                queue_items.append(
+                    {
+                        "specimen_id": review.specimen_id,
+                        "priority": review.priority.name,
+                        "status": review.status.name,
+                        "quality_score": review.quality_score,
+                        "completeness": review.completeness_score,
+                        "gbif_verified": review.gbif_taxonomy_verified,
+                        "critical_issues": len(review.critical_issues),
+                        "warnings": len(review.warnings),
+                        "quality_indicator": quality_ind.to_dict(),  # NEW in v2
+                    }
+                )
+
+            return jsonify(
+                {
+                    "queue": queue_items,
+                    "total": len(engine.reviews),
+                    "filtered": len(queue),
+                    "api_version": "2",
+                    "keyboard_shortcuts": {  # NEW in v2
+                        "approve": "a",
+                        "reject": "r",
+                        "flag": "f",
+                        "next": "j",
+                        "previous": "k",
+                    },
+                }
+            )
+
+        # v1 API (existing code)
         return jsonify(
             {
                 "queue": [
@@ -112,17 +164,36 @@ def create_review_app(
 
     @app.route("/api/specimen/<specimen_id>")
     def get_specimen(specimen_id: str):
-        """Get full specimen review data."""
+        """Get full specimen review data.
+
+        Query parameters:
+            v: API version (1 or 2). Default: 1 (backward compatible)
+               v=2 includes accessibility metadata for multi-modal interfaces
+        """
         review = engine.get_review(specimen_id)
 
         if not review:
             return jsonify({"error": "Specimen not found"}), 404
+
+        # Check API version
+        api_version = request.args.get("v", "1")  # Default to v1 for backward compatibility
 
         # Construct image URL
         image_url = None
         if app.config["IMAGE_BASE_URL"]:
             image_url = f"{app.config['IMAGE_BASE_URL']}/{specimen_id}"
 
+        # v2 API includes accessibility metadata
+        if api_version == "2":
+            return jsonify(
+                {
+                    "specimen": review.to_dict_with_accessibility(),
+                    "image_url": image_url,
+                    "api_version": "2",
+                }
+            )
+
+        # v1 API (backward compatible)
         return jsonify(
             {
                 "specimen": review.to_dict(),
