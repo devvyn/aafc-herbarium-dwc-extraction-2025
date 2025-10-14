@@ -34,9 +34,9 @@ cp .env.docker.example .env
 # Start processing service
 docker compose up herbarium
 
-# Start review web interface
+# Start review web interface (Quart + Hypercorn)
 docker compose --profile review up review-web
-# Access at http://localhost:5000
+# Access at http://localhost:5002
 
 # Start development environment
 docker compose --profile dev up -d herbarium-dev
@@ -138,14 +138,15 @@ WORKERS=4
 LOG_LEVEL=INFO
 ```
 
-### 2. Review Web Interface
+### 2. Review Web Interface (Quart + Hypercorn)
 
 ```bash
 docker compose --profile review up review-web
 ```
 
-**Access:** http://localhost:5000
+**Access:** http://localhost:5002
 **Purpose:** Quality review and validation
+**Technology:** Async Quart framework with Hypercorn ASGI server for better performance
 
 ### 3. Batch Monitor
 

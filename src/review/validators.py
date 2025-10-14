@@ -2,9 +2,10 @@
 GBIF Validation Integration for Review System
 
 Wraps qc/gbif.py GBIF lookup for integration with review engine.
-Provides simplified interface for specimen validation.
+Provides simplified async interface for specimen validation.
 """
 
+import asyncio
 import logging
 import sys
 from pathlib import Path
@@ -51,9 +52,9 @@ class GBIFValidator:
             f"fuzzy: {enable_fuzzy_matching})"
         )
 
-    def verify_taxonomy(self, record: Dict) -> Tuple[Dict, Dict]:
+    async def verify_taxonomy(self, record: Dict) -> Tuple[Dict, Dict]:
         """
-        Verify taxonomic information with GBIF.
+        Verify taxonomic information with GBIF (async).
 
         Args:
             record: Darwin Core record with scientificName, family, etc.
@@ -62,7 +63,9 @@ class GBIFValidator:
             Tuple of (updated_record, validation_metadata)
         """
         try:
-            return self.gbif.verify_taxonomy(record)
+            # Run blocking GBIF call in thread pool
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(None, self.gbif.verify_taxonomy, record)
         except Exception as e:
             logger.error(f"Taxonomy validation error: {e}")
             return record, {
@@ -72,9 +75,9 @@ class GBIFValidator:
                 "gbif_issues": [f"validation_error: {str(e)}"],
             }
 
-    def verify_locality(self, record: Dict) -> Tuple[Dict, Dict]:
+    async def verify_locality(self, record: Dict) -> Tuple[Dict, Dict]:
         """
-        Verify geographic information with GBIF.
+        Verify geographic information with GBIF (async).
 
         Args:
             record: Darwin Core record with decimalLatitude/decimalLongitude
@@ -83,7 +86,9 @@ class GBIFValidator:
             Tuple of (updated_record, validation_metadata)
         """
         try:
-            return self.gbif.verify_locality(record)
+            # Run blocking GBIF call in thread pool
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(None, self.gbif.verify_locality, record)
         except Exception as e:
             logger.error(f"Locality validation error: {e}")
             return record, {
@@ -93,9 +98,9 @@ class GBIFValidator:
                 "gbif_issues": [f"validation_error: {str(e)}"],
             }
 
-    def validate_occurrence(self, record: Dict) -> Tuple[Dict, Dict]:
+    async def validate_occurrence(self, record: Dict) -> Tuple[Dict, Dict]:
         """
-        Validate against known GBIF occurrences.
+        Validate against known GBIF occurrences (async).
 
         Args:
             record: Darwin Core record
@@ -107,7 +112,9 @@ class GBIFValidator:
             return record, {"gbif_occurrence_validation": "disabled"}
 
         try:
-            return self.gbif.validate_occurrence(record)
+            # Run blocking GBIF call in thread pool
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(None, self.gbif.validate_occurrence, record)
         except Exception as e:
             logger.error(f"Occurrence validation error: {e}")
             return record, {
@@ -116,9 +123,9 @@ class GBIFValidator:
                 "gbif_occurrence_issues": [f"validation_error: {str(e)}"],
             }
 
-    def get_suggestions(self, partial_name: str, limit: int = 10) -> list:
+    async def get_suggestions(self, partial_name: str, limit: int = 10) -> list:
         """
-        Get taxonomic name suggestions from GBIF.
+        Get taxonomic name suggestions from GBIF (async).
 
         Args:
             partial_name: Partial scientific name
@@ -128,16 +135,16 @@ class GBIFValidator:
             List of suggested scientific names
         """
         try:
-            # Use GBIF suggest endpoint
-            import urllib.request
+            # Use GBIF suggest endpoint with async HTTP
+            import aiohttp
             import urllib.parse
-            import json
 
             params = urllib.parse.urlencode({"q": partial_name, "limit": limit})
             url = f"{self.gbif.suggest_endpoint}?{params}"
 
-            with urllib.request.urlopen(url, timeout=5) as response:
-                data = json.load(response)
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as response:
+                    data = await response.json()
 
             suggestions = []
             for result in data:

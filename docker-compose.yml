@@ -62,7 +62,7 @@ services:
     profiles:
       - dev
 
-  # Review web interface
+  # Review web interface (Quart + Hypercorn)
   review-web:
     build:
       context: .
@@ -73,15 +73,15 @@ services:
       - ./data/output:/data/output:ro
       - ./data/input:/data/images:ro
     ports:
-      - "${REVIEW_PORT:-5000}:5000"
+      - "${REVIEW_PORT:-5002}:5002"
     environment:
       - PYTHONUNBUFFERED=1
     command: >
-      python review_web.py
-        --db /data/output/candidates.db
-        --images /data/images
+      python -m src.review.web_app
+        --extraction-dir /data/output
+        --image-base-url /images
         --host 0.0.0.0
-        --port 5000
+        --port 5002
     networks:
       - herbarium-net
     profiles:

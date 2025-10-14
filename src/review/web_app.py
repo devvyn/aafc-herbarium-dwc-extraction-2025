@@ -1,5 +1,5 @@
 """
-Flask Web Application for Specimen Review
+Quart Web Application for Specimen Review
 
 Provides browser-based interface for curators to review, validate,
 and approve extracted specimen data.
@@ -11,12 +11,13 @@ Features:
 - Field-level editing and corrections
 - Approval/rejection workflow
 - Keyboard navigation (j/k for next/prev)
+- Async GBIF validation for better performance
 """
 
 import logging
 from pathlib import Path
 
-from flask import Flask, jsonify, render_template, request
+from quart import Quart, jsonify, render_template, request
 
 from .engine import ReviewEngine, ReviewStatus, ReviewPriority
 from .validators import GBIFValidator
@@ -28,9 +29,9 @@ def create_review_app(
     extraction_dir: Path,
     image_base_url: str = "",
     enable_gbif: bool = True,
-) -> Flask:
+) -> Quart:
     """
-    Create and configure Flask review application.
+    Create and configure Quart review application.
 
     Args:
         extraction_dir: Directory containing raw.jsonl
@@ -38,9 +39,9 @@ def create_review_app(
         enable_gbif: Enable GBIF validation
 
     Returns:
-        Configured Flask app
+        Configured Quart app
     """
-    app = Flask(__name__, template_folder="../../templates")
+    app = Quart(__name__, template_folder="../../templates")
     app.config["EXTRACTION_DIR"] = extraction_dir
     app.config["IMAGE_BASE_URL"] = image_base_url
 
@@ -57,17 +58,18 @@ def create_review_app(
         logger.warning(f"Results file not found: {results_file}")
 
     @app.route("/")
-    def index():
+    async def index():
         """Render review dashboard."""
-        return render_template("review_dashboard.html")
+        return await render_template("review_dashboard.html")
 
     @app.route("/api/queue")
-    def get_queue():
+    async def get_queue():
         """Get review queue with filters."""
-        status_str = request.args.get("status")
-        priority_str = request.args.get("priority")
-        sort_by = request.args.get("sort", "priority")
-        limit = int(request.args.get("limit", 100))
+        args = request.args
+        status_str = args.get("status")
+        priority_str = args.get("priority")
+        sort_by = args.get("sort", "priority")
+        limit = int(args.get("limit", 100))
 
         # Parse filters
         status = None
@@ -111,7 +113,7 @@ def create_review_app(
         )
 
     @app.route("/api/specimen/<specimen_id>")
-    def get_specimen(specimen_id: str):
+    async def get_specimen(specimen_id: str):
         """Get full specimen review data."""
         review = engine.get_review(specimen_id)
 
@@ -131,9 +133,9 @@ def create_review_app(
         )
 
     @app.route("/api/specimen/<specimen_id>", methods=["PUT"])
-    def update_specimen(specimen_id: str):
+    async def update_specimen(specimen_id: str):
         """Update specimen review."""
-        data = request.json
+        data = await request.get_json()
 
         corrections = data.get("corrections")
         status_str = data.get("status")
@@ -160,9 +162,9 @@ def create_review_app(
         return jsonify({"success": True, "specimen_id": specimen_id})
 
     @app.route("/api/specimen/<specimen_id>/approve", methods=["POST"])
-    def approve_specimen(specimen_id: str):
+    async def approve_specimen(specimen_id: str):
         """Approve specimen."""
-        data = request.json or {}
+        data = await request.get_json() or {}
         reviewed_by = data.get("reviewed_by", "anonymous")
 
         engine.update_review(
@@ -172,9 +174,9 @@ def create_review_app(
         return jsonify({"success": True, "specimen_id": specimen_id, "status": "APPROVED"})
 
     @app.route("/api/specimen/<specimen_id>/reject", methods=["POST"])
-    def reject_specimen(specimen_id: str):
+    async def reject_specimen(specimen_id: str):
         """Reject specimen."""
-        data = request.json or {}
+        data = await request.get_json() or {}
         reviewed_by = data.get("reviewed_by", "anonymous")
         notes = data.get("notes")
 
@@ -188,9 +190,9 @@ def create_review_app(
         return jsonify({"success": True, "specimen_id": specimen_id, "status": "REJECTED"})
 
     @app.route("/api/specimen/<specimen_id>/flag", methods=["POST"])
-    def flag_specimen(specimen_id: str):
+    async def flag_specimen(specimen_id: str):
         """Flag specimen for expert review."""
-        data = request.json or {}
+        data = await request.get_json() or {}
         reviewed_by = data.get("reviewed_by", "anonymous")
         notes = data.get("notes")
 
@@ -204,43 +206,45 @@ def create_review_app(
         return jsonify({"success": True, "specimen_id": specimen_id, "status": "FLAGGED"})
 
     @app.route("/api/gbif/taxonomy")
-    def gbif_taxonomy_lookup():
+    async def gbif_taxonomy_lookup():
         """Live GBIF taxonomy lookup."""
         if not gbif_validator:
             return jsonify({"error": "GBIF validation disabled"}), 503
 
-        name = request.args.get("name")
+        args = request.args
+        name = args.get("name")
         if not name:
             return jsonify({"error": "Missing parameter: name"}), 400
 
         record = {"scientificName": name}
-        updated_record, metadata = gbif_validator.verify_taxonomy(record)
+        updated_record, metadata = await gbif_validator.verify_taxonomy(record)
 
         return jsonify({"record": updated_record, "validation": metadata})
 
     @app.route("/api/gbif/suggest")
-    def gbif_suggest():
+    async def gbif_suggest():
         """Get taxonomic name suggestions."""
         if not gbif_validator:
             return jsonify({"error": "GBIF validation disabled"}), 503
 
-        query = request.args.get("q", "")
-        limit = int(request.args.get("limit", 10))
+        args = request.args
+        query = args.get("q", "")
+        limit = int(args.get("limit", 10))
 
         if not query or len(query) < 2:
             return jsonify({"suggestions": []})
 
-        suggestions = gbif_validator.get_suggestions(query, limit=limit)
+        suggestions = await gbif_validator.get_suggestions(query, limit=limit)
         return jsonify({"suggestions": suggestions})
 
     @app.route("/api/statistics")
-    def get_statistics():
+    async def get_statistics():
         """Get review statistics."""
         stats = engine.get_statistics()
         return jsonify(stats)
 
     @app.route("/api/export")
-    def export_reviews():
+    async def export_reviews():
         """Export all reviews to JSON."""
         output_path = app.config["EXTRACTION_DIR"] / "reviews_export.json"
         engine.export_reviews(output_path)
@@ -254,6 +258,9 @@ def create_review_app(
 def main():
     """Launch review web application."""
     import argparse
+    import asyncio
+    from hypercorn.asyncio import serve
+    from hypercorn.config import Config
 
     parser = argparse.ArgumentParser(description="Launch specimen review web interface")
     parser.add_argument(
@@ -280,7 +287,7 @@ def main():
     args = parser.parse_args()
 
     print("=" * 70)
-    print("SPECIMEN REVIEW WEB INTERFACE")
+    print("SPECIMEN REVIEW WEB INTERFACE (Quart + Hypercorn)")
     print("=" * 70)
     print(f"Extraction directory: {args.extraction_dir}")
     print(f"GBIF validation: {'disabled' if args.no_gbif else 'enabled'}")
@@ -297,7 +304,13 @@ def main():
     print(f"🌐 Open: http://{args.host}:{args.port}")
     print()
 
-    app.run(host=args.host, port=args.port, debug=args.debug)
+    # Configure Hypercorn
+    config = Config()
+    config.bind = [f"{args.host}:{args.port}"]
+    config.loglevel = "DEBUG" if args.debug else "INFO"
+
+    # Run with Hypercorn
+    asyncio.run(serve(app, config))
 
 
 if __name__ == "__main__":
