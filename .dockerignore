@@ -1,0 +1,145 @@
+# .dockerignore - Exclude files from Docker build context
+# Reduces build context size and speeds up builds
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Python cache and build artifacts
+__pycache__/
+*.py[codz]
+*$py.class
+*.so
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.pixi/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.env.bak
+
+# Documentation build artifacts
+docs/_build/
+site/
+*.md
+# Keep essential metadata files for build
+!README.md
+!CHANGELOG.md
+!LICENSE
+
+# Test and coverage reports
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# Experimental and processing data (large directories)
+experiments/
+full_dataset_processing/
+full_dataset_ocr_run/
+mvp_demonstration/
+stakeholder_demo/
+demo_event_output/
+deliverables/
+aafc_full_dataset/
+test_ocr_run/
+test-results/
+test_*/
+*_test/
+*_FAILED/
+openrouter_test_*/
+openrouter_full_*/
+
+# Archives and temporary files
+archive/
+archives/
+*.bak
+*-temp.*
+*-draft.*
+*-scratch.*
+*-old.*
+* 2.*
+* 2
+
+# Processing artifacts (regenerable)
+batch_history.jsonl
+batch_monitor_history.jsonl
+batch_output.jsonl
+coordination-status-*.json
+*.coordination.json
+*-status.json
+validation_metrics.json
+
+# Weekend projects and coordination files
+.coordination/
+weekend-projects/
+
+# Example code (keep in repo but not in container)
+examples/
+
+# Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+# macOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Docker files themselves
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# CI/CD files
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Development tools
+.pre-commit-config.yaml
+
+# Large data files
+*.db
+*.sqlite
+*.sqlite3
+*.csv
+*.xlsx
+*.jsonl
+*.jpg
+*.jpeg
+*.png
+*.tif
+*.tiff
+
+# Keep only essential config
+!config/config.default.toml
+!config/rules/*.toml
+!config/prompts/*.prompt
+!config/schemas/*.xsd
