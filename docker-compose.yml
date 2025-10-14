@@ -1,0 +1,118 @@
+version: '3.8'
+
+services:
+  # Production runtime
+  herbarium:
+    build:
+      context: .
+      target: runtime
+    image: herbarium-dwc:latest
+    container_name: herbarium-production
+    volumes:
+      # Mount local data directories
+      - ./data/input:/data/input:ro
+      - ./data/output:/data/output
+      - ./data/cache:/data/cache
+      # Mount config for runtime overrides
+      - ./config:/app/config:ro
+    environment:
+      # API keys from .env file
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - AZURE_VISION_KEY=${AZURE_VISION_KEY}
+      - AZURE_VISION_ENDPOINT=${AZURE_VISION_ENDPOINT}
+      # Runtime configuration
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    command: >
+      python cli.py process
+        --input /data/input
+        --output /data/output
+        --engine ${OCR_ENGINE:-tesseract}
+    restart: unless-stopped
+    networks:
+      - herbarium-net
+
+  # Development environment
+  herbarium-dev:
+    build:
+      context: .
+      target: development
+    image: herbarium-dwc:dev
+    container_name: herbarium-dev
+    volumes:
+      # Mount entire project for live development
+      - .:/app
+      # Preserve Python cache
+      - python-cache:/root/.cache/pip
+      - uv-cache:/root/.cache/uv
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - ENV=development
+      - PYTHONUNBUFFERED=1
+    working_dir: /app
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+    networks:
+      - herbarium-net
+    profiles:
+      - dev
+
+  # Review web interface
+  review-web:
+    build:
+      context: .
+      target: runtime
+    image: herbarium-dwc:latest
+    container_name: herbarium-review
+    volumes:
+      - ./data/output:/data/output:ro
+      - ./data/input:/data/images:ro
+    ports:
+      - "${REVIEW_PORT:-5000}:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: >
+      python review_web.py
+        --db /data/output/candidates.db
+        --images /data/images
+        --host 0.0.0.0
+        --port 5000
+    networks:
+      - herbarium-net
+    profiles:
+      - review
+
+  # Batch processing monitor
+  monitor:
+    build:
+      context: .
+      target: runtime
+    image: herbarium-dwc:latest
+    container_name: herbarium-monitor
+    volumes:
+      - ./data/output:/data/output:ro
+    ports:
+      - "${MONITOR_PORT:-5002}:5002"
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: >
+      python -m src.batch_monitor
+        --output-dir /data/output
+        --port 5002
+    networks:
+      - herbarium-net
+    profiles:
+      - monitor
+
+networks:
+  herbarium-net:
+    driver: bridge
+
+volumes:
+  python-cache:
+  uv-cache:
