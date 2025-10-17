@@ -77,7 +77,7 @@ uv run python scripts/extract_openrouter.py \
   --model qwen-vl-72b-free
 
 # Review and export
-python review_web.py --db results/candidates.db --images photos/
+python -m src.review.web_app --extraction-dir results/ --port 5002
 python scripts/export_dwc_archive.py --input results/ --output dwc-archive/
 ```
 
