@@ -808,6 +808,11 @@ try:  # optional dependency
             dir_okay=True,
             help="Extraction directory containing raw.jsonl",
         ),
+        image_base_url: Optional[str] = typer.Option(
+            None,
+            "--image-base-url",
+            help="Base URL for specimen images (S3 bucket or local path)",
+        ),
         port: int = typer.Option(
             5002,
             "--port",
@@ -831,17 +836,25 @@ try:  # optional dependency
 
         # Auto-detect extraction directory if not provided
         if extraction_dir is None:
-            candidates = [
-                Path("data/test_review"),  # Test data
-                Path("data/output"),  # Common output location
-                Path("output"),  # Alternate output
-                Path("."),  # Current directory
-            ]
+            candidates = []
 
-            # Also check for recent processing runs
-            full_dataset_dirs = sorted(Path("full_dataset_processing").glob("*_run_*"))
-            if full_dataset_dirs:
-                candidates.insert(0, full_dataset_dirs[-1])  # Most recent run
+            # Check for recent processing runs first (real data)
+            if Path("full_dataset_processing").exists():
+                full_dataset_dirs = sorted(Path("full_dataset_processing").glob("*_run_*"))
+                if full_dataset_dirs:
+                    candidates.append(full_dataset_dirs[-1])  # Most recent run
+
+            # Common output locations
+            candidates.extend(
+                [
+                    Path("data/output"),
+                    Path("output"),
+                    Path("."),
+                ]
+            )
+
+            # Test data last (only for demos/development)
+            candidates.append(Path("data/test_review"))
 
             for candidate in candidates:
                 if candidate.exists() and (candidate / "raw.jsonl").exists():
@@ -864,6 +877,30 @@ try:  # optional dependency
             typer.echo(f"❌ No raw.jsonl found in {extraction_dir}", err=True)
             raise typer.Exit(1)
 
+        # Auto-detect image base URL if not provided
+        if image_base_url is None:
+            # Check for S3 bucket in manifest
+            manifest_path = extraction_dir / "manifest.json"
+            if manifest_path.exists():
+                import json
+
+                with open(manifest_path) as f:
+                    manifest = json.load(f)
+                    # Look for S3 configuration
+                    config = manifest.get("config", {})
+                    s3_bucket = config.get("s3", {}).get("bucket")
+                    if s3_bucket:
+                        image_base_url = f"https://{s3_bucket}.s3.amazonaws.com"
+                        typer.echo(f"📷 Auto-detected S3 images: {image_base_url}")
+
+            # If still not found, check for local image directories
+            if not image_base_url:
+                for img_dir in ["data/input", "input", "images", "photos"]:
+                    if Path(img_dir).exists() and list(Path(img_dir).glob("*.jpg")):
+                        typer.echo(f"📷 Local images available in: {img_dir}")
+                        typer.echo("   (Not displayed in web UI - use --image-base-url for S3)")
+                        break
+
         # Import review app
         from src.review.web_app import create_review_app
 
@@ -878,7 +915,7 @@ try:  # optional dependency
 
         app_instance = create_review_app(
             extraction_dir=extraction_dir,
-            image_base_url="",
+            image_base_url=image_base_url or "",
             enable_gbif=not no_gbif,
         )
 
