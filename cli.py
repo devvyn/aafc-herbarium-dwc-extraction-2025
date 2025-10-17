@@ -509,7 +509,7 @@ def process_cli(
     """
     # Import progress tracker
     try:
-        from progress_tracker import global_tracker, track_processing
+        from progress_tracker import global_tracker
 
         use_progress = True
     except ImportError:
@@ -796,6 +796,102 @@ try:  # optional dependency
         except Exception as e:
             typer.echo(f"❌ Export failed: {e}", err=True)
             raise typer.Exit(1)
+
+    @app.command()
+    def review(
+        extraction_dir: Optional[Path] = typer.Option(
+            None,
+            "--extraction-dir",
+            "-d",
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            help="Extraction directory containing raw.jsonl",
+        ),
+        port: int = typer.Option(
+            5002,
+            "--port",
+            "-p",
+            help="Port to run review server on",
+        ),
+        no_gbif: bool = typer.Option(
+            False,
+            "--no-gbif",
+            help="Disable GBIF validation (faster for initial review)",
+        ),
+    ) -> None:
+        """Launch the specimen review web interface.
+
+        Auto-detects extraction directories if not specified.
+        Opens browser-based review UI at http://127.0.0.1:<port>
+        """
+        import asyncio
+        from hypercorn.asyncio import serve
+        from hypercorn.config import Config as HypercornConfig
+
+        # Auto-detect extraction directory if not provided
+        if extraction_dir is None:
+            candidates = [
+                Path("data/test_review"),  # Test data
+                Path("data/output"),  # Common output location
+                Path("output"),  # Alternate output
+                Path("."),  # Current directory
+            ]
+
+            # Also check for recent processing runs
+            full_dataset_dirs = sorted(Path("full_dataset_processing").glob("*_run_*"))
+            if full_dataset_dirs:
+                candidates.insert(0, full_dataset_dirs[-1])  # Most recent run
+
+            for candidate in candidates:
+                if candidate.exists() and (candidate / "raw.jsonl").exists():
+                    extraction_dir = candidate
+                    typer.echo(f"✨ Auto-detected extraction directory: {extraction_dir}")
+                    break
+
+            if extraction_dir is None:
+                typer.echo("❌ Could not find extraction directory with raw.jsonl", err=True)
+                typer.echo("\nSearched in:", err=True)
+                for candidate in candidates[:5]:
+                    typer.echo(f"  • {candidate}", err=True)
+                typer.echo(
+                    "\n💡 Specify directory: python cli.py review --extraction-dir <path>", err=True
+                )
+                raise typer.Exit(1)
+
+        # Verify raw.jsonl exists
+        if not (extraction_dir / "raw.jsonl").exists():
+            typer.echo(f"❌ No raw.jsonl found in {extraction_dir}", err=True)
+            raise typer.Exit(1)
+
+        # Import review app
+        from src.review.web_app import create_review_app
+
+        # Create app
+        typer.echo("=" * 70)
+        typer.echo("SPECIMEN REVIEW WEB INTERFACE (Quart + Hypercorn)")
+        typer.echo("=" * 70)
+        typer.echo(f"Extraction directory: {extraction_dir}")
+        typer.echo(f"GBIF validation: {'disabled' if no_gbif else 'enabled'}")
+        typer.echo(f"Server: http://127.0.0.1:{port}")
+        typer.echo()
+
+        app_instance = create_review_app(
+            extraction_dir=extraction_dir,
+            image_base_url="",
+            enable_gbif=not no_gbif,
+        )
+
+        typer.echo("✅ Review system ready")
+        typer.echo(f"🌐 Open: http://127.0.0.1:{port}")
+        typer.echo()
+
+        # Configure and run Hypercorn
+        config = HypercornConfig()
+        config.bind = [f"127.0.0.1:{port}"]
+        config.loglevel = "INFO"
+
+        asyncio.run(serve(app_instance, config))
 
     if __name__ == "__main__":
         app()
