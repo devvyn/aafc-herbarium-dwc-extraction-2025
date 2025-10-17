@@ -17,8 +17,8 @@
 # Process specimens
 python cli.py process --input photos/ --output results/ --engine vision
 
-# Review results
-python review_web.py --db results/candidates.db --images photos/
+# Review results (Quart web app)
+python -m src.review.web_app --extraction-dir results/ --port 5002
 
 # Generate reports
 python cli.py stats --db results/app.db --format html
@@ -130,13 +130,12 @@ Based on OCR research:
 
 #### Launch Review Interface
 ```bash
-python review_web.py \
-  --db ~/herbarium_work/batch_1/output/candidates.db \
-  --images ~/herbarium_work/batch_1/input \
-  --port 8080
+python -m src.review.web_app \
+  --extraction-dir ~/herbarium_work/batch_1/output \
+  --port 5002
 ```
 
-Open browser to: http://localhost:8080
+Open browser to: http://localhost:5002
 
 #### Review Features
 - **Side-by-side view**: Photo and extracted text
@@ -145,13 +144,10 @@ Open browser to: http://localhost:8080
 - **Quick approval**: One-click for high-confidence results
 
 #### Focus on Problem Cases
-```bash
-# Review only low-confidence specimens
-python review_web.py \
-  --db ~/herbarium_work/batch_1/output/candidates.db \
-  --images ~/herbarium_work/batch_1/input \
-  --filter "confidence < 0.8"
-```
+Filter specimens by priority in the web interface:
+- Use "Priority" dropdown to filter HIGH/CRITICAL priority specimens
+- Use "Status" dropdown to filter PENDING specimens needing review
+- Sort by quality score to focus on lowest-quality records first
 
 ---
 
@@ -211,10 +207,10 @@ python cli.py resume --input photos/ --output results/
 #### Web interface won't start
 ```bash
 # Try different port
-python review_web.py --db results/candidates.db --images photos/ --port 8081
+python -m src.review.web_app --extraction-dir results/ --port 5003
 
-# Check database path
-ls -la results/candidates.db
+# Verify extraction directory has raw.jsonl
+ls -la results/raw.jsonl
 ```
 
 ---
