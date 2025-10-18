@@ -4,6 +4,7 @@ Textual TUI for Real-Time Extraction Monitoring
 
 Beautiful terminal interface with live updates from event bus.
 Designed for tmux integration and long-running monitoring.
+With Tilly the Pekingese charm! 🐕
 
 Usage:
     python scripts/monitor_tui.py --run-dir full_dataset_processing/openrouter_run_20251010_115131
@@ -14,6 +15,7 @@ Tmux integration:
 
 import argparse
 import json
+import random
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -29,6 +31,34 @@ from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
 from textual.widgets import Footer, Header, Static
 from textual.timer import Timer
+
+
+# Tilly's encouraging quotes (Barkour cross-pollination!)
+TILLY_QUOTES = [
+    "🐕 This Rosa looks lovely!",
+    "🐕 Great job on that Carex!",
+    "🐕 Parkour through those specimens!",
+    "🐕 You're climbing the taxonomy tree!",
+    "🐕 Specimen hunting mission!",
+    "🐕 That's a beautiful plant!",
+    "🐕 Keep up the great work!",
+    "🐕 Flora exploration in progress!",
+]
+
+
+def get_tilly_milestone_message(count: int) -> Optional[str]:
+    """Get Tilly's milestone message for specimen count."""
+    if count == 10:
+        return "🐕 Tilly: Nice warm-up!"
+    elif count == 50:
+        return "🐕🥓 Tilly found bacon break!"
+    elif count == 100:
+        return "🐕⬆️💨 Tilly: Master curator level!"
+    elif count == 250:
+        return "🐕✨ Tilly: Parkour expert mode!"
+    elif count == 500:
+        return "🐕☁️ Tilly reached the clouds!"
+    return None
 
 
 class StatsCard(Static):
@@ -54,7 +84,7 @@ class StatsCard(Static):
 
 
 class ProgressCard(Static):
-    """Main progress card with bar and metrics."""
+    """Main progress card with bar and metrics - with Tilly's height indicator!"""
 
     progress_pct: reactive[float] = reactive(0.0)
     completed: reactive[int] = reactive(0)
@@ -73,10 +103,12 @@ class ProgressCard(Static):
         bar = "█" * filled + "░" * (50 - filled)
         progress_text = Text(f"\n{bar}\n", style="cyan")
         progress_text.append(f"{self.completed} / {self.total} specimens ", style="bold white")
-        progress_text.append(f"({self.progress_pct:.1f}%)", style="dim")
+
+        # Tilly's height indicator (like Barkour climb!)
+        progress_text.append(f"⬆️ {self.progress_pct:.1f}%", style="bold yellow")
 
         content = Text.assemble(status_text, progress_text)
-        return Panel(content, title="[bold]Extraction Progress", border_style="cyan")
+        return Panel(content, title="[bold]🐕 Extraction Progress", border_style="cyan")
 
 
 class EventStreamWidget(Static):
@@ -244,6 +276,8 @@ class ExtractionMonitorApp(App):
         self.run_dir = run_dir
         self.raw_jsonl = run_dir / "raw.jsonl"
         self.events_jsonl = run_dir / "events.jsonl"
+        # Support both old (environment.json) and new (manifest.json) formats
+        self.manifest_json = run_dir / "manifest.json"
         self.environment_json = run_dir / "environment.json"
 
         # Image directory for inline previews
@@ -255,6 +289,10 @@ class ExtractionMonitorApp(App):
         self.failed_count = 0
         self.field_stats = {}
         self.current_specimen_id: Optional[str] = None
+
+        # Tilly milestone tracking
+        self.last_milestone = 0
+        self.tilly_message_timer = 0
 
         self.update_timer: Optional[Timer] = None
 
@@ -286,18 +324,33 @@ class ExtractionMonitorApp(App):
 
     def on_mount(self) -> None:
         """Start the update timer when app mounts."""
-        self.title = f"🌿 Herbarium Monitor: {self.run_dir.name}"
+        self.title = f"🌿🐕 Herbarium Monitor: {self.run_dir.name}"
         self.update_timer = self.set_interval(2.0, self.update_data)
         self.update_data()  # Initial load
+
+        # Show welcome message with random Tilly quote
+        welcome_quote = random.choice(TILLY_QUOTES)
+        self.notify(f"{welcome_quote} Let's review some plants!", timeout=5)
 
     def update_data(self) -> None:
         """Read latest data from files and update widgets."""
         try:
-            # Read environment.json for metadata
-            if self.environment_json.exists():
-                with open(self.environment_json) as f:
+            # Read manifest.json or environment.json for metadata
+            metadata_file = None
+            if self.manifest_json.exists():
+                metadata_file = self.manifest_json
+            elif self.environment_json.exists():
+                metadata_file = self.environment_json
+
+            if metadata_file:
+                with open(metadata_file) as f:
                     env_data = json.load(f)
+                    # Try different formats for total specimens count
                     self.total_specimens = env_data.get("total_specimens", 0)
+                    if self.total_specimens == 0:
+                        # Try manifest config format
+                        config = env_data.get("config", {})
+                        self.total_specimens = config.get("total_specimens", 0)
 
             # Read raw.jsonl for extraction results
             if self.raw_jsonl.exists():
@@ -310,6 +363,10 @@ class ExtractionMonitorApp(App):
                 self.completed_count = len(results)
                 self.failed_count = sum(1 for r in results if "error" in r)
                 successful_count = self.completed_count - self.failed_count
+
+                # If we don't have total from metadata, use completed count as estimate
+                if self.total_specimens == 0:
+                    self.total_specimens = self.completed_count
 
                 # Calculate field extraction rates
                 field_counts = {}
@@ -330,14 +387,30 @@ class ExtractionMonitorApp(App):
                 self.update_progress_card()
                 self.update_field_quality()
 
+                # Check for Tilly milestones
+                self.check_tilly_milestones(successful_count)
+
                 # Add latest event to stream and update image
                 if results:
                     latest = results[-1]
                     self.add_event_from_result(latest)
                     self.update_specimen_image(latest)
 
+                    # Occasionally show Tilly encouragement (every 20 specimens)
+                    if successful_count % 20 == 0 and successful_count > self.tilly_message_timer:
+                        self.tilly_message_timer = successful_count
+                        tilly_quote = random.choice(TILLY_QUOTES)
+                        self.notify(tilly_quote, timeout=3)
+
         except Exception as e:
             self.notify(f"Error updating data: {e}", severity="error")
+
+    def check_tilly_milestones(self, count: int):
+        """Check if we hit a Tilly milestone and show celebration message."""
+        milestone_msg = get_tilly_milestone_message(count)
+        if milestone_msg and count > self.last_milestone:
+            self.last_milestone = count
+            self.notify(milestone_msg, severity="information", timeout=8)
 
     def update_stats_cards(self, successful_count: int):
         """Update the stats cards."""
