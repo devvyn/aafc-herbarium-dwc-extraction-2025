@@ -270,3 +270,40 @@ examples/.DS_Store
 *-status.json
 archive/
 .claude/settings.local.json
+
+# === DATA SEPARATION (Added 2025-10-22) ===
+# Keep data files out of git to prevent repository bloat
+
+# Extraction data files
+*.jsonl
+!published/**/metadata.json
+!published/**/CITATION.cff
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+specimen_index.db
+
+# Large archives
+archives/
+backups/
+*.tar.gz
+*.zip
+*.7z
+
+# Backup files
+*_backup/
+*.bak
+checksums_*.txt
+
+# Data directories (keep only metadata)
+full_dataset_processing/*/raw.jsonl
+full_dataset_processing/*/app.db
+full_dataset_processing/*/events.jsonl
+full_dataset_processing/*/*.db
+
+# Exception: Keep small metadata files in published/
+!published/**/README.md
+!published/**/metadata.json
+!published/**/DATA_DOI.txt
