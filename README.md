@@ -2,7 +2,7 @@
 
 **Production-ready toolkit for extracting Darwin Core metadata from herbarium specimen images**
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/releases)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Documentation](https://img.shields.io/badge/docs-online-brightgreen.svg)](https://aafc.devvyn.ca)
@@ -51,44 +51,47 @@ python cli.py process --input photos/ --output results/
 python review_web.py --db results/candidates.db --images photos/
 ```
 
-## 📦 Current Release: v1.1.0
+## 📦 Current Release: v2.0.0
 
-**Multi-Provider Extraction with FREE Tier Support**
+**Specimen-Centric Provenance Architecture**
 
-### What's New in v1.1.0
+### What's New in v2.0.0
 
-🌐 **OpenRouter Integration**
-- Access to 400+ vision models via unified API
-- FREE tier support (Qwen 2.5 VL 72B, Llama Vision, Gemini)
-- Better quality than paid baseline at zero cost
+🔬 **Specimen Provenance System**
+- Complete lineage tracking from raw images through all transformations
+- Automatic deduplication at (image_sha256, extraction_params) level
+- Multi-extraction aggregation for improved field candidates
+- Content-addressed storage with S3 integration
 
-🔬 **Scientific Provenance System**
-- Git-based version tracking for reproducibility
-- SHA256 content-addressed data lineage
-- Complete system metadata capture
-- Immutable provenance fragments
+📊 **Production-Ready Infrastructure**
+- Async web framework (Quart) for high-performance review
+- Docker containerization for reproducible deployments
+- Clean 8MB repository (97% size reduction from v1.x)
+- Migration tools with full rollback capability
 
-📊 **Production Results**
-- 2,885 herbarium specimens processed
-- 100% scientificName coverage (FREE models)
-- 98% baseline quality (OpenAI GPT-4o-mini)
-- $0 cost with open-source models
+🎯 **Quality & Efficiency**
+- Confidence-weighted field aggregation across extraction runs
+- Review workflow with specimen-level tracking
+- Progressive publication: draft → batches → final
+- Full backward compatibility with v1.x data
 
-📚 **Documentation**
-- Complete pattern guide: [docs/SCIENTIFIC_PROVENANCE_PATTERN.md](docs/SCIENTIFIC_PROVENANCE_PATTERN.md)
-- Working examples: `examples/provenance_example.py`
-- Multi-provider scripts: `scripts/extract_openrouter.py`
+📚 **Documentation & Migration**
+- Complete release plan: [docs/RELEASE_2_0_PLAN.md](docs/RELEASE_2_0_PLAN.md)
+- Migration guide with safety guarantees
+- GBIF validation integration roadmap (v2.1.0)
+- Specimen provenance architecture doc
 
 ### Why This Matters
 
 **Architectural shift:**
-- **From**: Single provider, paid, queue-limited
-- **To**: Multi-provider, FREE option, unlimited scale
+- **From**: Image-centric processing (lost specimen identity)
+- **To**: Specimen-centric provenance (complete lineage tracking)
 
 **Research impact:**
-- Enables zero-cost extraction at production scale
-- Removes financial barrier to herbarium digitization
-- Full reproducibility for scientific publication
+- Enables reproducible extraction pipelines
+- Supports iterative improvement with safety
+- Production-ready data quality management
+- Foundation for GBIF-validated publication (v2.1.0)
 
 See [CHANGELOG.md](CHANGELOG.md) for complete release notes.
 
@@ -287,8 +290,9 @@ ruff check . --fix
 
 ## 🔖 Version History
 
-**Current:** v1.1.0 (October 2025) - Multi-provider extraction with FREE tier support
-**Previous:** v1.0.0 (October 2025) - Production baseline with Apple Vision API
+**Current:** v2.0.0 (October 2025) - Specimen-centric provenance architecture
+**Previous:** v1.1.1 (October 2025) - Accessibility improvements and Quart migration
+**Earlier:** v1.0.0 (October 2025) - Production baseline with Apple Vision API
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
@@ -305,11 +309,12 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## 🏆 Project Status
 
 **Production Ready** ✅
-- ✅ 2,885 specimens extracted (v1.0 baseline)
-- ✅ Ground truth validation complete
-- ✅ GBIF publication workflow documented
-- 🔄 v2.0 enhanced extraction in progress
-- 🔄 Agent orchestration framework complete
+- ✅ v2.0.0 specimen provenance architecture released
+- ✅ 2,885 specimens ready for migration to new architecture
+- ✅ Repository optimized (8MB, 97% size reduction)
+- ✅ Docker containerization and async review interface
+- 📋 Next: v2.1.0 GBIF validation integration
+- 📋 Next: Specimen index migration and progressive publication
 
 ---
 

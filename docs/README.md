@@ -18,6 +18,7 @@ Welcome to the AAFC Herbarium OCR documentation. This system helps you extract s
 
 ### **Core Concepts**
 - **[Architecture Overview](../ARCHITECTURE.md)** - Extraction vs Curation layers
+- **[Specimen Provenance Architecture](SPECIMEN_PROVENANCE_ARCHITECTURE.md)** - v2.0.0 lineage tracking ⭐
 - **[Terminology Guide](../TERMINOLOGY_GUIDE.md)** - Clear definitions of confusing terms
 - **[Data Flow](data_flow.md)** - Images → OCR → Review → Export
 
@@ -40,6 +41,12 @@ Welcome to the AAFC Herbarium OCR documentation. This system helps you extract s
 - **[Contributing](../CONTRIBUTING.md)** - How to contribute to the project
 - **[Testing](testing.md)** - Running tests and adding new ones
 - **[Release Process](releases.md)** - Version management and deployment
+
+### **Release Documentation (v2.0.0+)**
+- **[v2.0.0 Release Plan](RELEASE_2_0_PLAN.md)** - Migration strategy and timeline
+- **[v2.0.0 Release Status](status/2025-10-22-v2.0.0-release.md)** - Current status and accomplishments
+- **[GBIF Validation Integration](GBIF_VALIDATION_INTEGRATION.md)** - v2.1.0 roadmap (planned)
+- **[Archived Status Docs](status/archive/2025-10/)** - Historical v1.x status updates
 
 ## 🎯 **Documentation by User Type**
 
