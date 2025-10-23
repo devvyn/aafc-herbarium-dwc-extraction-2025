@@ -43,7 +43,7 @@ def test_verify_taxonomy_success(monkeypatch):
         assert result[field] == data[field]
 
     # Check metadata
-    assert metadata["gbif_taxonomy_verified"] == True
+    assert metadata["gbif_taxonomy_verified"]
     assert metadata["gbif_match_type"] == "EXACT"
     assert metadata["gbif_confidence"] == 95
     assert len(metadata["gbif_issues"]) == 0
@@ -60,7 +60,7 @@ def test_verify_taxonomy_error(monkeypatch):
     result, metadata = gbif.verify_taxonomy(record)
     assert result == record
     assert result is not record
-    assert metadata["gbif_taxonomy_verified"] == False
+    assert not metadata["gbif_taxonomy_verified"]
     assert "api_error" in metadata["gbif_issues"]
 
 
@@ -76,7 +76,7 @@ def test_verify_taxonomy_missing_fields(monkeypatch):
 
     assert result == record
     assert result is not record
-    assert metadata["gbif_taxonomy_verified"] == False
+    assert not metadata["gbif_taxonomy_verified"]
     assert "no_taxonomy_fields" in metadata["gbif_issues"]
 
 
@@ -95,8 +95,8 @@ def test_verify_locality_success(monkeypatch):
         assert result[field] == data[0][field]
 
     # Check metadata
-    assert metadata["gbif_locality_verified"] == True
-    assert metadata["gbif_coordinate_valid"] == True
+    assert metadata["gbif_locality_verified"]
+    assert metadata["gbif_coordinate_valid"]
     assert metadata["gbif_distance_km"] is not None
     assert metadata["gbif_distance_km"] < 20  # Should be a small distance
 
@@ -112,7 +112,7 @@ def test_verify_locality_error(monkeypatch):
     result, metadata = gbif.verify_locality(record)
     assert result == record
     assert result is not record
-    assert metadata["gbif_locality_verified"] == False
+    assert not metadata["gbif_locality_verified"]
     assert "api_error" in metadata["gbif_issues"]
 
 
@@ -128,7 +128,7 @@ def test_verify_locality_missing_coords(monkeypatch):
 
     assert result == record
     assert result is not record
-    assert metadata["gbif_locality_verified"] == False
+    assert not metadata["gbif_locality_verified"]
     assert "no_coordinates" in metadata["gbif_issues"]
 
 
@@ -139,7 +139,7 @@ def test_verify_locality_empty_response(monkeypatch):
     monkeypatch.setattr(gbif_module, "urlopen", lambda url, timeout=None: _mock_response([]))
     result, metadata = gbif.verify_locality(record)
     assert result == record and result is not record
-    assert metadata["gbif_locality_verified"] == False
+    assert not metadata["gbif_locality_verified"]
     assert "api_error" in metadata["gbif_issues"]
 
 
@@ -164,7 +164,7 @@ def test_verify_taxonomy_invalid_json(monkeypatch):
     monkeypatch.setattr(gbif_module, "urlopen", lambda url, timeout=None: _bad_json_response())
     result, metadata = gbif.verify_taxonomy(record)
     assert result == record and result is not record
-    assert metadata["gbif_taxonomy_verified"] == False
+    assert not metadata["gbif_taxonomy_verified"]
     assert "api_error" in metadata["gbif_issues"]
 
 
@@ -174,7 +174,7 @@ def test_verify_locality_invalid_json(monkeypatch):
     monkeypatch.setattr(gbif_module, "urlopen", lambda url, timeout=None: _bad_json_response())
     result, metadata = gbif.verify_locality(record)
     assert result == record and result is not record
-    assert metadata["gbif_locality_verified"] == False
+    assert not metadata["gbif_locality_verified"]
     assert "api_error" in metadata["gbif_issues"]
 
 
@@ -184,19 +184,19 @@ def test_verify_locality_invalid_coordinates():
     # Test invalid latitude
     record = {"decimalLatitude": 95.0, "decimalLongitude": -75.0}  # Invalid lat > 90
     result, metadata = gbif.verify_locality(record)
-    assert metadata["gbif_locality_verified"] == False
+    assert not metadata["gbif_locality_verified"]
     assert "invalid_latitude" in metadata["gbif_issues"]
 
     # Test invalid longitude
     record = {"decimalLatitude": 45.0, "decimalLongitude": 185.0}  # Invalid lng > 180
     result, metadata = gbif.verify_locality(record)
-    assert metadata["gbif_locality_verified"] == False
+    assert not metadata["gbif_locality_verified"]
     assert "invalid_longitude" in metadata["gbif_issues"]
 
     # Test invalid format
     record = {"decimalLatitude": "not_a_number", "decimalLongitude": -75.0}
     result, metadata = gbif.verify_locality(record)
-    assert metadata["gbif_locality_verified"] == False
+    assert not metadata["gbif_locality_verified"]
     assert "invalid_latitude_format" in metadata["gbif_issues"]
 
 
@@ -214,7 +214,7 @@ def test_validate_occurrence_success(monkeypatch):
     monkeypatch.setattr(gbif_module, "urlopen", lambda url, timeout=None: _mock_response(data))
 
     result, metadata = gbif.validate_occurrence(record)
-    assert metadata["gbif_occurrence_validated"] == True
+    assert metadata["gbif_occurrence_validated"]
     assert metadata["gbif_similar_occurrences"] == 2
     assert result["gbif_similar_occurrence_count"] == 2
 
@@ -236,7 +236,7 @@ def test_validate_occurrence_no_results(monkeypatch):
     monkeypatch.setattr(gbif_module, "urlopen", lambda url, timeout=None: _mock_response(data))
 
     result, metadata = gbif.validate_occurrence(record)
-    assert metadata["gbif_occurrence_validated"] == False
+    assert not metadata["gbif_occurrence_validated"]
     assert metadata["gbif_similar_occurrences"] == 0
     assert "no_similar_occurrences" in metadata["gbif_occurrence_issues"]
 
@@ -254,7 +254,7 @@ def test_low_confidence_taxonomy(monkeypatch):
     monkeypatch.setattr(gbif_module, "urlopen", lambda url, timeout=None: _mock_response(data))
 
     result, metadata = gbif.verify_taxonomy(record)
-    assert metadata["gbif_taxonomy_verified"] == False
+    assert not metadata["gbif_taxonomy_verified"]
     assert "low_confidence_70" in metadata["gbif_issues"]
     assert metadata["gbif_match_type"] == "FUZZY"
 
@@ -311,6 +311,6 @@ def test_configuration_from_config():
     assert gbif.retry_attempts == 5
     assert gbif.backoff_factor == 2.0
     assert gbif.cache_size == 500
-    assert gbif.enable_fuzzy_matching == False
+    assert not gbif.enable_fuzzy_matching
     assert gbif.min_confidence_score == 0.95
-    assert gbif.enable_occurrence_validation == True
+    assert gbif.enable_occurrence_validation

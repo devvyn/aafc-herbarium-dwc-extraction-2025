@@ -47,8 +47,8 @@ cd aafc-herbarium-dwc-extraction-2025
 # Process specimens
 python cli.py process --input photos/ --output results/
 
-# Review results
-python review_web.py --db results/candidates.db --images photos/
+# Review results (Quart web app)
+python -m src.review.web_app --extraction-dir results/ --port 5002
 ```
 
 ## 📦 Current Release: v2.0.0
@@ -168,7 +168,8 @@ See [agents/pipeline_composer.py](agents/pipeline_composer.py) for decision logi
 
 **Web interface** (recommended):
 ```bash
-python review_web.py --db results/candidates.db --images photos/
+python -m src.review.web_app --extraction-dir results/ --port 5002
+# Access at http://127.0.0.1:5002
 ```
 
 **Terminal interface:**

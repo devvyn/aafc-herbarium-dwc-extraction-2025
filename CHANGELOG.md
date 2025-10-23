@@ -2,10 +2,186 @@
 
 ## [Unreleased]
 
+### Changed
+- **CI/Type Checking**: Replaced mypy with Astral's ty type checker ([PR #223](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/pull/223))
+  - Completes Astral toolchain: uv (package management) + ruff (linting) + ty (type checking)
+  - 100x+ faster than mypy, zero installation overhead (uvx)
+  - Phased rollout: CI integration complete, fixing remaining type issues incrementally
+  - See `[tool.ty]` in pyproject.toml for configuration and status
+
+### Fixed
+- **Type Safety**: Fixed 9 type safety issues found by ty
+  - `Image.LANCZOS` deprecation → `Image.Resampling.LANCZOS`
+  - Missing `List` import in dwc/archive.py
+  - OpenAI optional dependency shadowing
+  - Path type narrowing in cli.py
+- **CI**: Fixed 22 ruff linting errors (unused variables, missing imports, boolean comparisons)
+- **Dependencies**: Synced uv.lock to match pyproject.toml version 2.0.0
+
 ### Future Development
 - 🔮 16 Darwin Core fields (9 additional: habitat, elevation, recordNumber, etc.)
 - 🔮 Layout-aware prompts (TOP vs BOTTOM label distinction)
 - 🔮 Ensemble voting for research-grade quality
+
+## [2.0.0] - 2025-10-22
+
+### 🎉 Specimen-Centric Provenance Architecture
+
+**Major Achievement:** Fundamental architectural shift from image-centric to specimen-centric data model, enabling full lineage tracking and production-scale data quality management.
+
+#### Added - Specimen Provenance System
+
+- 🔬 **Specimen Index** (`src/provenance/specimen_index.py`)
+  - SQLite database tracking specimens through transformations and extraction runs
+  - Automatic deduplication at (image_sha256, extraction_params) level
+  - Multi-extraction aggregation per specimen for improved candidate fields
+  - Data quality flagging: catalog duplicates, malformed numbers, missing fields
+  - Full audit trail from original camera files to published DwC records
+
+- 📊 **Deduplication Logic**
+  - Deterministic: same (image, params) = cached result, no redundant processing
+  - Intentional re-processing supported: different params aggregate to better candidates
+  - Prevents waste: identified 2,885 specimens extracted twice (5,770 → 2,885)
+  - Cost savings: eliminates duplicate API calls and processing time
+
+- 🏗️ **Specimen-Centric Data Model**
+  - Specimen identity preserved through image transformations
+  - Provenance DAG: original files → transformations → extractions → review
+  - Content-addressed images linked to specimen records
+  - Support for multiple source formats per specimen (JPEG, NEF raw)
+
+- 🛡️ **Data Quality Automation**
+  - Automatic detection of catalog number duplicates across specimens
+  - Pattern validation for malformed catalog numbers
+  - Perceptual hash detection for duplicate photography
+  - Missing required fields flagged for human review
+
+- 📈 **Multi-Extraction Aggregation**
+  - Combines results from multiple extraction attempts per specimen
+  - Selects best candidate per field (highest confidence)
+  - Enables iterative improvement: reprocess with better models/preprocessing
+  - All extraction attempts preserved for audit trail
+
+#### Added - Migration & Analysis Tools
+
+- 🔄 **Migration Script** (`scripts/migrate_to_specimen_index.py`)
+  - Analyzes existing raw.jsonl files from historical runs
+  - Populates specimen index without modifying original data
+  - Detects duplicate extractions and reports statistics
+  - Runs comprehensive data quality checks
+  - Example usage:
+    ```bash
+    python scripts/migrate_to_specimen_index.py \
+        --run-dir full_dataset_processing/* \
+        --index specimen_index.db \
+        --analyze-duplicates \
+        --check-quality
+    ```
+
+- 📊 **Extraction Run Analysis** (`docs/extraction_run_analysis_20250930.md`)
+  - Documented root cause of duplicate extractions in run_20250930_181456
+  - ALL 5,770 extractions failed (missing OPENAI_API_KEY)
+  - Every specimen processed exactly twice (no deduplication)
+  - Provides recommendations for prevention
+
+#### Added - Production Infrastructure
+
+- 🌐 **Quart + Hypercorn Migration** (Async Review System)
+  - Migrated review web app from Flask to Quart for async performance
+  - All routes converted to async for better concurrency
+  - GBIF validation now non-blocking (async HTTP with aiohttp)
+  - Hypercorn ASGI server replaces Flask development server
+  - Production-ready async architecture
+
+- 🐳 **Docker Support** (`Dockerfile`, `docker-compose.yml`)
+  - Production-ready containerization with multi-stage builds
+  - Optimized Python 3.11-slim base image
+  - Health checks and restart policies
+  - Volume mounting for data persistence
+  - Port mapping for review UI (5002)
+
+- 📺 **Monitor TUI Improvements**
+  - Fixed progress warnings from manifest.json/environment.json format detection
+  - Support for both old and new metadata formats
+  - Graceful fallback when metadata files missing
+  - Proper specimen count estimation from raw.jsonl
+
+#### Documentation - Comprehensive Guides
+
+- 📚 **Architecture Documentation** (`docs/specimen_provenance_architecture.md`)
+  - Complete specimen-centric data model specification
+  - Transformation provenance DAG design
+  - Extraction deduplication logic and examples
+  - Data quality invariants and flagging rules
+  - Full integration examples and migration patterns
+  - SQL schema and API documentation
+
+- 📋 **Release Plan** (`docs/RELEASE_2_0_PLAN.md`)
+  - Three-phase migration strategy (preserve → populate → publish)
+  - Progressive publication workflow (draft → batches → final)
+  - Data safety guarantees and rollback procedures
+  - Review UI integration requirements
+  - Timeline and success criteria
+
+#### Research Impact
+
+**Architectural Foundation:**
+- **From**: Image-centric, duplicates allowed, no specimen tracking
+- **To**: Specimen-centric, automatic deduplication, full provenance
+
+**Economic Impact:**
+- Eliminates redundant extraction attempts (identified 2,885 duplicates)
+- Prevents wasted API calls on already-processed specimens
+- Enables cost-effective iterative improvement via aggregation
+
+**Scientific Impact:**
+- Full lineage tracking for reproducibility
+- Cryptographic traceability (content-addressed images)
+- Data quality automation (catalog validation, duplicate detection)
+- Supports progressive publication with human review tracking
+
+#### Technical Implementation
+
+- **Database Schema**: 7 tables tracking specimens, transformations, extractions, aggregations, reviews, quality flags
+- **Deduplication Key**: SHA256(extraction_params) for deterministic caching
+- **Aggregation Strategy**: Multi-extraction results combined, best candidate per field selected
+- **Quality Checks**: Automated SQL queries detect violations of expected invariants
+- **Migration Safety**: Additive only, original data never modified, full rollback capability
+
+#### Backward Compatibility
+
+✅ **Fully Backward Compatible**
+- Existing extraction runs remain valid (no modification)
+- Old workflow continues to work without migration
+- New features opt-in via migration script
+- No breaking changes to CLI interface
+- Gradual adoption supported
+
+#### Production Readiness
+
+- ✅ Async web architecture (Quart + Hypercorn)
+- ✅ Docker containerization with health checks
+- ✅ Data quality automation
+- ✅ Full provenance tracking
+- ✅ Progressive publication workflow
+- ✅ Safe migration with rollback capability
+
+### Changed - Infrastructure
+
+- Migrated review web app from Flask to Quart (async)
+- Updated monitor TUI for manifest.json format support
+- Enhanced error handling in review system
+
+### Fixed
+
+- Monitor TUI progress warnings (manifest/environment format detection)
+- Review UI port already in use error handling
+- Auto-detection priority (real data before test data)
+- S3 image URL auto-detection from manifest.json
+
+### Notes
+
+Version 2.0.0 represents a fundamental architectural maturity milestone, transitioning from proof-of-concept extraction to production-scale specimen management with full provenance tracking, data quality automation, and human review workflows. This release sets the foundation for progressive data publication and long-term institutional deployment.
 
 ## [1.1.1] - 2025-10-11
 
@@ -516,7 +692,8 @@ None - fully backward compatible with v1.0.0
 - :bug: handle missing git commit metadata
 - :bug: correct mapper schema override
 
-[Unreleased]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.1.1...v2.0.0
 [1.1.1]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/compare/v1.0.0-beta.2...v1.0.0

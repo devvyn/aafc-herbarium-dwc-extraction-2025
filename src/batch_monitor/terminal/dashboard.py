@@ -41,7 +41,7 @@ class BatchDashboard:
             TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
         )
 
-        task_id = progress.add_task(
+        _task_id = progress.add_task(
             f"{status.status_emoji} {status.batch_id[:16]}...",
             total=status.progress.total or 100,
             completed=status.progress.completed,

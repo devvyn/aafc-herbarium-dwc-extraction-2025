@@ -1,6 +1,6 @@
 [project]
 name = "herbarium-dwc"
-version = "1.1.1"
+version = "2.0.0"
 description = "Herbarium OCR to Darwin Core extraction toolkit"
 authors = [{name = "AAFC"}]
 readme = "README.md"
@@ -111,3 +111,15 @@ ignore = ["E501"]
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[tool.ty]
+# Astral's ty type checker - https://docs.astral.sh/ty/
+# Adopted October 2025 to complete Astral toolchain (uv + ruff + ty)
+# Currently in phased rollout:
+#   Phase 1: CI checking core modules (warnings allowed)
+#   Phase 2: Fix remaining type issues systematically
+#   Phase 3: Enforce strict checking (continue-on-error: false)
+#
+# Current status: 8 errors in core modules (down from 34 initial)
+# Main issues: optional dependency imports, protocol signatures
+# Run locally: uvx ty check src/ cli.py io_utils/ dwc/ preprocess/ qc/

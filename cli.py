@@ -509,7 +509,7 @@ def process_cli(
     """
     # Import progress tracker
     try:
-        from progress_tracker import global_tracker, track_processing
+        from progress_tracker import global_tracker
 
         use_progress = True
     except ImportError:
@@ -796,6 +796,140 @@ try:  # optional dependency
         except Exception as e:
             typer.echo(f"❌ Export failed: {e}", err=True)
             raise typer.Exit(1)
+
+    @app.command()
+    def review(
+        extraction_dir: Optional[Path] = typer.Option(
+            None,
+            "--extraction-dir",
+            "-d",
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            help="Extraction directory containing raw.jsonl",
+        ),
+        image_base_url: Optional[str] = typer.Option(
+            None,
+            "--image-base-url",
+            help="Base URL for specimen images (S3 bucket or local path)",
+        ),
+        port: int = typer.Option(
+            5002,
+            "--port",
+            "-p",
+            help="Port to run review server on",
+        ),
+        no_gbif: bool = typer.Option(
+            False,
+            "--no-gbif",
+            help="Disable GBIF validation (faster for initial review)",
+        ),
+    ) -> None:
+        """Launch the specimen review web interface.
+
+        Auto-detects extraction directories if not specified.
+        Opens browser-based review UI at http://127.0.0.1:<port>
+        """
+        import asyncio
+        from hypercorn.asyncio import serve
+        from hypercorn.config import Config as HypercornConfig
+
+        # Auto-detect extraction directory if not provided
+        if extraction_dir is None:
+            candidates = []
+
+            # Check for recent processing runs first (real data)
+            if Path("full_dataset_processing").exists():
+                full_dataset_dirs = sorted(Path("full_dataset_processing").glob("*_run_*"))
+                if full_dataset_dirs:
+                    candidates.append(full_dataset_dirs[-1])  # Most recent run
+
+            # Common output locations
+            candidates.extend(
+                [
+                    Path("data/output"),
+                    Path("output"),
+                    Path("."),
+                ]
+            )
+
+            # Test data last (only for demos/development)
+            candidates.append(Path("data/test_review"))
+
+            for candidate in candidates:
+                if candidate.exists() and (candidate / "raw.jsonl").exists():
+                    extraction_dir = candidate
+                    typer.echo(f"✨ Auto-detected extraction directory: {extraction_dir}")
+                    break
+
+            if extraction_dir is None:
+                typer.echo("❌ Could not find extraction directory with raw.jsonl", err=True)
+                typer.echo("\nSearched in:", err=True)
+                for candidate in candidates[:5]:
+                    typer.echo(f"  • {candidate}", err=True)
+                typer.echo(
+                    "\n💡 Specify directory: python cli.py review --extraction-dir <path>", err=True
+                )
+                raise typer.Exit(1)
+
+        # Verify raw.jsonl exists
+        # Note: extraction_dir guaranteed non-None here (would have exited above)
+        if not (extraction_dir / "raw.jsonl").exists():
+            typer.echo(f"❌ No raw.jsonl found in {extraction_dir}", err=True)
+            raise typer.Exit(1)
+
+        # Auto-detect image base URL if not provided
+        if image_base_url is None:
+            # Check for S3 bucket in manifest
+            manifest_path = extraction_dir / "manifest.json"
+            if manifest_path.exists():
+                import json
+
+                with open(manifest_path) as f:
+                    manifest = json.load(f)
+                    # Look for S3 configuration
+                    config = manifest.get("config", {})
+                    s3_bucket = config.get("s3", {}).get("bucket")
+                    if s3_bucket:
+                        image_base_url = f"https://{s3_bucket}.s3.amazonaws.com"
+                        typer.echo(f"📷 Auto-detected S3 images: {image_base_url}")
+
+            # If still not found, check for local image directories
+            if not image_base_url:
+                for img_dir in ["data/input", "input", "images", "photos"]:
+                    if Path(img_dir).exists() and list(Path(img_dir).glob("*.jpg")):
+                        typer.echo(f"📷 Local images available in: {img_dir}")
+                        typer.echo("   (Not displayed in web UI - use --image-base-url for S3)")
+                        break
+
+        # Import review app
+        from src.review.web_app import create_review_app
+
+        # Create app
+        typer.echo("=" * 70)
+        typer.echo("SPECIMEN REVIEW WEB INTERFACE (Quart + Hypercorn)")
+        typer.echo("=" * 70)
+        typer.echo(f"Extraction directory: {extraction_dir}")
+        typer.echo(f"GBIF validation: {'disabled' if no_gbif else 'enabled'}")
+        typer.echo(f"Server: http://127.0.0.1:{port}")
+        typer.echo()
+
+        app_instance = create_review_app(
+            extraction_dir=extraction_dir,
+            image_base_url=image_base_url or "",
+            enable_gbif=not no_gbif,
+        )
+
+        typer.echo("✅ Review system ready")
+        typer.echo(f"🌐 Open: http://127.0.0.1:{port}")
+        typer.echo()
+
+        # Configure and run Hypercorn
+        config = HypercornConfig()
+        config.bind = [f"127.0.0.1:{port}"]
+        config.loglevel = "INFO"
+
+        asyncio.run(serve(app_instance, config))
 
     if __name__ == "__main__":
         app()

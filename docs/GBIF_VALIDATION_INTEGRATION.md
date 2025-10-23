@@ -2,7 +2,7 @@
 
 ## Overview
 
-GBIF (Global Biodiversity Information Facility) validation provides scientific verification of taxonomic names, geographic coordinates, and occurrence patterns. Integration with the v2.0.0 specimen provenance system creates a production-ready data quality pipeline.
+GBIF (Global Biodiversity Information Facility) validation provides scientific verification of taxonomic names, geographic coordinates, and occurrence patterns. Integrating GBIF validation into the v2.0.0 specimen provenance system creates a production-ready data quality pipeline.
 
 **Timeline**: November 1-28, 2025 (4-week milestone)
 
@@ -184,6 +184,17 @@ CREATE INDEX IF NOT EXISTS idx_gbif_validated
 ON specimen_aggregations(
     json_extract(gbif_validation_json, '$.auto_validated')
 );
+
+-- Add GBIF validation flags to data_quality_flags
+-- (New flag types)
+INSERT INTO data_quality_flags (specimen_id, flag_type, severity, message)
+SELECT
+    specimen_id,
+    'GBIF_TAXONOMY_UNVERIFIED',
+    'warning',
+    'Taxonomic name could not be verified against GBIF'
+FROM specimen_aggregations
+WHERE json_extract(gbif_validation_json, '$.taxonomy.gbif_taxonomy_verified') = false;
 ```
 
 ### Tier 2: Interactive Human Validation
@@ -191,6 +202,79 @@ ON specimen_aggregations(
 **When**: During human review of flagged specimens
 
 **Purpose**: Manual verification and correction with GBIF assistance
+
+**Review UI Implementation**:
+
+```javascript
+// In review UI: src/review/templates/review.html
+
+<div class="gbif-validation-panel">
+  <h3>GBIF Validation Status</h3>
+
+  <!-- Auto-validation results -->
+  <div class="auto-validation">
+    <span class="badge {{ 'success' if gbif.auto_validated else 'warning' }}">
+      {{ 'Auto-Validated' if gbif.auto_validated else 'Requires Review' }}
+    </span>
+  </div>
+
+  <!-- Taxonomy validation -->
+  <div class="taxonomy-validation">
+    <h4>Taxonomic Name</h4>
+    <input type="text"
+           id="scientific-name"
+           value="{{ best_candidates.scientificName.value }}"
+           data-gbif-autocomplete>
+
+    <div class="validation-result">
+      <span class="match-type">{{ gbif.taxonomy.gbif_match_type }}</span>
+      <span class="confidence">{{ gbif.taxonomy.gbif_confidence }}%</span>
+    </div>
+
+    <!-- GBIF suggestions (autocomplete) -->
+    <div id="gbif-suggestions" class="suggestions-dropdown">
+      <!-- Populated dynamically via /api/gbif/suggest -->
+    </div>
+
+    <!-- Manual re-validation button -->
+    <button onclick="revalidateGBIF()">
+      Validate with GBIF
+    </button>
+  </div>
+
+  <!-- Locality validation -->
+  <div class="locality-validation">
+    <h4>Geographic Coordinates</h4>
+    <div class="coordinates">
+      <input type="text" id="lat" value="{{ best_candidates.decimalLatitude.value }}">
+      <input type="text" id="lng" value="{{ best_candidates.decimalLongitude.value }}">
+    </div>
+
+    <div class="validation-result">
+      <span class="valid">
+        {{ 'Valid' if gbif.locality.gbif_coordinate_valid else 'Invalid' }}
+      </span>
+      {% if gbif.locality.gbif_distance_km %}
+      <span class="distance">
+        Distance from GBIF: {{ gbif.locality.gbif_distance_km }}km
+      </span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Validation issues -->
+  {% if gbif.issues %}
+  <div class="validation-issues">
+    <h4>Issues Detected</h4>
+    <ul>
+      {% for issue in gbif.issues %}
+      <li class="issue-{{ issue.split('_')[0] }}">{{ issue }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</div>
+```
 
 **Review API Endpoints**:
 ```python
@@ -328,9 +412,34 @@ AND no_catalog_duplicates  # Unique catalog number
 # Result: ~62% of specimens auto-validate
 ```
 
-## Quality Flags Integration
+## Data Quality Improvements
 
-### GBIF-Related Quality Flags
+### Validation Metrics
+
+```json
+{
+  "total_specimens": 2885,
+  "gbif_validation": {
+    "auto_validated": 1800,
+    "manually_validated": 700,
+    "validation_failed": 385,
+    "validation_coverage": "86.7%"
+  },
+  "taxonomy_quality": {
+    "exact_match": 2100,
+    "fuzzy_match": 400,
+    "higher_rank": 200,
+    "no_match": 185
+  },
+  "locality_quality": {
+    "coordinates_valid": 1500,
+    "coordinates_flagged": 200,
+    "no_coordinates": 1185
+  }
+}
+```
+
+### Quality Flags Integration
 
 ```sql
 -- Examples of GBIF-related quality flags:
@@ -421,6 +530,6 @@ GBIF_OCCURRENCE_MISMATCH
 ## Related Documentation
 
 - **GBIF Implementation**: `qc/gbif.py`, `src/review/validators.py`
-- **Specimen Provenance**: [SPECIMEN_PROVENANCE_ARCHITECTURE.md](SPECIMEN_PROVENANCE_ARCHITECTURE.md)
+- **Specimen Provenance**: [specimen_provenance_architecture.md](specimen_provenance_architecture.md)
 - **Release Plan**: [RELEASE_2_0_PLAN.md](RELEASE_2_0_PLAN.md)
 - **Review System**: `src/review/web_app.py`

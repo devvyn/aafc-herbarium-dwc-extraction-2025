@@ -13,7 +13,7 @@ from pathlib import Path
 from xml.etree.ElementTree import Element, SubElement, tostring
 from xml.dom import minidom
 from zipfile import ZipFile, ZIP_DEFLATED
-from typing import Any, Dict
+from typing import Any, Dict, List
 from datetime import datetime, timezone
 import subprocess
 import re
