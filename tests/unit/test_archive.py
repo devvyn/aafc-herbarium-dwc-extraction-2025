@@ -20,7 +20,7 @@ def test_build_manifest_handles_missing_git(monkeypatch, exception):
 
     monkeypatch.setattr(subprocess, "check_output", _raise)
     manifest = archive.build_manifest()
-    assert manifest["commit"] == "unknown"
+    assert manifest["git_commit"] == "unknown"
 
 
 def test_create_versioned_bundle_generates_tags(tmp_path, monkeypatch):
@@ -304,7 +304,7 @@ def test_bundle_without_git_in_filename(tmp_path, monkeypatch):
     assert bundle.name.count("_") >= 2  # version_timestamp_...
 
 
-@patch("dwc.archive.importlib.metadata.version")
+@patch("importlib.metadata.version")
 def test_manifest_package_version_detection(mock_version, tmp_path):
     """Test detection of package version in manifest."""
     mock_version.return_value = "0.1.4"

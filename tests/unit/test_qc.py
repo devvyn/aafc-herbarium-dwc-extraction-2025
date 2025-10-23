@@ -175,11 +175,13 @@ def test_process_image_gbif_success(monkeypatch, tmp_path):
 
     monkeypatch.setattr(cli.qc.GbifLookup, "from_config", lambda cfg: DummyGbif())
     cand_session = cli.init_candidate_db(tmp_path / "candidates.db")
+    cache_session = cli.init_ocr_cache_db(tmp_path / "ocr_cache.db")
     app_conn = cli.init_app_db(tmp_path / "app.db")
     event, dwc_row, ident_rows = cli.process_image(
-        img_path, cfg, "run1", {}, cand_session, app_conn, 3, False
+        img_path, cfg, "run1", {}, cand_session, cache_session, app_conn, 3, False
     )
     cand_session.close()
+    cache_session.close()
     app_conn.close()
     assert set(event["added_fields"]) == {"kingdom", "country"}
     assert "gbif_updated:scientificName" in event["flags"]
@@ -229,11 +231,13 @@ def test_process_image_gbif_failure(monkeypatch, tmp_path):
 
     monkeypatch.setattr(cli.qc.GbifLookup, "from_config", lambda cfg: FailingGbif())
     cand_session = cli.init_candidate_db(tmp_path / "candidates.db")
+    cache_session = cli.init_ocr_cache_db(tmp_path / "ocr_cache.db")
     app_conn = cli.init_app_db(tmp_path / "app.db")
     event, dwc_row, ident_rows = cli.process_image(
-        img_path, cfg, "run1", {}, cand_session, app_conn, 3, False
+        img_path, cfg, "run1", {}, cand_session, cache_session, app_conn, 3, False
     )
     cand_session.close()
+    cache_session.close()
     app_conn.close()
     assert "boom" in event["errors"][0]
     assert event["added_fields"] == []

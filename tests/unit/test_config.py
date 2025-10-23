@@ -45,7 +45,7 @@ model = "gpt-test"
     assert cfg["ocr"]["preferred_engine"] == "tesseract"
     assert cfg["gpt"]["model"] == "gpt-test"
     # default from base config remains
-    assert cfg["ocr"]["allow_gpt"] is True
+    assert "enabled_engines" in cfg["ocr"]
 
 
 def test_normalize_vocab_rules() -> None:

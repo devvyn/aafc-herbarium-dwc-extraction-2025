@@ -65,10 +65,12 @@ def test_get_schemas_force_update(mock_fetch, temp_cache_dir, mock_schema_info):
     mock_fetch.assert_called_once()
 
 
-def test_get_schema_info(temp_cache_dir, mock_schema_info):
+def test_get_schema_info(temp_cache_dir, mock_schema_info, monkeypatch):
     """Test getting specific schema information."""
     manager = SchemaManager(cache_dir=temp_cache_dir)
-    manager._schemas = {"test_schema": mock_schema_info}
+
+    # Mock get_schemas to return test data
+    monkeypatch.setattr(manager, "get_schemas", lambda: {"test_schema": mock_schema_info})
 
     info = manager.get_schema_info("test_schema")
     assert info == mock_schema_info
@@ -77,10 +79,14 @@ def test_get_schema_info(temp_cache_dir, mock_schema_info):
     assert info is None
 
 
-def test_list_available_schemas(temp_cache_dir, mock_schema_info):
+def test_list_available_schemas(temp_cache_dir, mock_schema_info, monkeypatch):
     """Test listing available schemas."""
     manager = SchemaManager(cache_dir=temp_cache_dir)
-    manager._schemas = {"schema1": mock_schema_info, "schema2": mock_schema_info}
+
+    # Mock get_schemas to return test data
+    monkeypatch.setattr(
+        manager, "get_schemas", lambda: {"schema1": mock_schema_info, "schema2": mock_schema_info}
+    )
 
     schemas = manager.list_available_schemas()
     assert set(schemas) == {"schema1", "schema2"}
@@ -144,7 +150,7 @@ def test_suggest_mappings(mock_suggest, temp_cache_dir):
     mock_suggest.assert_called_with(["unmapped_field"], ["dwc_simple", "abcd_206"], 0.6)
 
 
-def test_get_schema_compatibility_report(temp_cache_dir):
+def test_get_schema_compatibility_report(temp_cache_dir, monkeypatch):
     """Test schema compatibility reporting."""
     source_schema = SchemaInfo(
         name="source",
@@ -163,7 +169,11 @@ def test_get_schema_compatibility_report(temp_cache_dir):
     )
 
     manager = SchemaManager(cache_dir=temp_cache_dir)
-    manager._schemas = {"source": source_schema, "target": target_schema}
+
+    # Mock get_schemas to return test data
+    monkeypatch.setattr(
+        manager, "get_schemas", lambda: {"source": source_schema, "target": target_schema}
+    )
 
     report = manager.get_schema_compatibility_report("source", ["target"])
 
@@ -178,10 +188,12 @@ def test_get_schema_compatibility_report(temp_cache_dir):
     assert target_report["unique_to_target"] == 1  # term4
 
 
-def test_get_status(temp_cache_dir):
+def test_get_status(temp_cache_dir, monkeypatch):
     """Test status reporting."""
     manager = SchemaManager(cache_dir=temp_cache_dir, update_interval_days=15)
-    manager._schemas = {"schema1": Mock(), "schema2": Mock()}
+
+    # Mock get_schemas to return test data
+    monkeypatch.setattr(manager, "get_schemas", lambda: {"schema1": Mock(), "schema2": Mock()})
 
     status = manager.get_status()
 
@@ -189,7 +201,7 @@ def test_get_status(temp_cache_dir):
     assert status["update_interval_days"] == 15
     assert status["preferred_schemas"] == ["dwc_simple", "abcd_206"]
     assert status["schema_count"] == 2
-    assert status["available_schemas"] == ["schema1", "schema2"]
+    assert set(status["available_schemas"]) == {"schema1", "schema2"}
 
 
 def test_metadata_persistence(temp_cache_dir, mock_schema_info):
