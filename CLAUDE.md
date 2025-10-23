@@ -49,16 +49,42 @@ This toolkit extracts Darwin Core data from herbarium specimen images using OCR 
 **Why**: GitHub is the safe storage. Local work can be lost to crashes, context limits, or session ends. Frequent commits = no wipeout moments.
 
 ### Technical Implementation (Agent Authority)
-```bash
-# Core development workflows - agent autonomous
-uv run ruff check src/          # Code quality
-uv run python cli.py --test     # Integration testing
-uv run python -m pytest tests/  # Unit testing
-./test-regression.sh             # Regression validation
 
-# Regular commits (every 30-45 min)
-git add <files> && git commit -m "..." && git push
+**Pre-Commit Checks** (run before EVERY commit):
+```bash
+# Quick check (always run before commit)
+uv run ruff check . --fix && \
+uv run ruff format . && \
+uv run python -m pytest tests/unit/ -q && \
+git diff --check
+
+# Full checks (for significant changes)
+uv run python -m pytest tests/  # All tests
+./test-regression.sh            # Regression validation
 ```
+
+**Development Workflows**:
+```bash
+# Code quality
+uv run ruff check src/ --fix    # Auto-fix issues
+uv run ruff format src/         # Format code
+
+# Testing
+uv run python -m pytest tests/unit/     # Fast unit tests
+uv run python -m pytest tests/          # Full test suite
+./test-regression.sh                     # Database compatibility
+
+# Integration testing
+uv run python cli.py check-deps         # Verify dependencies
+```
+
+**Commit Frequency**:
+- Every 30-45 minutes during active development
+- After completing any significant feature
+- Before starting risky refactors
+- **ALWAYS after running pre-commit checks**
+
+See [.github/PRE_COMMIT_CHECKLIST.md](.github/PRE_COMMIT_CHECKLIST.md) for complete workflow.
 
 ### Scientific Validation (Human Authority)
 - Specimen identification accuracy assessment

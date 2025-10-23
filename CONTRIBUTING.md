@@ -2,7 +2,22 @@
 
 ## Quick Start
 
-Start by running `./bootstrap.sh` to install dependencies and run baseline checks. Follow the repository's guidelines in [AGENTS.md](AGENTS.md) and run `ruff check . --fix` and `pytest` before submitting changes. When your pull request is meant to close an issue, include a closing keyword such as `Resolves #<issue-number>` in the PR description.
+1. **Install dependencies**: Run `./bootstrap.sh`
+2. **Read guidelines**: See [AGENTS.md](AGENTS.md) for development conventions
+3. **Before every commit**: Run pre-commit checks (see [Pre-Commit Checklist](.github/PRE_COMMIT_CHECKLIST.md))
+4. **Open PR**: Include `Resolves #<issue-number>` if closing an issue
+
+### Essential Pre-Commit Workflow
+
+```bash
+# Quick check before EVERY commit
+uv run ruff check . --fix && \
+uv run ruff format . && \
+uv run python -m pytest tests/unit/ -q && \
+git diff --check
+```
+
+**Why?** Catches 95% of issues before CI runs. See complete checklist: [.github/PRE_COMMIT_CHECKLIST.md](.github/PRE_COMMIT_CHECKLIST.md)
 
 Review [docs/development.md](docs/development.md) for development conventions and consult the [roadmap](docs/roadmap.md) for open tasks and priorities.
 
