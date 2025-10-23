@@ -268,7 +268,7 @@ examples/.DS_Store
 # Temporary coordination files
 *.coordination.json
 *-status.json
-archive/
+/archive/
 .claude/settings.local.json
 
 # === DATA SEPARATION (Added 2025-10-22) ===
