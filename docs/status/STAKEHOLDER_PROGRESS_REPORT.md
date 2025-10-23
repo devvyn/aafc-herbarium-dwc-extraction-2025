@@ -79,7 +79,7 @@ python cli.py archive --output results/ --version 1.0.0
 ## 🏛️ **Institutional Integration Ready**
 
 ### **Staff Training Materials**
-- **[README.md](README.md)** - 30-second quick start guide
+- **[../index.md](../index.md)** - 30-second quick start guide
 - **[docs/user_guide.md](docs/user_guide.md)** - Complete workflow instructions
 - **[docs/PRODUCTION_HANDOVER.md](docs/PRODUCTION_HANDOVER.md)** - Institutional deployment
 - **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Technical setup procedures

@@ -22,7 +22,7 @@ This directory contains comprehensive research findings and analysis from the AA
 
 ### Image Access System Development
 
-**[../REPRODUCIBLE_IMAGES_SUMMARY.md](../REPRODUCIBLE_IMAGES_SUMMARY.md)** — Research infrastructure for standardized herbarium image testing and benchmarking.
+**[../status/REPRODUCIBLE_IMAGES_SUMMARY.md](../status/REPRODUCIBLE_IMAGES_SUMMARY.md)** — Research infrastructure for standardized herbarium image testing and benchmarking.
 
 ## Research Methodology
 

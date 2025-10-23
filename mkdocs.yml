@@ -38,15 +38,101 @@ theme:
 
 nav:
   - Home: index.md
+
   - Getting Started:
     - Installation: getting-started/installation.md
+    - Quick Examples: quickstart_examples.md
+    - Simple Trial Guide: guides/simple_trial_guide.md
+
+  - User Guide:
+    - Overview: user_guide.md
+    - Workflow Examples: workflow_examples.md
+    - Review Workflow: review_workflow.md
+    - Data Preparation: data_preparation_process.md
+    - Export & Reporting: export_and_reporting.md
+    - Troubleshooting: troubleshooting.md
+    - FAQ: faq.md
+
+  - Configuration:
+    - Overview: configuration.md
+    - OCR Engines: ocr_engines.md
+    - API Key Management: API_KEY_MANAGEMENT_SOP.md
+    - Cloud API Setup: CLOUD_API_SETUP.md
+    - Mapping & Vocabulary: mapping_and_vocabulary.md
+
+  - Developer Guide:
+    - Development: development.md
+    - API Reference: api_reference.md
+    - Database Schema: database_schema.md
+    - Testing: testing.md
+    - Agents: AGENTS.md
+    - GPT Integration: gpt.md
+    - Preprocessing: preprocessing_flows.md
+    - Quality Control: qc.md
+
+  - Architecture:
+    - Overview: architecture/ARCHITECTURE.md
+    - Data Access: architecture/DATA_ACCESS_OVERVIEW.md
+    - Event Bus: architecture/EVENT_BUS_INTEGRATION_GUIDE.md
+    - Streaming Events: architecture/STREAMING_EVENT_ARCHITECTURE.md
+    - OCR Cache: architecture/OCR_CACHE.md
+    - Specifications: architecture/SPECIFICATIONS.md
+    - Specimen Provenance: specimen_provenance_architecture.md
+    - Storage Abstraction: STORAGE_ABSTRACTION.md
+
+  - Research:
+    - Overview: research/README.md
+    - OCR Analysis: research/COMPREHENSIVE_OCR_ANALYSIS.md
+    - OCR Reality Assessment: research/OCR_REALITY_ASSESSMENT.md
+    - Extraction Run Analysis: extraction_run_analysis_20250930.md
+    - Scientific Provenance Pattern: SCIENTIFIC_PROVENANCE_PATTERN.md
+    - Research Contributions: research_contributions.md
+
+  - Guides:
+    - Deployment: guides/DEPLOYMENT_GUIDE.md
+    - Usage Modes: guides/USAGE_MODES.md
+    - Terminology: guides/TERMINOLOGY_GUIDE.md
+    - Successor Quick Start: guides/SUCCESSOR_QUICK_START.md
+    - Data Publication: DATA_PUBLICATION_GUIDE.md
+    - Platform Optimization: PLATFORM_OPTIMIZATION.md
+    - OpenRouter Batch API: OPENROUTER_BATCH_API.md
+    - GBIF Validation: GBIF_VALIDATION_INTEGRATION.md
+    - Multilingual OCR: multilingual_ocr.md
+    - Image Sources: IMAGE_SOURCES.md
+    - Reproducible Images: reproducible_image_access.md
+
   - Project:
     - Changelog: changelog.md
     - Contributing: contributing.md
-    - Docs Architecture: DOCS_ARCHITECTURE.md
-  - Patterns:
+    - Documentation Architecture: DOCS_ARCHITECTURE.md
+    - Cost Claims Audit: COST_CLAIMS_AUDIT.md
+    - Feature Planning: FEATURE_PLANNING.md
+    - Handover Priorities: HANDOVER_PRIORITIES.md
+    - Production Handover: PRODUCTION_HANDOVER.md
+    - Project Closeout: PROJECT_CLOSEOUT.md
+    - Release 2.0 Plan: RELEASE_2_0_PLAN.md
+    - Release Process: RELEASE_PROCESS.md
+    - Testing Standards: TESTING_STANDARDS.md
+    - Accessibility: ACCESSIBILITY_REQUIREMENTS.md
+    - Human-AI Collaboration: human-ai-collaboration-framework.md
+    - Roadmap: roadmap.md
+
+  - Status Reports:
+    - Project Status: status/PROJECT_STATUS_UPDATE.md
+    - Executive Summary: status/EXECUTIVE_SUMMARY.md
+    - Stakeholder Progress: status/STAKEHOLDER_PROGRESS_REPORT.md
+    - Production Completion: status/PRODUCTION_COMPLETION_REPORT.md
+    - MVP Demonstration: status/MVP_DEMONSTRATION_RESULTS.md
+    - Milestone Assessment: status/MILESTONE_ASSESSMENT.md
+    - v2.0.0 Release: status/2025-10-22-v2.0.0-release.md
+
+  - Patterns & Decisions:
     - Overview: decisions/README.md
     - Documentation Quality Gates: decisions/001-documentation-quality-gates.md
+    - Schema Mapping Improvements: schema_mapping_improvements.md
+
+  - Archive:
+    - Planning: archive/planning/README.md
 
 markdown_extensions:
   - pymdownx.highlight:

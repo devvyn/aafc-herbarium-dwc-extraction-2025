@@ -164,7 +164,7 @@ python scripts/setup_s3_access.py --bucket <name> --explore    # Dataset explora
 ## 📚 Academic Documentation and Dissemination
 
 ### **Technical Documentation Created**
-- **[REPRODUCIBLE_IMAGES_SUMMARY.md](../REPRODUCIBLE_IMAGES_SUMMARY.md)**: Complete implementation and usage guide
+- **[REPRODUCIBLE_IMAGES_SUMMARY.md](status/REPRODUCIBLE_IMAGES_SUMMARY.md)**: Complete implementation and usage guide
 - **[docs/reproducible_image_access.md](reproducible_image_access.md)**: Detailed setup and methodology documentation
 - **[config/image_sources.toml](../config/image_sources.toml)**: Standardized configuration framework
 - **README.md Integration**: Accessible documentation for research community adoption

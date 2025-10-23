@@ -294,7 +294,7 @@ python review_web.py --db results/candidates.db --images photos/ --port 8081
 ### Documentation Provided
 
 #### User Guides
-- **[README.md](../README.md)**: Quick start for new users
+- **[README.md](index.md)**: Quick start for new users
 - **[User Guide](user_guide.md)**: Detailed workflow instructions
 - **[FAQ](faq.md)**: Common questions and answers
 - **[Troubleshooting](troubleshooting.md)**: Problem resolution
@@ -307,8 +307,8 @@ python review_web.py --db results/candidates.db --images photos/ --port 8081
 
 #### Research Documentation
 - **[OCR Analysis](research/COMPREHENSIVE_OCR_ANALYSIS.md)**: Accuracy validation
-- **[Methodology](research/README.md)**: Scientific approach
-- **[Reproducibility](../REPRODUCIBLE_IMAGES_SUMMARY.md)**: Testing framework
+- **[Methodology](research_contributions.md)**: Scientific approach
+- **[Reproducibility](status/REPRODUCIBLE_IMAGES_SUMMARY.md)**: Testing framework
 
 ---
 

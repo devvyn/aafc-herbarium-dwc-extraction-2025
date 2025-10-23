@@ -20,7 +20,7 @@ Strategic priorities for the herbarium OCR to Darwin Core toolkit.
   - **Impact**: Enables reproducible testing, collaborative research, and standardized benchmarking across institutions
   - **Components**: S3 integration, automated categorization, test bundle generation, public accessibility framework
   - **Academic Value**: Provides standardized research methodology for herbarium digitization quality assessment
-  - **Documentation**: [REPRODUCIBLE_IMAGES_SUMMARY.md](../REPRODUCIBLE_IMAGES_SUMMARY.md)
+  - **Documentation**: [REPRODUCIBLE_IMAGES_SUMMARY.md](status/REPRODUCIBLE_IMAGES_SUMMARY.md)
 
 ## Immediate Priorities - Stakeholder Focused
 
@@ -69,7 +69,7 @@ This script keeps the roadmap synchronized with GitHub Projects for automated ag
 - **Audit trail for import steps** with explicit user sign-off ([#193](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/193))
 - **Add evaluation harness** for GPT prompt template coverage ([#195](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/issues/195))
 
-For a complete feature history, see [CHANGELOG.md](../CHANGELOG.md).
+For a complete feature history, see [CHANGELOG.md](changelog.md).
 
 ## Project Organization
 

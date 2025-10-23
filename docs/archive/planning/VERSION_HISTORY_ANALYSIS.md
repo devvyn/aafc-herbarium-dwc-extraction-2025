@@ -400,4 +400,4 @@ The version "chaos" was actually the team **finding the right strategy** - and t
 - [Keep a Changelog](https://keepachangelog.com/)
 - [RELEASE_PROCESS.md](./RELEASE_PROCESS.md) - How to release
 - [PRE_RELEASE_VERSIONING.md](./PRE_RELEASE_VERSIONING.md) - Alpha/beta/rc criteria
-- [CHANGELOG.md](../CHANGELOG.md) - Full version history
+- [CHANGELOG.md](../../changelog.md) - Full version history

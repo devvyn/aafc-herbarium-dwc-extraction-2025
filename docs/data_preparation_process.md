@@ -133,7 +133,7 @@ graph TD
 ### **Related Project Documentation**
 - **[Research Contributions](research_contributions.md)**: Complete academic context and methodology
 - **[Reproducible Image Access](reproducible_image_access.md)**: Technical implementation details
-- **[REPRODUCIBLE_IMAGES_SUMMARY.md](../REPRODUCIBLE_IMAGES_SUMMARY.md)**: Comprehensive implementation summary
+- **[REPRODUCIBLE_IMAGES_SUMMARY.md](status/REPRODUCIBLE_IMAGES_SUMMARY.md)**: Comprehensive implementation summary
 
 ### **Technical Implementation**
 - **Discovery Tools**: `scripts/setup_s3_access.py` for automated dataset configuration

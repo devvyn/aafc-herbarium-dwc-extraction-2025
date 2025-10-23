@@ -228,9 +228,9 @@ See `config/config.s3-cached.toml` for S3 with caching example.
 
 ## 📖 Documentation
 
-- [Storage Abstraction Guide](docs/STORAGE_ABSTRACTION.md)
+- [Storage Abstraction Guide](STORAGE_ABSTRACTION.md)
 - [Configuration Reference](config/config.default.toml)
-- [Architecture Documentation](docs/architecture/)
+- [Architecture Documentation](architecture/)
 
 ## 🐛 Known Issues
 

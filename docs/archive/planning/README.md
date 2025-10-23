@@ -21,7 +21,7 @@ This directory contains internal planning, research, and historical analysis doc
 These documents were useful during v0.x and v1.x development but are now superseded by:
 - **Current documentation**: See main [docs/README.md](../README.md)
 - **Release process**: See [docs/RELEASE_PROCESS.md](../RELEASE_PROCESS.md)
-- **Version history**: See [CHANGELOG.md](../../CHANGELOG.md)
+- **Version history**: See [CHANGELOG.md](../../changelog.md)
 
 ## For Historical Reference Only
 

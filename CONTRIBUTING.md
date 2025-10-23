@@ -19,7 +19,7 @@ git diff --check
 
 **Why?** Catches 95% of issues before CI runs. See complete checklist: [.github/PRE_COMMIT_CHECKLIST.md](.github/PRE_COMMIT_CHECKLIST.md)
 
-Review [docs/development.md](docs/development.md) for development conventions and consult the [roadmap](docs/roadmap.md) for open tasks and priorities.
+Review [development.md](docs/development.md) for development conventions and consult the [roadmap](docs/roadmap.md) for open tasks and priorities.
 
 ## Spec-Driven Development Workflow
 
@@ -126,9 +126,8 @@ All PRs must include:
 - **Performance Impact**: Note any performance implications
 
 ### 7. Documentation Integration
-- Central index: [SPECIFICATIONS.md](SPECIFICATIONS.md)
-- Historical patterns: [INTER_AGENT_MEMO.md](INTER_AGENT_MEMO.md)
-- Architecture decisions: [ARCHITECTURE.md](ARCHITECTURE.md)
+- Central index: [SPECIFICATIONS.md](docs/architecture/SPECIFICATIONS.md)
+- Architecture decisions: [ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md)
 - Retroactive specifications: [.specify/retro-specs/](.specify/retro-specs/)
 - Specification templates: [.specify/templates/](.specify/templates/)
 

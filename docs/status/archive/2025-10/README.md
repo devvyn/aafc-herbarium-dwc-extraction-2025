@@ -26,4 +26,4 @@ These documents represent the v1.x development phase, focusing on:
 For current project status, see:
 - **[../2025-10-22-v2.0.0-release.md](../2025-10-22-v2.0.0-release.md)** - v2.0.0 release summary
 - **[../../RELEASE_2_0_PLAN.md](../../RELEASE_2_0_PLAN.md)** - v2.0.0 release plan
-- **[../../CHANGELOG.md](../../CHANGELOG.md)** - Complete version history
+- **[CHANGELOG.md](../../../changelog.md)** - Complete version history
