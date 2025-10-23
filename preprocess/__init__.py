@@ -135,7 +135,7 @@ def resize(image: Image.Image, max_dim: int) -> Image.Image:
         return image
     scale = max_dim / float(max_current)
     new_size = (int(w * scale), int(h * scale))
-    return image.resize(new_size, Image.LANCZOS)
+    return image.resize(new_size, Image.Resampling.LANCZOS)
 
 
 def preprocess_image(path: Path, cfg: Dict[str, Any]) -> Path:
