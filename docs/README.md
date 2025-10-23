@@ -18,7 +18,7 @@ Welcome to the AAFC Herbarium OCR documentation. This system helps you extract s
 
 ### **Core Concepts**
 - **[Architecture Overview](../ARCHITECTURE.md)** - Extraction vs Curation layers
-- **[Specimen Provenance Architecture](SPECIMEN_PROVENANCE_ARCHITECTURE.md)** - v2.0.0 lineage tracking ⭐
+- **[Specimen Provenance Architecture](specimen_provenance_architecture.md)** - v2.0.0 lineage tracking ⭐
 - **[Terminology Guide](../TERMINOLOGY_GUIDE.md)** - Clear definitions of confusing terms
 - **[Data Flow](data_flow.md)** - Images → OCR → Review → Export
 
