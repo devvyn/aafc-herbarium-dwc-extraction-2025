@@ -38,9 +38,9 @@ graph LR
 
     ---
 
-    2,885 specimens extracted
+    500 specimens baseline @ 98% quality
 
-    98%+ quality baseline achieved
+    2,885 photos ready for processing
 
 -   :earth_africa: __GBIF Ready__
 
@@ -98,10 +98,12 @@ python scripts/export_dwc_archive.py --input results/ --output dwc-archive/
 
 ### Impact
 
-| Provider | Coverage | Cost | Status |
-|----------|----------|------|--------|
-| OpenAI GPT-4o-mini | 98% | $10.55 | Baseline |
-| **OpenRouter FREE** | **100%** | **$0.00** | **Winner** :trophy: |
+| Provider | Specimens | Coverage | Actual Cost | Status |
+|----------|-----------|----------|-------------|--------|
+| OpenAI GPT-4o-mini | 500 | 98% | $1.85 | Baseline |
+| **OpenRouter FREE** | **20** | **100%** | **$0.00** | **Winner** :trophy: |
+
+*Note: Estimated cost for 2,885 specimens: ~$10.67 GPT-4o-mini, $0 OpenRouter FREE*
 
 [:octicons-tag-24: View release notes](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/blob/main/CHANGELOG.md)
 
@@ -154,17 +156,21 @@ _Architecture documentation coming soon_
 
 ## :chart_with_upwards_trend: Research Results
 
-### Production Extraction (2,885 Specimens)
+### Phase 1 Baseline Quality Assessment
 
-**Phase 1 Baseline (OpenAI GPT-4o-mini):**
+**Dataset:** 500 specimens from 2,885-photo AAFC collection
+
+**OpenAI GPT-4o-mini Baseline:**
 - 98.0% scientificName coverage (490/500)
 - 95.4% catalogNumber coverage (477/500)
-- Cost: $1.85 per 500 specimens
+- Actual cost: $1.85 ($0.0037 per specimen)
+- Model: gpt-4o-mini (vision)
 
-**OpenRouter FREE (Qwen 2.5 VL 72B):**
-- 100% scientificName coverage (20/20 validation)
+**OpenRouter FREE Validation (20 Specimens):**
+- 100% scientificName coverage (20/20)
 - Better quality than paid baseline
-- Cost: $0.00
+- Actual cost: $0.00
+- Model: Qwen 2.5 VL 72B (free tier)
 
 !!! success "Key Finding"
     FREE open-source models (Qwen 2.5 VL 72B) outperform paid commercial APIs (GPT-4o-mini) for herbarium extraction.
@@ -237,13 +243,13 @@ _Quality analysis documentation coming soon_
 
 **Challenge:** Digitize 2,885 herbarium specimens for GBIF publication
 
-**Solution:** Multi-provider extraction with FREE models
+**Approach:** Multi-provider extraction comparison
 
-**Results:**
-- 100% scientificName coverage
-- $0.00 total cost
+**Validation Results (500-specimen baseline + 20-specimen FREE validation):**
+- 98-100% scientificName coverage
+- $1.85 actual cost (baseline), $0 with FREE models
+- Scalable to full 2,885-specimen collection
 - Complete provenance for scientific publication
-- Ready for Canadensys IPT upload
 
 _Case study documentation coming soon_
 
@@ -285,8 +291,9 @@ MIT License - Free for research, commercial, and institutional use
 
 ### :rocket: Production Status
 
-✅ 2,885 specimens extracted
-✅ Ground truth validation complete
+✅ 500-specimen quality baseline complete (98% accuracy)
+✅ FREE model validation complete (100% on 20 specimens)
+✅ 2,885 photos ready for full-scale processing
 ✅ GBIF publication workflow documented
 ✅ Multi-provider architecture shipped (v1.1.0)
 
