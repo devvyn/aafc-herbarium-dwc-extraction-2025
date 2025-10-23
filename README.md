@@ -2,7 +2,7 @@
 
 **Production-ready toolkit for extracting Darwin Core metadata from herbarium specimen images**
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/releases)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/releases/tag/v2.0.0)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Documentation](https://img.shields.io/badge/docs-online-brightgreen.svg)](https://aafc.devvyn.ca)

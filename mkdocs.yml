@@ -4,6 +4,7 @@ site_url: https://aafc.devvyn.ca
 repo_url: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025
 repo_name: GitHub
 edit_uri: edit/main/docs/
+docs_dir: docs
 
 theme:
   name: material
@@ -167,6 +168,9 @@ markdown_extensions:
 plugins:
   - search:
       lang: en
+  - macros:
+      module_name: docs/macros
+      include_dir: .
   - git-revision-date-localized:
       enable_creation_date: true
       type: timeago
