@@ -12,7 +12,7 @@ from ..protocols import ImageToTextEngine
 try:  # optional dependency
     from openai import OpenAI  # type: ignore
 except Exception:  # pragma: no cover
-    OpenAI = None
+    OpenAI: type | None = None  # Explicit: OpenAI may be None if not installed
 
 
 def load_messages(task: str, prompt_dir: Optional[Path] = None) -> List[Dict[str, str]]:

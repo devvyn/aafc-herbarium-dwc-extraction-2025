@@ -873,6 +873,7 @@ try:  # optional dependency
                 raise typer.Exit(1)
 
         # Verify raw.jsonl exists
+        # Note: extraction_dir guaranteed non-None here (would have exited above)
         if not (extraction_dir / "raw.jsonl").exists():
             typer.echo(f"❌ No raw.jsonl found in {extraction_dir}", err=True)
             raise typer.Exit(1)

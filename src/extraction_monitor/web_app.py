@@ -103,7 +103,7 @@ def create_app() -> Flask:
         if not run_dir:
 
             def error_stream():
-                yield f'data: {json.dumps({"error": "No extraction runs found"})}\n\n'
+                yield f"data: {json.dumps({'error': 'No extraction runs found'})}\n\n"
 
             return Response(error_stream(), mimetype="text/event-stream")
 
