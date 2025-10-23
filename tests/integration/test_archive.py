@@ -53,7 +53,7 @@ def test_zip_archive_contains_required_files(tmp_path: Path) -> None:
 
         manifest = json.loads(zf.read("manifest.json"))
         assert manifest["filters"] == {"foo": "bar"}
-        assert "commit" in manifest
+        assert "git_commit" in manifest
         assert "timestamp" in manifest
 
 
@@ -64,5 +64,5 @@ def test_manifest_written(tmp_path: Path) -> None:
     assert manifest_path.exists()
     manifest = json.loads(manifest_path.read_text())
     assert manifest["filters"] == {"basisOfRecord": "specimen"}
-    assert "commit" in manifest
+    assert "git_commit" in manifest
     assert "timestamp" in manifest
