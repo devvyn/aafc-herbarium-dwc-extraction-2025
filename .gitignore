@@ -307,3 +307,8 @@ full_dataset_processing/*/*.db
 !published/**/README.md
 !published/**/metadata.json
 !published/**/DATA_DOI.txt
+
+# Session planning (temporary working files - not for version control)
+TOMORROW_SESSION_PLAN.md
+*SESSION_PLAN.md
+*.STALE
