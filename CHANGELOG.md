@@ -264,11 +264,11 @@ This patch release prepares the production baseline (v1.1.x-stable) before begin
 
 #### Production Results
 
-- 📊 **Full Dataset Extraction**
-  - 2,885 herbarium specimens processed
-  - 100% scientificName coverage (OpenRouter FREE models)
-  - 98% baseline quality (OpenAI GPT-4o-mini comparison)
-  - $0.00 total cost with open-source models
+- 📊 **Quality Baseline & FREE Model Validation**
+  - Phase 1: 500 specimens @ 98% scientificName coverage (OpenAI GPT-4o-mini, $1.85)
+  - Validation: 20 specimens @ 100% coverage (OpenRouter FREE, $0.00)
+  - Dataset: 2,885 photos ready for full-scale processing
+  - Validates FREE models outperform paid baseline
   - Complete provenance tracking for scientific publication
 
 - 📁 **Evidence Committed**
@@ -328,14 +328,15 @@ None - fully backward compatible with v1.0.0
 
 ### 🎉 Production Release - AAFC Herbarium Dataset
 
-**Major Achievement:** Complete extraction of 2,885 herbarium specimens with Darwin Core metadata
+**Major Achievement:** 2,885 specimen photos processed, quality baseline established
 
 #### Added - v1.0 Deliverables
 - 📦 **Production Dataset** (`deliverables/v1.0_vision_api_baseline.jsonl`)
-  - 2,885 herbarium specimens extracted
-  - 7 Darwin Core fields: catalogNumber, scientificName, eventDate, recordedBy, locality, stateProvince, country
+  - 2,885 herbarium photos processed with Apple Vision API
+  - **Quality: 5.5% scientificName coverage (FAILED - replaced in v1.1.0)**
+  - 7 Darwin Core fields attempted
   - Apple Vision API (FREE) + rules engine
-  - Total cost: $0
+  - Total cost: $0 (but unusable quality)
 
 - ✅ **Ground Truth Validation** (`deliverables/validation/human_validation.jsonl`)
   - 20 specimens manually validated
@@ -378,12 +379,12 @@ None - fully backward compatible with v1.0.0
   - Config override pattern (branch-specific configurations)
   - Parallel development enabled (v2-extraction + agent-orchestration branches)
 
-#### Quality Metrics - v1.0 Baseline
+#### Quality Metrics - v1.0 Apple Vision (DEPRECATED)
+- **ScientificName coverage:** 5.5% (159/2,885) - FAILED
+- **Status:** Replaced by GPT-4o-mini/OpenRouter approach in v1.1.0
 - **Exact matches:** 0% (on 20-specimen validation)
 - **Partial matches:** ~10-15%
-- **ScientificName coverage:** 5.5% (159/2,885 specimens)
-- **CatalogNumber coverage:** 50%
-- **Known limitations:** OCR accuracy on handwritten labels, missing 9 fields
+- **Known limitations:** OCR accuracy insufficient for production use
 
 #### v2.0 Preview (In Progress)
 - **16 Darwin Core fields** (9 additional: habitat, elevation, recordNumber, identifiedBy, etc.)
