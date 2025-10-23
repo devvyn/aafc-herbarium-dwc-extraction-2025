@@ -239,7 +239,7 @@ python cli.py process --engines azure,google \
   --input photos/ --output results/
 ```
 
-**See**: [docs/CLOUD_API_SETUP.md](CLOUD_API_SETUP.md#1--microsoft-azure-computer-vision-recommended-for-windows) for detailed setup
+**See**: [docs/CLOUD_API_SETUP.md](CLOUD_API_SETUP.md#1-microsoft-azure-computer-vision-recommended-for-windows) for detailed setup
 
 ---
 
@@ -280,7 +280,7 @@ python cli.py check-deps --engines google
 
 **Best For**: Linux users, high-reliability needs, institutional deployments
 
-**See**: [docs/CLOUD_API_SETUP.md](CLOUD_API_SETUP.md#2--google-vision-api) for detailed setup
+**See**: [docs/CLOUD_API_SETUP.md](CLOUD_API_SETUP.md#2-google-vision-api) for detailed setup
 
 ---
 
@@ -316,7 +316,7 @@ python cli.py check-deps --engines gemini
 
 **Best For**: Difficult specimens, scientific term accuracy, moderate-budget projects
 
-**See**: [docs/CLOUD_API_SETUP.md](CLOUD_API_SETUP.md#4--google-gemini-vision) for detailed setup
+**See**: [docs/CLOUD_API_SETUP.md](CLOUD_API_SETUP.md#4-google-gemini-vision) for detailed setup
 
 ---
 
@@ -354,7 +354,7 @@ python cli.py check-deps --engines claude
 
 **Best For**: Publication-quality data, difficult specimens, when accuracy matters more than cost
 
-**See**: [docs/CLOUD_API_SETUP.md](CLOUD_API_SETUP.md#6--anthropic-claude-vision) for detailed setup
+**See**: [docs/CLOUD_API_SETUP.md](CLOUD_API_SETUP.md#6-anthropic-claude-vision) for detailed setup
 
 ---
 
