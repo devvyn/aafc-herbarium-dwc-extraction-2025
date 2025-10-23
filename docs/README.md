@@ -10,7 +10,7 @@ Welcome to the AAFC Herbarium OCR documentation. This system helps you extract s
 3. **[Architecture](../ARCHITECTURE.md)** - Understand the dual-layer design
 
 ### Ready to Process Images?
-1. **[Installation Guide](installation.md)** - Set up your environment
+1. **[Installation Guide](getting-started/installation.md)** - Set up your environment
 2. **[Quick Start Examples](quickstart_examples.md)** - Common workflows
 3. **[OCR Engine Guide](ocr_engines.md)** - Apple Vision, GPT-4, and others
 
@@ -20,7 +20,6 @@ Welcome to the AAFC Herbarium OCR documentation. This system helps you extract s
 - **[Architecture Overview](../ARCHITECTURE.md)** - Extraction vs Curation layers
 - **[Specimen Provenance Architecture](specimen_provenance_architecture.md)** - v2.0.0 lineage tracking ⭐
 - **[Terminology Guide](../TERMINOLOGY_GUIDE.md)** - Clear definitions of confusing terms
-- **[Data Flow](data_flow.md)** - Images → OCR → Review → Export
 
 ### **Usage Guides**
 - **[Usage Modes](../USAGE_MODES.md)** - Quick, Research, Production, Hybrid modes
@@ -34,13 +33,13 @@ Welcome to the AAFC Herbarium OCR documentation. This system helps you extract s
 
 ### **Advanced Features**
 - **[Export Formats](export_and_reporting.md)** - Darwin Core, GBIF, custom formats
-- **[Cloud APIs](cloud_apis.md)** - Google Vision, Azure, AWS Textract setup
+- **[Cloud APIs](CLOUD_API_SETUP.md)** - Google Vision, Azure, AWS Textract setup
 - **[Troubleshooting](troubleshooting.md)** - Common issues and solutions
 
 ### **Development**
 - **[Contributing](../CONTRIBUTING.md)** - How to contribute to the project
 - **[Testing](testing.md)** - Running tests and adding new ones
-- **[Release Process](releases.md)** - Version management and deployment
+- **[Release Process](RELEASE_PROCESS.md)** - Version management and deployment
 
 ### **Release Documentation (v2.0.0+)**
 - **[v2.0.0 Release Plan](RELEASE_2_0_PLAN.md)** - Migration strategy and timeline
