@@ -1,0 +1,139 @@
+name: Documentation Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/docs-validation.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+
+jobs:
+  validate-links:
+    runs-on: ubuntu-latest
+    name: Validate Documentation Links
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: uv sync
+
+    - name: Build docs with strict validation
+      run: |
+        uv run mkdocs build --strict --site-dir /tmp/site
+      continue-on-error: false
+
+    - name: Validate internal links with htmlproofer
+      env:
+        ENABLE_HTMLPROOFER: true
+      run: |
+        uv run mkdocs build --site-dir /tmp/site-validated
+      continue-on-error: false
+
+    - name: Install ripgrep
+      run: sudo apt-get update && sudo apt-get install -y ripgrep
+
+    - name: Extract external URLs from markdown
+      run: |
+        # Extract all external URLs from markdown files using ripgrep
+        echo "Extracting external URLs from documentation..."
+        rg -o 'https?://[^)}\s]*' docs/ --no-heading | \
+          grep -v 'github.com/devvyn/aafc-herbarium-dwc-extraction-2025' | \
+          sort -u > /tmp/external-urls.txt
+
+        echo "Found $(wc -l < /tmp/external-urls.txt) unique external URLs"
+        cat /tmp/external-urls.txt
+
+    - name: Validate external URLs with HTTP HEAD requests
+      run: |
+        echo "Validating external URLs..."
+        failed=0
+
+        while IFS= read -r url; do
+          # Skip empty lines
+          [ -z "$url" ] && continue
+
+          echo -n "Checking $url ... "
+
+          # Use curl with HEAD request, follow redirects, timeout after 10s
+          if curl -I -L -f -s -m 10 "$url" > /dev/null 2>&1; then
+            echo "✅ OK"
+          else
+            echo "❌ FAILED"
+            failed=$((failed + 1))
+          fi
+        done < /tmp/external-urls.txt
+
+        if [ $failed -gt 0 ]; then
+          echo "❌ $failed external URL(s) failed validation"
+          exit 1
+        else
+          echo "✅ All external URLs validated successfully"
+        fi
+
+  validate-nav-coverage:
+    runs-on: ubuntu-latest
+    name: Check Navigation Coverage
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Check for orphaned documentation files
+      run: |
+        echo "Checking for documentation files not in navigation..."
+
+        # Extract files listed in mkdocs.yml nav
+        nav_files=$(grep -E '^\s+-\s+.*:\s+.*\.md$' mkdocs.yml | \
+          sed -E 's/.*:\s+//' | sort)
+
+        # Find all markdown files in docs/
+        all_files=$(find docs/ -name '*.md' -type f | \
+          sed 's|^docs/||' | sort)
+
+        # Find orphaned files (excluding README.md which conflicts with index.md)
+        orphaned=$(comm -23 \
+          <(echo "$all_files" | grep -v 'README.md') \
+          <(echo "$nav_files"))
+
+        if [ -n "$orphaned" ]; then
+          echo "⚠️ Warning: $(echo "$orphaned" | wc -l) documentation files not in navigation:"
+          echo "$orphaned"
+          echo ""
+          echo "These files won't be validated or deployed."
+          echo "Consider adding them to mkdocs.yml nav or moving to archive/."
+        else
+          echo "✅ All documentation files are in navigation"
+        fi
+
+  quality-gate:
+    runs-on: ubuntu-latest
+    name: Documentation Quality Gate
+    needs: [validate-links, validate-nav-coverage]
+    if: always()
+
+    steps:
+    - name: Check all jobs passed
+      run: |
+        echo "Link Validation: ${{ needs.validate-links.result }}"
+        echo "Nav Coverage: ${{ needs.validate-nav-coverage.result }}"
+
+        if [ "${{ needs.validate-links.result }}" != "success" ]; then
+          echo "❌ Link validation failed"
+          exit 1
+        fi
+
+        echo "✅ Documentation validation passed!"

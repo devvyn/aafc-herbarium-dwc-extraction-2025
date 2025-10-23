@@ -75,6 +75,11 @@ plugins:
   - git-revision-date-localized:
       enable_creation_date: true
       type: timeago
+  - htmlproofer:
+      enabled: !ENV [ENABLE_HTMLPROOFER, false]
+      validate_external_urls: false
+      validate_rendered_template: true
+      raise_error: true
 
 extra:
   version:
