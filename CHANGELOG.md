@@ -3,7 +3,7 @@
 ## [Unreleased]
 
 ### Changed
-- **CI/Type Checking**: Replaced mypy with Astral's ty type checker ([#223](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/pull/223))
+- **CI/Type Checking**: Replaced mypy with Astral's ty type checker ([PR #223](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/pull/223))
   - Completes Astral toolchain: uv (package management) + ruff (linting) + ty (type checking)
   - 100x+ faster than mypy, zero installation overhead (uvx)
   - Phased rollout: CI integration complete, fixing remaining type issues incrementally
