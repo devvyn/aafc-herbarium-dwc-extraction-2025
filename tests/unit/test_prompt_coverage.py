@@ -159,15 +159,15 @@ def test_prompt_content_quality() -> None:
 
         # Check minimum content length
         min_length = MIN_CONTENT_LENGTH.get(task, 0)
-        assert (
-            len(content) >= min_length
-        ), f"Task '{task}' content too short: {len(content)} < {min_length}"
+        assert len(content) >= min_length, (
+            f"Task '{task}' content too short: {len(content)} < {min_length}"
+        )
 
         # Check for empty messages
         for i, message in enumerate(messages):
-            assert message[
-                "content"
-            ].strip(), f"Task '{task}' message {i} ({message['role']}) is empty"
+            assert message["content"].strip(), (
+                f"Task '{task}' message {i} ({message['role']}) is empty"
+            )
 
 
 def test_custom_prompt_directory() -> None:

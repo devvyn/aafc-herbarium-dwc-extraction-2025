@@ -79,8 +79,7 @@ def capture_git_provenance() -> dict:
 
             if git_info["git_dirty"]:
                 logger.warning(
-                    "Processing with uncommitted changes! "
-                    "Consider committing for reproducibility."
+                    "Processing with uncommitted changes! Consider committing for reproducibility."
                 )
         except (subprocess.CalledProcessError, FileNotFoundError):
             pass
@@ -227,7 +226,7 @@ def validate_reproducibility(manifest_path: Path) -> tuple[bool, list[str]]:
     manifest_python = manifest.get("system", {}).get("python_version")
     if manifest_python and manifest_python != current_python:
         warnings.append(
-            f"Python version mismatch: " f"current={current_python}, manifest={manifest_python}"
+            f"Python version mismatch: current={current_python}, manifest={manifest_python}"
         )
 
     is_valid = len(warnings) == 0
