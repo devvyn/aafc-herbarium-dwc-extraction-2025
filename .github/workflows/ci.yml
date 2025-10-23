@@ -219,14 +219,14 @@ jobs:
           exit 1
         fi
 
-        # Temporarily allow test failures (pre-existing on main)
-        # TODO: Remove after fixing test suite
         if [ "${{ needs.test-unit.result }}" != "success" ]; then
-          echo "⚠️ Unit tests failed (known issue - pre-existing on main)"
+          echo "❌ Unit tests failed"
+          exit 1
         fi
 
         if [ "${{ needs.test-integration.result }}" != "success" ]; then
-          echo "⚠️ Integration tests failed (known issue - pre-existing on main)"
+          echo "❌ Integration tests failed"
+          exit 1
         fi
 
         if [ "${{ needs.test-slash-commands.result }}" != "success" ]; then
