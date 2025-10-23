@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+### Changed
+- **CI/Type Checking**: Replaced mypy with Astral's ty type checker ([#223](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/pull/223))
+  - Completes Astral toolchain: uv (package management) + ruff (linting) + ty (type checking)
+  - 100x+ faster than mypy, zero installation overhead (uvx)
+  - Phased rollout: CI integration complete, fixing remaining type issues incrementally
+  - See `[tool.ty]` in pyproject.toml for configuration and status
+
+### Fixed
+- **Type Safety**: Fixed 9 type safety issues found by ty
+  - `Image.LANCZOS` deprecation → `Image.Resampling.LANCZOS`
+  - Missing `List` import in dwc/archive.py
+  - OpenAI optional dependency shadowing
+  - Path type narrowing in cli.py
+- **CI**: Fixed 22 ruff linting errors (unused variables, missing imports, boolean comparisons)
+- **Dependencies**: Synced uv.lock to match pyproject.toml version 2.0.0
+
 ### Future Development
 - 🔮 16 Darwin Core fields (9 additional: habitat, elevation, recordNumber, etc.)
 - 🔮 Layout-aware prompts (TOP vs BOTTOM label distinction)
