@@ -18,6 +18,14 @@ repos:
         files: ^(docs/.*\.md|mkdocs\.yml)$
         description: Validates all documentation links (warnings shown but not blocking)
 
+      - id: check-doc-links
+        name: Check for absolute documentation URLs
+        entry: .github/scripts/check-doc-links.sh
+        language: system
+        pass_filenames: false
+        files: \.md$
+        description: Prevents absolute aafc.devvyn.ca URLs (use relative links instead)
+
   # Python code quality (existing tools)
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.9

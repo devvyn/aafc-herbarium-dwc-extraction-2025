@@ -21,6 +21,50 @@ git diff --check
 
 Review [development.md](docs/development.md) for development conventions and consult the [roadmap](docs/roadmap.md) for open tasks and priorities.
 
+## Documentation Linking Rules
+
+When writing documentation, use **relative markdown links** to reference other docs:
+
+### ✅ Correct - Relative Links
+```markdown
+[Release Plan](RELEASE_2_0_PLAN.md)
+[Architecture](architecture/ARCHITECTURE.md)
+[User Guide](../user_guide.md)
+```
+
+### ❌ Incorrect - Absolute URLs
+```markdown
+# Don't use absolute site URLs to internal docs:
+[Plan](https://your-site.com/docs/some-file.md)  ← WRONG
+
+# Don't use docs/ prefix in relative links:
+[Plan](docs/some-file.md)                        ← WRONG
+```
+
+### Why This Matters
+
+MkDocs automatically converts relative links to clean URLs:
+- `docs/RELEASE_2_0_PLAN.md` → `https://aafc.devvyn.ca/RELEASE_2_0_PLAN/`
+- `docs/user_guide.md` → `https://aafc.devvyn.ca/user_guide/`
+
+Absolute URLs break when:
+- Files are renamed or moved
+- Directory structure changes
+- Site domain changes
+
+### Testing Links Locally
+
+Before committing, test your documentation links:
+
+```bash
+# Start local docs server
+uv run mkdocs serve
+
+# Visit http://127.0.0.1:8000 and click all links
+```
+
+Pre-commit hooks automatically check for absolute URLs and will block commits that violate this rule.
+
 ## Spec-Driven Development Workflow
 
 This project follows **spec-driven development** using GitHub's spec-kit. All new features must follow this workflow:
