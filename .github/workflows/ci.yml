@@ -90,7 +90,7 @@ jobs:
           --durations=10
 
     - name: Upload coverage to artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-unit
         path: coverage.xml
@@ -184,7 +184,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Download coverage artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: coverage-unit
 
