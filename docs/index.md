@@ -150,7 +150,7 @@ graph TD
     G --> H[GBIF Export]
 ```
 
-_Architecture documentation coming soon_
+[:octicons-arrow-right-24: Architecture overview](architecture/ARCHITECTURE.md) · [:octicons-arrow-right-24: Data access layer](architecture/DATA_ACCESS_OVERVIEW.md)
 
 ---
 
@@ -175,7 +175,7 @@ _Architecture documentation coming soon_
 !!! success "Key Finding"
     FREE open-source models (Qwen 2.5 VL 72B) outperform paid commercial APIs (GPT-4o-mini) for herbarium extraction.
 
-_Quality analysis documentation coming soon_
+[:octicons-arrow-right-24: Research methodology](research/README.md) · [:octicons-arrow-right-24: OCR analysis](research/COMPREHENSIVE_OCR_ANALYSIS.md) · [:octicons-arrow-right-24: Run analysis](extraction_run_analysis_20250930.md)
 
 ---
 
@@ -197,7 +197,7 @@ _Quality analysis documentation coming soon_
 
     Processing workflows, review interface, GBIF export
 
-    _Documentation coming soon_
+    [:octicons-arrow-right-24: User guide](user_guide.md) · [:octicons-arrow-right-24: Workflows](workflow_examples.md)
 
 -   :material-flask: __Research__
 
@@ -205,7 +205,7 @@ _Quality analysis documentation coming soon_
 
     Methodology, quality analysis, cost comparisons
 
-    _Documentation coming soon_
+    [:octicons-arrow-right-24: Research overview](research/README.md) · [:octicons-arrow-right-24: OCR analysis](research/COMPREHENSIVE_OCR_ANALYSIS.md)
 
 -   :material-code-braces: __Developer Guide__
 
@@ -213,7 +213,7 @@ _Quality analysis documentation coming soon_
 
     Architecture, API reference, contributing
 
-    _Documentation coming soon_
+    [:octicons-arrow-right-24: Development guide](development.md) · [:octicons-arrow-right-24: Architecture](architecture/ARCHITECTURE.md)
 
 </div>
 
@@ -251,7 +251,7 @@ _Quality analysis documentation coming soon_
 - Scalable to full 2,885-specimen collection
 - Complete provenance for scientific publication
 
-_Case study documentation coming soon_
+[:octicons-arrow-right-24: AAFC case study](status/PRODUCTION_COMPLETION_REPORT.md) · [:octicons-arrow-right-24: Research contributions](research_contributions.md)
 
 ---
 
