@@ -20,7 +20,7 @@ def download_with_aws_cli(s3_paths, output_dir):
 
             print(f"📥 Downloading image {i+1}/{len(s3_paths)}...")
 
-            result = subprocess.run(
+            subprocess.run(
                 ["aws", "s3", "cp", s3_path, str(filepath)],
                 capture_output=True,
                 text=True,
@@ -65,7 +65,7 @@ def main():
     start_time = time.time()
 
     try:
-        result = subprocess.run(
+        subprocess.run(
             [
                 "python",
                 "cli.py",

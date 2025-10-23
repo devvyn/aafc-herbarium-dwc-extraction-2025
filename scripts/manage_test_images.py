@@ -186,12 +186,10 @@ def main():
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # List categories command
-    list_parser = subparsers.add_parser("list-categories", help="List available image categories")
+    subparsers.add_parser("list-categories", help="List available image categories")
 
     # List collections command
-    collections_parser = subparsers.add_parser(
-        "list-collections", help="List available sample collections"
-    )
+    subparsers.add_parser("list-collections", help="List available sample collections")
 
     # Create bundle command
     bundle_parser = subparsers.add_parser("create-bundle", help="Create a sample image bundle")

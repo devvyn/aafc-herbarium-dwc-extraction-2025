@@ -174,7 +174,7 @@ def test_launcher():
 
         # Test argument parsing
         try:
-            parser = parse_args.__globals__["argparse"].ArgumentParser(description="Test")
+            parse_args.__globals__["argparse"].ArgumentParser(description="Test")
             print("✅ Argument parsing setup works")
         except Exception as e:
             print(f"⚠️  Argument parsing issue: {e}")

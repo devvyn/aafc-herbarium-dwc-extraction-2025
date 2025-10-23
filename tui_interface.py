@@ -507,7 +507,7 @@ Transform herbarium specimen images into structured biodiversity data using stat
 
         # Export options
         version = Prompt.ask("📋 Archive version", default="1.0.0")
-        compress = Confirm.ask("🗜️ Create compressed archive?", default=True)
+        Confirm.ask("🗜️ Create compressed archive?", default=True)
 
         self.console.print(f"\n📦 Exporting {selected_dir} as v{version}...")
 

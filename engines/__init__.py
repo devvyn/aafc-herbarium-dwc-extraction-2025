@@ -160,7 +160,7 @@ def _register_default_fallbacks() -> None:
 _register_default_fallbacks()
 
 # Import built-in engines to trigger registration
-from . import rules  # noqa: F401 - imported for side effects (registration)
+from . import rules  # noqa: E402, F401 - imported for side effects (registration)
 
 __all__ = [
     "dispatch",

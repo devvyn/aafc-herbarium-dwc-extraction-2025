@@ -90,7 +90,7 @@ def main():
     parser.add_argument(
         "--fix", action="store_true", help="Automatically fix inconsistencies (not implemented)"
     )
-    args = parser.parse_args()
+    parser.parse_args()
 
     # Get canonical version
     try:

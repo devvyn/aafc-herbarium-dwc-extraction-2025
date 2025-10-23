@@ -207,12 +207,14 @@ def get_cache_stats(session: Session, run_id: str) -> Dict[str, int]:
 
     stats = {
         "total": len(lineages),
-        "cache_hits": sum(1 for l in lineages if l.cache_hit),
+        "cache_hits": sum(1 for lineage in lineages if lineage.cache_hit),
         "new_ocr": sum(
-            1 for l in lineages if not l.cache_hit and l.processing_status == "completed"
+            1
+            for lineage in lineages
+            if not lineage.cache_hit and lineage.processing_status == "completed"
         ),
-        "failed": sum(1 for l in lineages if l.processing_status == "failed"),
-        "skipped": sum(1 for l in lineages if l.processing_status == "skipped"),
+        "failed": sum(1 for lineage in lineages if lineage.processing_status == "failed"),
+        "skipped": sum(1 for lineage in lineages if lineage.processing_status == "skipped"),
     }
     stats["cache_hit_rate"] = stats["cache_hits"] / stats["total"] if stats["total"] > 0 else 0.0
     return stats

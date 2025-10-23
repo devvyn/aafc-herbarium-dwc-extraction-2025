@@ -8,19 +8,16 @@ from pathlib import Path
 
 def check_dependencies():
     """Check if required UI dependencies are available."""
+    import importlib.util
+
     missing = []
 
     # Check for TUI dependencies
-    try:
-        import rich
-    except ImportError:
+    if importlib.util.find_spec("rich") is None:
         missing.append("rich (for TUI): pip install rich")
 
     # Check for web dependencies
-    try:
-        import fastapi
-        import uvicorn
-    except ImportError:
+    if importlib.util.find_spec("fastapi") is None or importlib.util.find_spec("uvicorn") is None:
         missing.append("fastapi uvicorn (for web): pip install fastapi uvicorn jinja2")
 
     if missing:

@@ -129,7 +129,7 @@ def update_image_sources_config(
 
     # Read existing config
     with open(config_path, "rb") as f:
-        config = tomllib.load(f)
+        tomllib.load(f)
 
     # Generate URLs for each category (taking first 10 items as examples)
     updated_config = []

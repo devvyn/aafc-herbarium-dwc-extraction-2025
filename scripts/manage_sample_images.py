@@ -209,7 +209,7 @@ Examples:
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # List collections
-    list_parser = subparsers.add_parser("list", help="List available sample collections")
+    subparsers.add_parser("list", help="List available sample collections")
 
     # Create bundle
     create_parser = subparsers.add_parser("create-bundle", help="Create test image bundle")
@@ -217,7 +217,7 @@ Examples:
     create_parser.add_argument("--output", type=Path, required=True, help="Output directory")
 
     # Validate URLs
-    validate_parser = subparsers.add_parser("validate-urls", help="Validate all sample URLs")
+    subparsers.add_parser("validate-urls", help="Validate all sample URLs")
 
     args = parser.parse_args()
 

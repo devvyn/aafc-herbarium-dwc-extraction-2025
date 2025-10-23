@@ -119,7 +119,7 @@ class RealWorldOCRTester:
         if not ocr_engines["gpt_herbarium"]:
             return {"error": "GPT Herbarium engine not available"}
 
-        start_time = time.time()
+        time.time()
         try:
             # This would require API key setup
             return {

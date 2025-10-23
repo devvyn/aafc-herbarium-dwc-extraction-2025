@@ -106,7 +106,7 @@ class S3ImageSource(ImageSource):
 
         try:
             local_path.parent.mkdir(parents=True, exist_ok=True)
-            result = subprocess.run(
+            subprocess.run(
                 ["aws", "s3", "cp", s3_uri, str(local_path)],
                 capture_output=True,
                 text=True,

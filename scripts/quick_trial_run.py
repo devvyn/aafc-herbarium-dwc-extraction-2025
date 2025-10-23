@@ -93,7 +93,7 @@ def main():
     start_time = time.time()
 
     try:
-        result = subprocess.run(
+        subprocess.run(
             [
                 "python",
                 "cli.py",
