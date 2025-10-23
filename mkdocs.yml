@@ -40,6 +40,10 @@ nav:
   - Home: index.md
   - Getting Started:
     - Installation: getting-started/installation.md
+  - Project:
+    - Changelog: changelog.md
+    - Contributing: contributing.md
+    - Docs Architecture: DOCS_ARCHITECTURE.md
   - Patterns:
     - Overview: decisions/README.md
     - Documentation Quality Gates: decisions/001-documentation-quality-gates.md
@@ -58,6 +62,11 @@ markdown_extensions:
       alternate_style: true
   - pymdownx.tasklist:
       custom_checkbox: true
+  - pymdownx.snippets:
+      base_path: ['.', 'docs']
+      check_paths: true
+      auto_append:
+        - docs/includes/abbreviations.md
   - admonition
   - pymdownx.details
   - tables
