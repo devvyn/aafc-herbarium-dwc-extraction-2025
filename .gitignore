@@ -312,3 +312,14 @@ full_dataset_processing/*/*.db
 TOMORROW_SESSION_PLAN.md
 *SESSION_PLAN.md
 *.STALE
+
+# Deliverables - Data Governance (added 2025-10-24)
+# Commit: Documentation and metadata
+# Ignore: Large data files (occurrence.csv, raw extractions)
+deliverables/**/occurrence.csv
+deliverables/**/raw/
+deliverables/**/*.zip
+!deliverables/**/README.md
+!deliverables/**/QUALITY_WARNING.md
+!deliverables/**/quality_report.json
+!deliverables/**/extraction_metadata.json
