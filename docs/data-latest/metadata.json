@@ -1,0 +1,18 @@
+{
+  "timestamp": "20251031-235323",
+  "timestamp_iso": "2025-10-31T23:53:23.643734+00:00",
+  "source_csv": "deliverables/v1.0_vision_baseline/dwc-archive-staging/occurrence.csv",
+  "record_count": 2702,
+  "build_type": "continuous",
+  "branch": "local",
+  "files": {
+    "occurrence.csv": {
+      "size_kb": 592.240234375,
+      "format": "Darwin Core CSV"
+    },
+    "dwc-archive.zip": {
+      "size_kb": 163.693359375,
+      "format": "Darwin Core Archive (GBIF)"
+    }
+  }
+}
