@@ -62,7 +62,7 @@ def publish_continuous():
     archive_path = create_archive(
         staging,
         compress=True,
-        version="0.0.0-dev",
+        version="0.0.0",
         filters={"build": timestamp, "type": "continuous"},
         bundle_format="simple",
         include_checksums=True,
