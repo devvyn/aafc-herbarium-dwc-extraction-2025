@@ -245,7 +245,7 @@ def main():
         console.print(
             Panel(
                 Text(
-                    "💰 Cost: $0.00 (FREE tier)\n" "Estimated full dataset: FREE",
+                    "💰 Cost: $0.00 (FREE tier)\nEstimated full dataset: FREE",
                     style="bold green",
                 ),
                 border_style="green",

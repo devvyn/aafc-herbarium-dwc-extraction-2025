@@ -15,10 +15,10 @@ def download_with_aws_cli(s3_paths, output_dir):
     downloaded = []
     for i, s3_path in enumerate(s3_paths):
         try:
-            filename = f"specimen_{i+1:03d}.jpg"
+            filename = f"specimen_{i + 1:03d}.jpg"
             filepath = output_dir / filename
 
-            print(f"📥 Downloading image {i+1}/{len(s3_paths)}...")
+            print(f"📥 Downloading image {i + 1}/{len(s3_paths)}...")
 
             subprocess.run(
                 ["aws", "s3", "cp", s3_path, str(filepath)],

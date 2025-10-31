@@ -22,13 +22,13 @@ validated = set()
 if Path(results_file).exists():
     validated = {json.loads(line)["sha256"] for line in open(results_file)}
 
-print(f"\n{'='*70}")
+print(f"\n{'=' * 70}")
 print("AAFC Herbarium Interactive Validation Tool")
-print(f"{'='*70}")
+print(f"{'=' * 70}")
 print(f"Total samples: {len(samples)}")
 print(f"Already validated: {len(validated)}")
 print(f"Remaining: {len(samples) - len(validated)}")
-print(f"{'='*70}\n")
+print(f"{'=' * 70}\n")
 
 # Filter to high-quality samples first
 high_quality = [
@@ -42,9 +42,9 @@ for i, record in enumerate(high_quality[:5], 1):  # Start with 5
     sha_short = sha[:16]
     dwc = record["dwc"]
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print(f"Sample {i}/5: {sha_short}...")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
 
     # Show image
     img_path = f"/tmp/imgcache/{sha}.jpg"
@@ -73,13 +73,13 @@ for i, record in enumerate(high_quality[:5], 1):  # Start with 5
         for match in fuzzy_map[sha]["matches"][:3]:
             print(f"  → {match['reference']:40s} (similarity: {match['similarity']:.2f})")
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("VALIDATION OPTIONS:")
     print("  [c] Correct - extraction is good")
     print("  [w] Wrong - extraction has errors (will prompt for corrections)")
     print("  [s] Skip - come back later")
     print("  [q] Quit - save and exit")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
 
     choice = input("\nYour choice: ").strip().lower()
 
@@ -120,7 +120,7 @@ for i, record in enumerate(high_quality[:5], 1):  # Start with 5
             f.write(json.dumps(validation_record) + "\n")
         print("✓ Corrections saved")
 
-print(f"\n{'='*70}")
+print(f"\n{'=' * 70}")
 print("Validation session complete!")
 print(f"Results saved to: {results_file}")
-print(f"{'='*70}\n")
+print(f"{'=' * 70}\n")

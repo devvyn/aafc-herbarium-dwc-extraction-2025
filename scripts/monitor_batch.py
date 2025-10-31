@@ -33,9 +33,9 @@ def format_duration(seconds: float) -> str:
     if seconds < 60:
         return f"{seconds:.0f}s"
     elif seconds < 3600:
-        return f"{seconds/60:.1f}min"
+        return f"{seconds / 60:.1f}min"
     else:
-        return f"{seconds/3600:.1f}h"
+        return f"{seconds / 3600:.1f}h"
 
 
 def print_status(batch: dict):
@@ -209,7 +209,9 @@ def main():
         else:
             # Poll until complete
             print(f"📡 Monitoring batch: {batch_id}")
-            print(f"⏱️  Poll interval: {args.poll_interval}s ({args.poll_interval/60:.0f} minutes)")
+            print(
+                f"⏱️  Poll interval: {args.poll_interval}s ({args.poll_interval / 60:.0f} minutes)"
+            )
             print("\nPress Ctrl+C to stop monitoring\n")
 
             while True:

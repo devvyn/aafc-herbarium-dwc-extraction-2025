@@ -356,7 +356,7 @@ Pipeline Strategy
 ────────────────────────────────────────
 {strategy.description}
 
-Steps: {' → '.join(strategy.steps)}
+Steps: {" → ".join(strategy.steps)}
 Cost: ${strategy.estimated_cost:.2f}
 Time: {strategy.estimated_time_hours:.1f} hours
 Quality: {strategy.expected_quality:.0%}

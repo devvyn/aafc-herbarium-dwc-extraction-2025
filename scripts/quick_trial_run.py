@@ -29,8 +29,8 @@ def download_images_with_source(urls, output_dir, image_source=None):
     downloaded = []
     for i, url in enumerate(urls):
         try:
-            print(f"📥 Downloading image {i+1}/{len(urls)}...")
-            filename = f"specimen_{i+1:03d}.jpg"
+            print(f"📥 Downloading image {i + 1}/{len(urls)}...")
+            filename = f"specimen_{i + 1:03d}.jpg"
             filepath = output_dir / filename
 
             # Extract SHA256 from URL and use image source

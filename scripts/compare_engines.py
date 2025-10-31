@@ -13,13 +13,13 @@ validations = [json.loads(line) for line in open(validation_file)]
 image_hashes = [v["sha256"] for v in validations]
 image_dir = Path("/tmp/imgcache")
 
-print(f"{'='*70}")
+print(f"{'=' * 70}")
 print("Engine Comparison Test - Vision API vs GPT-4o-mini")
-print(f"{'='*70}")
+print(f"{'=' * 70}")
 print(f"Specimens to test: {len(image_hashes)}")
 print("Schema: Darwin Core v2.0 (16 fields)")
 print("Prompts: image_to_dwc_v2 (layout-aware)")
-print(f"{'='*70}\n")
+print(f"{'=' * 70}\n")
 
 # Create output directories
 output_base = Path("full_dataset_processing/engine_comparison")

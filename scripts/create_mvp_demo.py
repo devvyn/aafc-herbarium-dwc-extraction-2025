@@ -224,16 +224,16 @@ def generate_stakeholder_summary(demo_results: dict, output_dir: Path):
 
     summary_content = f"""# MVP Demonstration Results - Executive Summary
 
-**Generated**: {demo_results['demonstration_info']['created_at']}
-**Sample Size**: {demo_results['demonstration_info']['sample_size']} specimens
+**Generated**: {demo_results["demonstration_info"]["created_at"]}
+**Sample Size**: {demo_results["demonstration_info"]["sample_size"]} specimens
 **Purpose**: Stakeholder demonstration of production-ready OCR capabilities
 
 ## 🎯 Key Findings
 
 ### Processing Performance
-- **Total Processing Time**: {demo_results['summary']['processing_metrics']['total_processing_time']:.1f} seconds
-- **Steps Completed**: {demo_results['summary']['processing_metrics']['steps_completed']}/{len(demo_results['steps'])}
-- **Success Rate**: {(demo_results['summary']['processing_metrics']['steps_completed']/len(demo_results['steps'])*100):.0f}%
+- **Total Processing Time**: {demo_results["summary"]["processing_metrics"]["total_processing_time"]:.1f} seconds
+- **Steps Completed**: {demo_results["summary"]["processing_metrics"]["steps_completed"]}/{len(demo_results["steps"])}
+- **Success Rate**: {(demo_results["summary"]["processing_metrics"]["steps_completed"] / len(demo_results["steps"]) * 100):.0f}%
 
 ### Output Files Generated
 """

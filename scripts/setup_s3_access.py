@@ -145,7 +145,7 @@ def update_image_sources_config(
     updated_config.append("[test_images]")
     for category, keys in categories.items():
         if keys:
-            updated_config.append(f'# {category.replace("_", " ").title()}')
+            updated_config.append(f"# {category.replace('_', ' ').title()}")
             updated_config.append(f"{category} = [")
             for key in keys[:5]:  # Take first 5 as examples
                 url = f'    "https://{bucket_name}.s3.{region}.amazonaws.com/{key}",'

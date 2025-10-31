@@ -126,7 +126,7 @@ def simulate_extraction():
             },
         )
 
-        print(f"\n✅ Extraction completed: {successful}/25 successful ({successful/25:.0%})")
+        print(f"\n✅ Extraction completed: {successful}/25 successful ({successful / 25:.0%})")
         print(f"\n📝 Event log written to: {event_log}")
         print(f"   Total events logged: {sum(1 for _ in open(event_log))}")
 
@@ -200,7 +200,7 @@ def simulate_early_failure():
         except Exception as e:
             print(f"\n🛑 Extraction stopped: {e}")
             print(f"   After processing {i} specimens")
-            print(f"   Success rate: {successful}/{i} = {successful/i:.0%}")
+            print(f"   Success rate: {successful}/{i} = {successful / i:.0%}")
 
         print(f"\n📝 Event log written to: {event_log}")
 

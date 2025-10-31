@@ -672,7 +672,7 @@ def main():
     print(f"Total processed: {len(results)}")
     if len(results) > 0:
         print(
-            f"Successful: {len(successful_results)} ({len(successful_results)/len(results)*100:.1f}%)"
+            f"Successful: {len(successful_results)} ({len(successful_results) / len(results) * 100:.1f}%)"
         )
         print(f"Failed: {len(failed_results)}")
     else:

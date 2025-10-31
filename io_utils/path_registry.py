@@ -113,8 +113,7 @@ class ImagePathRegistry:
             self._manifests = data.get("manifests", {})
 
             logger.info(
-                f"Loaded registry: {len(self._locations)} images, "
-                f"{len(self._manifests)} manifests"
+                f"Loaded registry: {len(self._locations)} images, {len(self._manifests)} manifests"
             )
 
         except Exception as e:
@@ -326,7 +325,7 @@ class ImagePathRegistry:
                 registered_count += 1
 
         logger.info(
-            f"Loaded manifest {manifest_id}: " f"{len(images)} images, {registered_count} locations"
+            f"Loaded manifest {manifest_id}: {len(images)} images, {registered_count} locations"
         )
 
         return manifest

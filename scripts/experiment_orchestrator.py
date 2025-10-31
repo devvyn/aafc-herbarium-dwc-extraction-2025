@@ -96,10 +96,10 @@ def load_experiments(filepath: Path = Path("experiments.json")) -> List[Dict]:
 
 def submit_batch(experiment: Dict) -> str:
     """Submit a single batch experiment."""
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print(f"SUBMITTING: {experiment['name']}")
     print(f"Description: {experiment['description']}")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
 
     # Create batch request
     cmd_create = [
@@ -188,9 +188,9 @@ def submit_all_experiments():
         # Save after each submission
         save_experiments(experiments)
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("📤 BATCH SUBMISSION COMPLETE")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     print_status(experiments)
 
 
@@ -199,9 +199,9 @@ def print_status(experiments: List[Dict] = None):
     if experiments is None:
         experiments = load_experiments()
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("EXPERIMENT STATUS")
-    print(f"{'='*70}\n")
+    print(f"{'=' * 70}\n")
 
     client = OpenAI()
 
@@ -240,9 +240,9 @@ def compare_experiments():
     """Compare results from all completed experiments."""
     experiments = load_experiments()
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("EXPERIMENT COMPARISON")
-    print(f"{'='*70}\n")
+    print(f"{'=' * 70}\n")
 
     completed = []
     client = OpenAI()

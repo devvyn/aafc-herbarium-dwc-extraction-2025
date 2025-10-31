@@ -298,9 +298,9 @@ def main():
         json.dump(stats, f, indent=2, default=str)
 
     # Print summary
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("EXTRACTION SUMMARY")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Total records processed: {stats['total_records']}")
     print(f"Successful extractions: {stats['successful_extractions']}")
     print(f"Failed extractions: {stats['failed_extractions']}")

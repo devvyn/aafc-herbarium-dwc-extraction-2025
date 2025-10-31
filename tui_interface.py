@@ -21,13 +21,8 @@ try:
         TimeElapsedColumn,
     )
     from rich.table import Table
-    from rich.text import Text
-    from rich.align import Align
     from rich.columns import Columns
-    from rich.tree import Tree
-    from rich.status import Status
     from rich.prompt import Prompt, Confirm
-    from rich.syntax import Syntax
     from rich.markdown import Markdown
 except ImportError:
     print("❌ Rich library required: pip install rich")
@@ -357,7 +352,7 @@ Transform herbarium specimen images into structured biodiversity data using stat
 - **Failed:** {self.stats.failed}
 - **Success Rate:** {success_rate:.1f}%
 
-**Processing Time:** {datetime.now() - self.stats.start_time if self.stats.start_time else 'Unknown'}
+**Processing Time:** {datetime.now() - self.stats.start_time if self.stats.start_time else "Unknown"}
 
 ### Next Steps:
 1. 🔍 Review results in web interface

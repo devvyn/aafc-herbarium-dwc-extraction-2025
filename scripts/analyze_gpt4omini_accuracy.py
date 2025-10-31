@@ -87,10 +87,10 @@ for val in validations:
 print("OVERALL ACCURACY")
 print("-" * 70)
 print(
-    f"Exact specimen matches: {exact_matches}/{len(validations)} ({exact_matches/len(validations)*100:.1f}%)"
+    f"Exact specimen matches: {exact_matches}/{len(validations)} ({exact_matches / len(validations) * 100:.1f}%)"
 )
 print(
-    f"Partial matches: {partial_matches}/{len(validations)} ({partial_matches/len(validations)*100:.1f}%)"
+    f"Partial matches: {partial_matches}/{len(validations)} ({partial_matches / len(validations) * 100:.1f}%)"
 )
 print()
 
@@ -119,7 +119,7 @@ for i, val in enumerate(validations[:3]):
     ground_truth = val["corrected"] or val["extracted"]
     extracted = extractions[sha].get("dwc", {})
 
-    print(f"\nSpecimen {i+1}: {sha[:12]}...")
+    print(f"\nSpecimen {i + 1}: {sha[:12]}...")
     print("-" * 70)
 
     for field in ["catalogNumber", "scientificName", "eventDate", "recordedBy", "locality"]:
