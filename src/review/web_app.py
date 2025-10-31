@@ -17,7 +17,7 @@ Features:
 import logging
 from pathlib import Path
 
-from quart import Quart, jsonify, render_template, request
+from quart import Quart, jsonify, render_template, request, send_file
 
 from .engine import ReviewEngine, ReviewStatus, ReviewPriority
 from .validators import GBIFValidator
@@ -64,10 +64,11 @@ def create_review_app(
 
     @app.route("/api/queue")
     async def get_queue():
-        """Get review queue with filters."""
+        """Get review queue with orthogonal filters."""
         args = request.args
         status_str = args.get("status")
         priority_str = args.get("priority")
+        flagged_only = args.get("flagged_only", "false").lower() == "true"
         sort_by = args.get("sort", "priority")
         limit = int(args.get("limit", 100))
 
@@ -86,8 +87,10 @@ def create_review_app(
             except KeyError:
                 pass
 
-        # Get filtered queue
-        queue = engine.get_review_queue(status=status, priority=priority, sort_by=sort_by)
+        # Get filtered queue with orthogonal dimensions
+        queue = engine.get_review_queue(
+            status=status, priority=priority, flagged_only=flagged_only, sort_by=sort_by
+        )
 
         # Limit results
         queue = queue[:limit]
@@ -99,6 +102,7 @@ def create_review_app(
                         "specimen_id": review.specimen_id,
                         "priority": review.priority.name,
                         "status": review.status.name,
+                        "flagged": review.flagged,
                         "quality_score": review.quality_score,
                         "completeness": review.completeness_score,
                         "gbif_verified": review.gbif_taxonomy_verified,
@@ -120,10 +124,8 @@ def create_review_app(
         if not review:
             return jsonify({"error": "Specimen not found"}), 404
 
-        # Construct image URL
-        image_url = None
-        if app.config["IMAGE_BASE_URL"]:
-            image_url = f"{app.config['IMAGE_BASE_URL']}/{specimen_id}"
+        # Construct image URL - use local cache serving endpoint
+        image_url = f"/images/{specimen_id}"
 
         return jsonify(
             {
@@ -139,6 +141,7 @@ def create_review_app(
 
         corrections = data.get("corrections")
         status_str = data.get("status")
+        flagged = data.get("flagged")
         reviewed_by = data.get("reviewed_by")
         notes = data.get("notes")
 
@@ -155,6 +158,7 @@ def create_review_app(
             specimen_id=specimen_id,
             corrections=corrections,
             status=status,
+            flagged=flagged,
             reviewed_by=reviewed_by,
             notes=notes,
         )
@@ -191,19 +195,20 @@ def create_review_app(
 
     @app.route("/api/specimen/<specimen_id>/flag", methods=["POST"])
     async def flag_specimen(specimen_id: str):
-        """Flag specimen for expert review."""
+        """Toggle flagged status for specimen (independent of review status)."""
         data = await request.get_json() or {}
         reviewed_by = data.get("reviewed_by", "anonymous")
         notes = data.get("notes")
 
+        # Flag is now independent boolean, not a status
         engine.update_review(
             specimen_id=specimen_id,
-            status=ReviewStatus.FLAGGED,
+            flagged=True,
             reviewed_by=reviewed_by,
             notes=notes,
         )
 
-        return jsonify({"success": True, "specimen_id": specimen_id, "status": "FLAGGED"})
+        return jsonify({"success": True, "specimen_id": specimen_id, "flagged": True})
 
     @app.route("/api/gbif/taxonomy")
     async def gbif_taxonomy_lookup():
@@ -250,6 +255,27 @@ def create_review_app(
         engine.export_reviews(output_path)
 
         return jsonify({"success": True, "file": str(output_path)})
+
+    @app.route("/images/<path:image_filename>")
+    async def serve_image(image_filename: str):
+        """Serve images from local cache (/tmp/imgcache)."""
+        # Extract SHA256 hash from filename (remove .jpg extension)
+        sha256 = image_filename.replace(".jpg", "").replace(".JPG", "")
+
+        if len(sha256) < 4:
+            return jsonify({"error": "Invalid image filename"}), 404
+
+        # Construct cache path: /tmp/imgcache/XX/YY/XXYY...hash.jpg
+        cache_dir = Path("/tmp/imgcache")
+        prefix1 = sha256[:2]
+        prefix2 = sha256[2:4]
+        image_path = cache_dir / prefix1 / prefix2 / f"{sha256}.jpg"
+
+        if not image_path.exists():
+            logger.warning(f"Image not found in cache: {image_path}")
+            return jsonify({"error": "Image not found in cache"}), 404
+
+        return await send_file(image_path, mimetype="image/jpeg")
 
     return app
 

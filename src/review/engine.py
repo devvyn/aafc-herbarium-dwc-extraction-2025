@@ -25,13 +25,12 @@ logger = logging.getLogger(__name__)
 
 
 class ReviewStatus(Enum):
-    """Review status for specimens."""
+    """Review status for specimens (mutually exclusive lifecycle)."""
 
     PENDING = "pending"
     IN_REVIEW = "in_review"
     APPROVED = "approved"
     REJECTED = "rejected"
-    FLAGGED = "flagged"
 
 
 class ReviewPriority(Enum):
@@ -73,6 +72,7 @@ class SpecimenReview:
 
     # Review tracking
     status: ReviewStatus = ReviewStatus.PENDING
+    flagged: bool = False  # Independent attention marker
     reviewed_by: Optional[str] = None
     reviewed_at: Optional[str] = None
     corrections: Dict = dataclass_field(default_factory=dict)
@@ -129,6 +129,7 @@ class SpecimenReview:
             },
             "review": {
                 "status": self.status.name,
+                "flagged": self.flagged,
                 "reviewed_by": self.reviewed_by,
                 "reviewed_at": self.reviewed_at,
                 "corrections": self.corrections,
@@ -317,14 +318,16 @@ class ReviewEngine:
         self,
         status: Optional[ReviewStatus] = None,
         priority: Optional[ReviewPriority] = None,
+        flagged_only: bool = False,
         sort_by: str = "priority",
     ) -> List[SpecimenReview]:
         """
-        Get prioritized review queue.
+        Get prioritized review queue with orthogonal filtering.
 
         Args:
-            status: Filter by review status
-            priority: Filter by priority level
+            status: Filter by review status (mutually exclusive lifecycle)
+            priority: Filter by priority level (independent quality metric)
+            flagged_only: Show only flagged specimens (independent attention marker)
             sort_by: Sort field ("priority", "quality", "completeness")
 
         Returns:
@@ -332,12 +335,15 @@ class ReviewEngine:
         """
         reviews = list(self.reviews.values())
 
-        # Apply filters
+        # Apply orthogonal filters
         if status:
             reviews = [r for r in reviews if r.status == status]
 
         if priority:
             reviews = [r for r in reviews if r.priority == priority]
+
+        if flagged_only:
+            reviews = [r for r in reviews if r.flagged]
 
         # Sort
         if sort_by == "priority":
@@ -358,6 +364,7 @@ class ReviewEngine:
         specimen_id: str,
         corrections: Optional[Dict] = None,
         status: Optional[ReviewStatus] = None,
+        flagged: Optional[bool] = None,
         reviewed_by: Optional[str] = None,
         notes: Optional[str] = None,
     ):
@@ -368,6 +375,7 @@ class ReviewEngine:
             specimen_id: Specimen identifier
             corrections: Field corrections
             status: New review status
+            flagged: Flag for curator attention
             reviewed_by: Reviewer identifier
             notes: Review notes
         """
@@ -382,6 +390,9 @@ class ReviewEngine:
         if status:
             review.status = status
 
+        if flagged is not None:
+            review.flagged = flagged
+
         if reviewed_by:
             review.reviewed_by = reviewed_by
 
@@ -390,10 +401,12 @@ class ReviewEngine:
 
         review.reviewed_at = datetime.now().isoformat()
 
-        logger.info(f"Updated review: {specimen_id} (status: {review.status.name})")
+        logger.info(
+            f"Updated review: {specimen_id} (status: {review.status.name}, flagged: {review.flagged})"
+        )
 
     def get_statistics(self) -> dict:
-        """Get review statistics."""
+        """Get review statistics with orthogonal dimensions."""
         total = len(self.reviews)
 
         return {
@@ -406,6 +419,7 @@ class ReviewEngine:
                 priority.name: sum(1 for r in self.reviews.values() if r.priority == priority)
                 for priority in ReviewPriority
             },
+            "flagged_count": sum(1 for r in self.reviews.values() if r.flagged),
             "avg_quality_score": (
                 sum(r.quality_score for r in self.reviews.values()) / total if total > 0 else 0.0
             ),

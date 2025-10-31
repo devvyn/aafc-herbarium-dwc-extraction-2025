@@ -60,23 +60,56 @@
 
         .queue-filters {
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 16px;
         }
 
-        .filter-btn {
-            padding: 6px 12px;
-            background: var(--bg-card);
-            border: none;
-            border-radius: 6px;
+        .filter-group {
+            border: 1px solid var(--bg-card);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .filter-group legend {
+            font-size: 12px;
+            font-weight: 600;
             color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 13px;
+            padding: 0 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .filter-btn.active {
-            background: var(--accent-blue);
-            color: white;
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .filter-option input {
+            cursor: pointer;
+        }
+
+        .filter-option label {
+            font-size: 13px;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .filter-count {
+            color: var(--text-dim);
+            font-size: 12px;
         }
 
         .queue-list {
@@ -447,13 +480,82 @@
             <div class="queue-header">
                 <h1>🔬 Review Queue</h1>
                 <div class="queue-filters">
-                    <button class="filter-btn active" onclick="filterQueue('all')">All</button>
-                    <button class="filter-btn" onclick="filterQueue('CRITICAL')">Critical</button>
-                    <button class="filter-btn" onclick="filterQueue('HIGH')">High</button>
-                    <button class="filter-btn" onclick="filterQueue('PENDING')">Pending</button>
-                    <button class="filter-btn" onclick="filterQueue('approved')">Approved</button>
-                    <button class="filter-btn" onclick="filterQueue('flagged')">Flagged</button>
-                    <button class="filter-btn" onclick="filterQueue('rejected')">Rejected</button>
+                    <!-- Review State: mutually exclusive -->
+                    <fieldset class="filter-group">
+                        <legend>Review State</legend>
+                        <div class="filter-options">
+                            <div class="filter-option">
+                                <input type="radio" id="status-all" name="status" value="" checked onchange="applyFilters()">
+                                <label for="status-all">
+                                    All
+                                    <span class="filter-count" id="count-all">-</span>
+                                </label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="radio" id="status-pending" name="status" value="PENDING" onchange="applyFilters()">
+                                <label for="status-pending">
+                                    Pending
+                                    <span class="filter-count" id="count-pending">-</span>
+                                </label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="radio" id="status-in-review" name="status" value="IN_REVIEW" onchange="applyFilters()">
+                                <label for="status-in-review">
+                                    In Review
+                                    <span class="filter-count" id="count-in-review">-</span>
+                                </label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="radio" id="status-approved" name="status" value="APPROVED" onchange="applyFilters()">
+                                <label for="status-approved">
+                                    Approved
+                                    <span class="filter-count" id="count-approved">-</span>
+                                </label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="radio" id="status-rejected" name="status" value="REJECTED" onchange="applyFilters()">
+                                <label for="status-rejected">
+                                    Needs Fixes
+                                    <span class="filter-count" id="count-rejected">-</span>
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- Priority: independent filter -->
+                    <fieldset class="filter-group">
+                        <legend>Priority</legend>
+                        <div class="filter-options">
+                            <div class="filter-option">
+                                <input type="checkbox" id="priority-critical" value="CRITICAL" onchange="applyFilters()">
+                                <label for="priority-critical">
+                                    Critical
+                                    <span class="filter-count" id="count-critical">-</span>
+                                </label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="priority-high" value="HIGH" onchange="applyFilters()">
+                                <label for="priority-high">
+                                    High
+                                    <span class="filter-count" id="count-high">-</span>
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- Flagged: independent marker -->
+                    <fieldset class="filter-group">
+                        <legend>Special</legend>
+                        <div class="filter-options">
+                            <div class="filter-option">
+                                <input type="checkbox" id="flagged-only" onchange="applyFilters()">
+                                <label for="flagged-only">
+                                    Flagged only
+                                    <span class="filter-count" id="count-flagged">-</span>
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
                 </div>
             </div>
             <div class="queue-list" id="queueList">
@@ -504,14 +606,60 @@
         let currentSpecimen = null;
 
         // Load queue on startup
-        loadQueue();
+        applyFilters();
 
-        async function loadQueue(filter = null) {
-            const params = filter ? `?priority=${filter}` : '';
-            const response = await fetch(`/api/queue${params}`);
+        async function applyFilters() {
+            // Get selected status (radio button - mutually exclusive)
+            const statusRadio = document.querySelector('input[name="status"]:checked');
+            const status = statusRadio ? statusRadio.value : '';
+
+            // Get selected priorities (checkboxes - independent)
+            // TODO: Backend currently only supports single priority, using first selected
+            // Future: Update backend to support multiple priorities with OR logic
+            const priorityCheckboxes = document.querySelectorAll('input[id^="priority-"]:checked');
+            const priorities = Array.from(priorityCheckboxes).map(cb => cb.value);
+
+            // Get flagged filter (checkbox - independent)
+            const flaggedCheckbox = document.getElementById('flagged-only');
+            const flaggedOnly = flaggedCheckbox ? flaggedCheckbox.checked : false;
+
+            // Build query parameters (orthogonal dimensions)
+            const params = new URLSearchParams();
+            if (status) params.append('status', status);
+            if (priorities.length > 0) params.append('priority', priorities[0]); // Using first for now
+            if (flaggedOnly) params.append('flagged_only', 'true');
+
+            // Fetch filtered queue
+            const queryString = params.toString();
+            const url = `/api/queue${queryString ? '?' + queryString : ''}`;
+
+            const response = await fetch(url);
             const data = await response.json();
             currentQueue = data.queue;
+
+            // Update filter counts and render queue
+            await updateFilterCounts();
             renderQueue();
+        }
+
+        async function updateFilterCounts() {
+            // Fetch statistics to update count badges
+            const response = await fetch('/api/statistics');
+            const stats = await response.json();
+
+            // Update status counts
+            document.getElementById('count-all').textContent = `(${stats.total_specimens})`;
+            document.getElementById('count-pending').textContent = `(${stats.status_counts.PENDING || 0})`;
+            document.getElementById('count-in-review').textContent = `(${stats.status_counts.IN_REVIEW || 0})`;
+            document.getElementById('count-approved').textContent = `(${stats.status_counts.APPROVED || 0})`;
+            document.getElementById('count-rejected').textContent = `(${stats.status_counts.REJECTED || 0})`;
+
+            // Update priority counts
+            document.getElementById('count-critical').textContent = `(${stats.priority_counts.CRITICAL || 0})`;
+            document.getElementById('count-high').textContent = `(${stats.priority_counts.HIGH || 0})`;
+
+            // Update flagged count
+            document.getElementById('count-flagged').textContent = `(${stats.flagged_count || 0})`;
         }
 
         function renderQueue() {
@@ -665,12 +813,20 @@
         async function flagSpecimen() {
             if (!currentSpecimen) return;
             const notes = prompt('Reason for flagging (optional):');
-            await fetch(`/api/specimen/${currentSpecimen.specimen_id}/flag`, {
-                method: 'POST',
+
+            // Toggle flagged status using PUT endpoint (orthogonal to review status)
+            await fetch(`/api/specimen/${currentSpecimen.specimen_id}`, {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ reviewed_by: 'curator', notes })
+                body: JSON.stringify({
+                    flagged: !currentSpecimen.review.flagged,
+                    reviewed_by: 'curator',
+                    notes
+                })
             });
-            nextSpecimen();
+
+            // Refresh current specimen to show updated flag state
+            selectSpecimen(currentIndex);
         }
 
         async function saveCorrections() {
@@ -705,15 +861,6 @@
             if (currentIndex > 0) {
                 selectSpecimen(currentIndex - 1);
             }
-        }
-
-        function filterQueue(filter) {
-            // Update active filter button
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-
-            // Reload queue with filter
-            loadQueue(filter === 'all' ? null : filter);
         }
 
         // Keyboard shortcuts with confirmation for destructive actions
