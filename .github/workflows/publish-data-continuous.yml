@@ -1,0 +1,248 @@
+name: Publish Data Continuously
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'deliverables/**/occurrence.csv'
+      - 'deliverables/**/raw.jsonl'
+      - 'deliverables/**/dwc-archive-staging/**'
+      - 'docs/data/**'
+  workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: 'Force rebuild Darwin Core Archive'
+        required: false
+        type: boolean
+
+jobs:
+  publish-latest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # For pushing to gh-pages branch
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Generate Darwin Core Archive
+        run: |
+          uv run python <<'PYSCRIPT'
+          from pathlib import Path
+          from dwc.archive import create_archive
+          import shutil
+          from datetime import datetime, timezone
+
+          print("🔄 Generating Darwin Core Archive...")
+
+          # Find latest occurrence.csv
+          deliverables = Path("deliverables")
+          csv_files = list(deliverables.glob("**/occurrence.csv"))
+
+          if not csv_files:
+              print("⚠️  No occurrence.csv found")
+              exit(0)
+
+          # Use most recently modified CSV
+          latest_csv = max(csv_files, key=lambda p: p.stat().st_mtime)
+          print(f"📄 Using: {latest_csv}")
+
+          # Create staging area
+          staging = Path("docs/data-staging")
+          staging.mkdir(exist_ok=True)
+
+          # Copy CSV
+          shutil.copy(latest_csv, staging / "occurrence.csv")
+
+          # Generate archive with timestamp
+          timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+          archive_path = create_archive(
+              staging,
+              compress=True,
+              version="0.0.0-dev",
+              filters={"build": timestamp, "branch": "main"},
+              bundle_format="simple",
+              include_checksums=True
+          )
+
+          # Prepare output directory
+          output_dir = Path("docs/data-latest")
+          output_dir.mkdir(exist_ok=True, parents=True)
+
+          # Copy files to output
+          shutil.copy(staging / "occurrence.csv", output_dir / "occurrence.csv")
+          shutil.move(str(archive_path), str(output_dir / "dwc-archive.zip"))
+
+          # Copy JSONL if exists
+          jsonl_path = latest_csv.parent / "raw.jsonl"
+          if jsonl_path.exists():
+              shutil.copy(jsonl_path, output_dir / "raw.jsonl")
+              print(f"📋 Copied JSONL: {jsonl_path.stat().st_size / (1024*1024):.1f} MB")
+
+          # Write metadata
+          metadata = {
+              "timestamp": timestamp,
+              "source": str(latest_csv),
+              "csv_records": sum(1 for _ in open(staging / "occurrence.csv")) - 1,
+              "build_type": "continuous",
+              "branch": "main"
+          }
+
+          import json
+          with open(output_dir / "metadata.json", "w") as f:
+              json.dump(metadata, f, indent=2)
+
+          print(f"✅ Published to: {output_dir}")
+          print(f"   - occurrence.csv: {(output_dir / 'occurrence.csv').stat().st_size / 1024:.1f} KB")
+          print(f"   - dwc-archive.zip: {(output_dir / 'dwc-archive.zip').stat().st_size / 1024:.1f} KB")
+          if (output_dir / "raw.jsonl").exists():
+              print(f"   - raw.jsonl: {(output_dir / 'raw.jsonl').stat().st_size / (1024*1024):.1f} MB")
+          PYSCRIPT
+
+      - name: Generate data changelog
+        run: |
+          cat > docs/data-latest/CHANGELOG.md <<'CHANGELOG'
+          # Data Changelog (Latest/Continuous)
+
+          This directory contains the **latest unreleased data** from the main branch.
+
+          **⚠️ WARNING**: This is bleeding-edge data. It may change at any time without notice.
+
+          ## Current Build
+
+          - **Timestamp**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          - **Commit**: ${{ github.sha }}
+          - **Workflow**: ${{ github.run_number }}
+
+          ## Stability Levels
+
+          | Location | Stability | Use Case |
+          |----------|-----------|----------|
+          | `/data-latest/` | ⚠️ Unstable | Live development, testing updates |
+          | `/data/` | 🧪 Preview | Versioned snapshots (via Releases) |
+          | GitHub Releases | ✅ Stable | Production use, citations |
+
+          ## Files in This Directory
+
+          - `occurrence.csv` - Latest Darwin Core CSV
+          - `dwc-archive.zip` - Latest GBIF archive
+          - `raw.jsonl` - Latest raw extractions with confidence
+          - `metadata.json` - Build metadata
+          - `CHANGELOG.md` - This file
+
+          ## Update Frequency
+
+          **Automatic**: Every push to main branch that modifies data files
+          **Manual**: Via workflow_dispatch
+
+          ## Usage
+
+          ```bash
+          # Download latest CSV
+          wget https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/data-latest/occurrence.csv
+
+          # Check when it was built
+          curl https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/data-latest/metadata.json
+          ```
+
+          ## Tracking Changes
+
+          To track incremental changes:
+
+          ```bash
+          # Set up daily sync
+          0 */6 * * * wget -N https://devvyn.github.io/.../data-latest/occurrence.csv
+
+          # Compare with previous version
+          diff old_occurrence.csv occurrence.csv > changes.diff
+          ```
+
+          ## Migration to Stable Release
+
+          When data quality is verified, it gets promoted:
+
+          1. Latest (continuous) → Tested internally
+          2. Preview release → Shared for review
+          3. Stable release → Tagged and archived
+
+          ---
+
+          *Last updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")*
+          CHANGELOG
+
+      - name: Update docs index with latest data link
+        run: |
+          # Add latest data section to index if not present
+          if ! grep -q "data-latest" docs/index.md; then
+            cat >> docs/index.md <<'LATEST'
+
+          ---
+
+          ## 🔄 Latest Unreleased Data (Continuous)
+
+          **⚠️ Bleeding-edge data** - Updated automatically with every change to main branch.
+
+          | File | Description | Access |
+          |------|-------------|--------|
+          | Latest CSV | Current working dataset | [occurrence.csv](data-latest/occurrence.csv) |
+          | Latest Archive | Current GBIF archive | [dwc-archive.zip](data-latest/dwc-archive.zip) |
+          | Latest JSONL | Current raw extractions | [raw.jsonl](data-latest/raw.jsonl) |
+          | Build Info | Timestamp and metadata | [metadata.json](data-latest/metadata.json) |
+
+          **Use case**: Track incremental improvements, test integrations, contribute feedback.
+
+          **Stability**: ⚠️ May change at any time. For stable data, use [GitHub Releases](#-download-options).
+
+          See [Data Changelog](data-latest/CHANGELOG.md) for update tracking.
+          LATEST
+          fi
+
+      - name: Commit and push to docs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add docs/data-latest/ docs/index.md
+
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "data: Update latest/continuous dataset
+
+          Auto-published from commit ${{ github.sha }}
+
+          Workflow run: ${{ github.run_number }}
+          Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+
+          🤖 Automated continuous data publishing"
+
+            git push
+            echo "✅ Published latest data to docs/data-latest/"
+          fi
+
+      - name: Summary
+        run: |
+          echo "## 📊 Published Data (Latest/Continuous)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Access URLs" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- CSV: https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/data-latest/occurrence.csv" >> $GITHUB_STEP_SUMMARY
+          echo "- Archive: https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/data-latest/dwc-archive.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- JSONL: https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/data-latest/raw.jsonl" >> $GITHUB_STEP_SUMMARY
+          echo "- Metadata: https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/data-latest/metadata.json" >> $GITHUB_STEP_SUMMARY
