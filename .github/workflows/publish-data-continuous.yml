@@ -71,8 +71,8 @@ jobs:
           archive_path = create_archive(
               staging,
               compress=True,
-              version="0.0.0-dev",
-              filters={"build": timestamp, "branch": "main"},
+              version="0.0.0",
+              filters={"build": timestamp, "branch": "main", "type": "continuous"},
               bundle_format="simple",
               include_checksums=True
           )
