@@ -13,6 +13,24 @@
 
 ---
 
+## 📥 Download Extracted Dataset
+
+**🧪 Preview/Beta Release - 2,702 Herbarium Specimens**
+
+Get immediate access to extracted Darwin Core data from AAFC specimens:
+
+| Format | Size | Best For | Download |
+|--------|------|----------|----------|
+| **CSV** | 606 KB | Spreadsheets, R, Python | [occurrence.csv](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/data/occurrence.csv) |
+| **Darwin Core Archive** | 168 KB | GBIF, biodiversity platforms | [dwc-archive.zip](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/data/dwc-archive.zip) |
+| **JSONL** | 2.5 MB | API integration, confidence scores | [raw.jsonl](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/data/raw.jsonl) |
+
+📖 **[Full Dataset Documentation →](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/)**
+
+⚠️ **Disclaimer**: This is a PREVIEW dataset extracted via OCR + AI. NOT manually verified. Expect ~70-80% accuracy on core fields. Use for research/testing only, not taxonomic decisions.
+
+---
+
 ## 🎯 What This Does
 
 Automatically extracts structured biodiversity data from herbarium specimen photographs using OCR and AI:

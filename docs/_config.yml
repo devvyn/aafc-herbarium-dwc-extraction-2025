@@ -1,0 +1,22 @@
+# GitHub Pages Configuration for AAFC Herbarium Dataset
+
+title: AAFC Herbarium Darwin Core Dataset
+description: Preview/Beta biodiversity dataset from Agriculture and Agri-Food Canada
+theme: jekyll-theme-cayman
+show_downloads: false
+
+# Metadata
+author: Devvyn Murphy
+institution: Agriculture and Agri-Food Canada - SRDC
+
+# GitHub repository
+github:
+  repository_url: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025
+  zip_url: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/archive/refs/heads/main.zip
+  tar_url: https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/archive/refs/heads/main.tar.gz
+
+# Exclude from site
+exclude:
+  - data/
+  - Gemfile
+  - Gemfile.lock
