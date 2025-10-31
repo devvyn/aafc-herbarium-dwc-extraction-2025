@@ -2,7 +2,19 @@
 
 ## [Unreleased]
 
+### Added
+- **Review Interface**: Orthogonal filter design for intuitive specimen filtering
+  - Separates lifecycle (status), quality (priority), and attention (flagged) into independent dimensions
+  - Radio buttons for mutually exclusive status, checkboxes for combinable priority/flagged
+  - Filter statistics showing count per combination
+  - See `docs/UX_FILTER_IMPROVEMENTS.md` for design rationale
+- **Utility Scripts**:
+  - `scripts/convert_csv_to_jsonl.py` - Transforms v1.0 CSV to v2.0 JSONL format with confidence scoring
+  - `scripts/fetch_all_s3_images.py` - Batch downloads images from S3 manifest to local cache
+
 ### Changed
+- **ReviewStatus enum**: Removed FLAGGED status, added independent `flagged: bool` field
+- **Review API**: Added `flagged_only` parameter to queue endpoint for orthogonal filtering
 - **CI/Type Checking**: Replaced mypy with Astral's ty type checker ([PR #223](https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/pull/223))
   - Completes Astral toolchain: uv (package management) + ruff (linting) + ty (type checking)
   - 100x+ faster than mypy, zero installation overhead (uvx)
@@ -18,9 +30,19 @@
 - **CI**: Fixed 22 ruff linting errors (unused variables, missing imports, boolean comparisons)
 - **Dependencies**: Synced uv.lock to match pyproject.toml version 2.0.0
 
+### Deferred to v2.1+
+- **NiceGUI Review Interface**: Python-native UI archived due to filter state management bug
+  - Files moved to `archive/experimental/nicegui-review-ui/`
+  - Quart web app remains stable and production-ready
+  - See archived README for bug details and future considerations
+- **Spatial Zone Detection**: Location-aware field extraction module deferred
+  - Module implemented (`src/spatial/`) but not integrated
+  - Awaiting validation that zones improve extraction accuracy
+  - See `src/spatial/README.md` for integration plan
+
 ### Future Development
 - 🔮 16 Darwin Core fields (9 additional: habitat, elevation, recordNumber, etc.)
-- 🔮 Layout-aware prompts (TOP vs BOTTOM label distinction)
+- 🔮 Layout-aware prompts with spatial zones (TOP vs BOTTOM label distinction)
 - 🔮 Ensemble voting for research-grade quality
 
 ## [2.0.0] - 2025-10-22

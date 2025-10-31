@@ -30,6 +30,25 @@ with self.console.status("Creating archive...", spinner="dots"):
 **Estimated effort**: 4-6 hours
 **Priority**: Low (P3)
 
+### NiceGUI Review Interface Investigation
+**Location**: `archive/experimental/nicegui-review-ui/`
+**Status**: Archived - filter state management bug
+**Impact**: Low - Quart web app is stable and production-ready
+
+**Context**: Attempted Python-native review interface using NiceGUI framework to avoid JavaScript complexity. Implementation complete (~30KB) with zone visualization, rotation caching, and GBIF integration.
+
+**Blocking Issue**: Filter UI disappears after dropdown interaction due to NiceGUI reactive framework state management bug. Diagnostic tool (`test_filter_bug.py`) reproduces issue with Selenium.
+
+**Options**:
+1. **Debug NiceGUI reactivity** (8-12 hours) - Understand state management, simplify filter rendering
+2. **Abandon NiceGUI** (2 hours) - Remove from dependencies, delete archived code, document Quart as canonical
+3. **Wait for NiceGUI updates** (0 hours) - Revisit after framework matures
+
+**Decision Pending**: Recommend option 2 (abandon). Quart works well, and debugging NiceGUI complexity outweighs benefit of Python-native UI.
+
+**Estimated effort**: 2-12 hours depending on option
+**Priority**: Low (P3)
+
 ---
 
 ## Category 2: Pipeline Architecture (Future Research)

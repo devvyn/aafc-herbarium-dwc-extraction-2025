@@ -931,6 +931,67 @@ try:  # optional dependency
 
         asyncio.run(serve(app_instance, config))
 
+    @app.command()
+    def review_ui(
+        extraction_dir: Path = typer.Option(
+            ...,
+            "--extraction-dir",
+            "-d",
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            help="Extraction directory containing raw.jsonl",
+        ),
+        port: int = typer.Option(
+            5002,
+            "--port",
+            "-p",
+            help="Port to run review server on",
+        ),
+        no_gbif: bool = typer.Option(
+            False,
+            "--no-gbif",
+            help="Disable GBIF validation (faster for initial review)",
+        ),
+    ) -> None:
+        """Launch the specimen review interface (NiceGUI - simplified Python UI).
+
+        Simplified review interface with better reliability for internal use.
+        No JavaScript bugs - pure Python reactive UI with NiceGUI.
+        """
+        from nicegui import ui
+        from src.review.nicegui_app import SpecimenReviewUI
+
+        # Verify raw.jsonl exists
+        if not (extraction_dir / "raw.jsonl").exists():
+            typer.echo(f"❌ No raw.jsonl found in {extraction_dir}", err=True)
+            raise typer.Exit(1)
+
+        typer.echo("=" * 70)
+        typer.echo("SPECIMEN REVIEW INTERFACE (NiceGUI)")
+        typer.echo("=" * 70)
+        typer.echo(f"Extraction directory: {extraction_dir}")
+        typer.echo(f"GBIF validation: {'disabled' if no_gbif else 'enabled'}")
+        typer.echo(f"Server: http://127.0.0.1:{port}")
+        typer.echo()
+
+        # Create and launch NiceGUI app
+        review_ui = SpecimenReviewUI(extraction_dir, enable_gbif=not no_gbif)
+        review_ui.build_ui()
+
+        typer.echo("✅ Review system ready")
+        typer.echo(f"🌐 Open: http://127.0.0.1:{port}")
+        typer.echo("⌨️  Keyboard shortcuts: j/k (next/prev), a (approve), r (reject), f (flag)")
+        typer.echo()
+
+        ui.run(
+            host="127.0.0.1",
+            port=port,
+            title="Specimen Review - AAFC Herbarium",
+            reload=False,
+            show=False,  # Don't auto-open browser
+        )
+
     if __name__ == "__main__":
         app()
 except ModuleNotFoundError:  # pragma: no cover
