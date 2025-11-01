@@ -54,6 +54,7 @@ packages = [
     "io_utils",
     "qc",
     "preprocess",
+    "provenance",
 ]
 py-modules = ["cli"]
 

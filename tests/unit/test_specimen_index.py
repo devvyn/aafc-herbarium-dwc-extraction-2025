@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.provenance.specimen_index import (
+from provenance.specimen_index import (
     ExtractionResult,
     ImageTransformation,
     OriginalFile,

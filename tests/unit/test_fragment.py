@@ -4,7 +4,7 @@ import json
 import pytest
 from datetime import datetime
 
-from src.provenance.fragment import (
+from provenance.fragment import (
     FragmentType,
     ProvenanceFragment,
     create_extraction_fragment,

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import subprocess
 import logging
+import hashlib
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, Dict, Any, List
@@ -48,6 +50,13 @@ from io_utils.database import (
     upsert_processing_state,
 )
 from dwc import configure_terms, configure_mappings
+from provenance.fragment import (
+    ProvenanceFragment,
+    create_preprocessing_fragment,
+    create_dwc_extraction_fragment,
+    create_qc_validation_fragment,
+    write_provenance_fragments,
+)
 from dwc.archive import create_archive
 from engines.errors import EngineError
 from preprocess import preprocess_image
@@ -144,16 +153,21 @@ def process_image(
     app_conn,
     retry_limit: int,
     resume: bool,
-) -> tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]], List[Dict[str, Any]]]:
-    """Process a single image and return event data."""
+) -> tuple[
+    Optional[Dict[str, Any]],
+    Optional[Dict[str, Any]],
+    List[Dict[str, Any]],
+    List[ProvenanceFragment],
+]:
+    """Process a single image and return event data with provenance fragments."""
     specimen_id = img_path.stem
     insert_specimen(app_conn, Specimen(specimen_id=specimen_id, image=img_path.name))
     state = fetch_processing_state(app_conn, specimen_id, "process")
     if resume and state and state.status == "done":
-        return None, None, []
+        return None, None, [], []
     if state and state.error and state.retries >= retry_limit:
         logging.warning("Skipping %s: retry limit reached", img_path.name)
-        return None, None, []
+        return None, None, [], []
 
     sha256 = compute_sha256(img_path)
     event: Dict[str, Any] = {
@@ -167,9 +181,26 @@ def process_image(
         "added_fields": [],
         "errors": [],
     }
+    # Initialize provenance tracking
+    provenance_fragments: List[ProvenanceFragment] = []
+    previous_fragment_id: Optional[str] = None
     pre_cfg = cfg.get("preprocess", {})
     pipeline = pre_cfg.get("pipeline", [])
     proc_path = preprocess_image(img_path, pre_cfg) if pipeline else img_path
+
+    # Track preprocessing provenance
+    if pipeline and proc_path != img_path:
+        proc_sha256 = compute_sha256(proc_path)
+        preproc_fragment = create_preprocessing_fragment(
+            source_image_sha256=sha256,
+            output_image_sha256=proc_sha256,
+            preprocessing_steps=pipeline,
+            parameters=pre_cfg,
+            previous_fragment_id=previous_fragment_id,
+        )
+        provenance_fragments.append(preproc_fragment)
+        previous_fragment_id = preproc_fragment.fragment_id
+
     pipeline_cfg = cfg.get("pipeline", {})
     steps = pipeline_cfg.get("steps", ["image_to_text", "text_to_dwc"])
     prompt_dir = resources.files("config").joinpath(cfg.get("gpt", {}).get("prompt_dir", "prompts"))
@@ -333,6 +364,20 @@ def process_image(
                     for ident in ident_history:
                         ident.setdefault("occurrenceID", dwc_data.get("occurrenceID", ""))
                         ident_history_rows.append(ident)
+
+                # Track DWC extraction provenance (text → DWC)
+                text_hash = hashlib.sha256((text or "").encode()).hexdigest()
+                dwc_fragment = create_dwc_extraction_fragment(
+                    source_identifier=text_hash,
+                    source_type="ocr_text",
+                    darwin_core_data=dwc_data,
+                    engine=dwc_engine,
+                    confidence_scores=field_conf,
+                    parameters={"model": gpt_cfg.get("model")} if dwc_engine == "gpt" else {},
+                    previous_fragment_id=previous_fragment_id,
+                )
+                provenance_fragments.append(dwc_fragment)
+                previous_fragment_id = dwc_fragment.fragment_id
             elif step == "image_to_dwc":
                 instructions = pipeline_cfg.get("image_to_dwc_instructions")
                 if instructions is None:
@@ -371,6 +416,20 @@ def process_image(
                     for ident in ident_history:
                         ident.setdefault("occurrenceID", dwc_data.get("occurrenceID", ""))
                         ident_history_rows.append(ident)
+
+                # Track DWC extraction provenance (image → DWC)
+                image_identifier = compute_sha256(proc_path) if proc_path != img_path else sha256
+                dwc_fragment = create_dwc_extraction_fragment(
+                    source_identifier=image_identifier,
+                    source_type="image",
+                    darwin_core_data=dwc_data,
+                    engine=model,
+                    confidence_scores=field_conf,
+                    parameters={"instructions": instructions},
+                    previous_fragment_id=previous_fragment_id,
+                )
+                provenance_fragments.append(dwc_fragment)
+                previous_fragment_id = dwc_fragment.fragment_id
             else:
                 raise ValueError(f"Unsupported pipeline step: {step}")
 
@@ -432,6 +491,25 @@ def process_image(
 
                 event["dwc"] = updated
 
+                # Track QC validation provenance
+                original_hash = hashlib.sha256(
+                    json.dumps(original, sort_keys=True).encode()
+                ).hexdigest()
+                validation_ops = ["gbif_taxonomy", "gbif_locality"]
+                if gbif_cfg.get("enable_occurrence_validation", False):
+                    validation_ops.append("gbif_occurrence")
+                qc_fragment = create_qc_validation_fragment(
+                    source_dwc_hash=original_hash,
+                    validated_dwc_data=updated,
+                    validation_operations=validation_ops,
+                    gbif_verification=verification_metadata,
+                    flags=all_flags if all_flags else None,
+                    added_fields=added if added else None,
+                    previous_fragment_id=previous_fragment_id,
+                )
+                provenance_fragments.append(qc_fragment)
+                previous_fragment_id = qc_fragment.fragment_id
+
         qc_cfg = cfg.get("qc", {})
         flags = []
         flags.extend(qc.detect_duplicates(dupe_catalog, sha256, qc_cfg.get("phash_threshold", 0)))
@@ -459,7 +537,7 @@ def process_image(
                 confidence=avg_field_conf,
             ),
         )
-        return event, event["dwc"], ident_history_rows
+        return event, event["dwc"], ident_history_rows, provenance_fragments
     except ValueError:
         raise
     except EngineError as exc:
@@ -467,13 +545,13 @@ def process_image(
         state = record_failure(app_conn, specimen_id, "process", exc.code, exc.message)
         if state.retries >= retry_limit:
             logging.warning("Skipping %s: retry limit reached", img_path.name)
-        return event, None, []
+        return event, None, [], provenance_fragments
     except Exception as exc:  # pragma: no cover - unexpected
         event["errors"].append(str(exc))
         state = record_failure(app_conn, specimen_id, "process", "UNKNOWN", str(exc))
         if state.retries >= retry_limit:
             logging.warning("Skipping %s: retry limit reached", img_path.name)
-        return event, None, []
+        return event, None, [], provenance_fragments
 
 
 def write_outputs(
@@ -526,6 +604,7 @@ def process_cli(
     events: List[Dict[str, Any]] = []
     dwc_rows: List[Dict[str, Any]] = []
     ident_history_rows: List[Dict[str, Any]] = []
+    all_provenance_fragments: List[ProvenanceFragment] = []
     dupe_catalog: Dict[str, int] = {}
     cand_session = init_candidate_db(output / "candidates.db")
     app_conn = init_app_db(output / "app.db")
@@ -548,7 +627,7 @@ def process_cli(
         if use_progress:
             global_tracker.image_started(img_path)
 
-        event, dwc_row, ident_rows = process_image(
+        event, dwc_row, ident_rows, prov_fragments = process_image(
             img_path,
             cfg,
             run_id,
@@ -582,15 +661,38 @@ def process_cli(
         if dwc_row:
             dwc_rows.append(dwc_row)
         ident_history_rows.extend(ident_rows)
+        all_provenance_fragments.extend(prov_fragments)
+
+    # Build provenance statistics
+    provenance_stats = {}
+    if all_provenance_fragments:
+        from collections import Counter
+
+        fragment_types = Counter(f.fragment_type.value for f in all_provenance_fragments)
+        provenance_stats = {
+            "total_fragments": len(all_provenance_fragments),
+            "fragment_types": dict(fragment_types),
+            "provenance_file": "provenance.jsonl",
+        }
 
     meta = {
         "run_id": run_id,
         "started_at": run_id,
         "git_commit": git_commit,
         "config": cfg,
+        "provenance": provenance_stats,
     }
 
     write_outputs(output, events, dwc_rows, ident_history_rows, meta, resume)
+
+    # Write provenance fragments
+    if all_provenance_fragments:
+        provenance_path = output / "provenance.jsonl"
+        write_provenance_fragments(all_provenance_fragments, provenance_path)
+        logging.info(
+            "Wrote %d provenance fragments to %s", len(all_provenance_fragments), provenance_path
+        )
+
     cand_session.close()
     app_conn.close()
 

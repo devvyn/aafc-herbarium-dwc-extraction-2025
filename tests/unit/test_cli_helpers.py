@@ -60,7 +60,7 @@ def test_process_image_returns_event(monkeypatch, tmp_path):
     cand_session = cli.init_candidate_db(tmp_path / "candidates.db")
     cache_session = cli.init_ocr_cache_db(tmp_path / "ocr_cache.db")
     app_conn = cli.init_app_db(tmp_path / "app.db")
-    event, dwc_row, ident_rows = cli.process_image(
+    event, dwc_row, ident_rows, prov_fragments = cli.process_image(
         img_path, cfg, "run1", {}, cand_session, cache_session, app_conn, 3, False
     )
     cand_session.close()
@@ -69,6 +69,7 @@ def test_process_image_returns_event(monkeypatch, tmp_path):
     assert event["image"] == "img.png"
     assert dwc_row == {"occurrenceID": "1"}
     assert ident_rows == []
+    assert isinstance(prov_fragments, list)
 
 
 def test_write_outputs_calls_writers(monkeypatch, tmp_path):
