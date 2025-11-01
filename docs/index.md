@@ -117,3 +117,22 @@ nrow(specimens)  # 2702 records
 ---
 
 *Last updated: 2025-10-31 | Version: v1.0-vision-baseline | Preview/Beta*
+
+---
+
+## 🔄 Latest Unreleased Data (Continuous)
+
+**⚠️ Bleeding-edge data** - Updated automatically with every change to main branch.
+
+| File | Description | Access |
+|------|-------------|--------|
+| Latest CSV | Current working dataset | [occurrence.csv](data-latest/occurrence.csv) |
+| Latest Archive | Current GBIF archive | [dwc-archive.zip](data-latest/dwc-archive.zip) |
+| Latest JSONL | Current raw extractions | [raw.jsonl](data-latest/raw.jsonl) |
+| Build Info | Timestamp and metadata | [metadata.json](data-latest/metadata.json) |
+
+**Use case**: Track incremental improvements, test integrations, contribute feedback.
+
+**Stability**: ⚠️ May change at any time. For stable data, use [GitHub Releases](#-download-options).
+
+See [Data Changelog](data-latest/CHANGELOG.md) for update tracking.
