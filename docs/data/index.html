@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devvyn's Data Node</title>
+    <meta name="description" content="Open data hub for research datasets and biodiversity informatics">
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --accent: #00897b;
+            --bg: #fafafa;
+            --text: #212121;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+        }
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+        header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        header p { font-size: 1.2rem; opacity: 0.9; }
+        main { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
+        .intro { text-align: center; margin-bottom: 3rem; }
+        .projects { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .project-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+        .project-card h2 { color: var(--primary); margin-bottom: 1rem; }
+        .project-card p { margin-bottom: 1.5rem; color: #666; }
+        .links { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: #00796b; }
+        .btn-secondary { background: #757575; }
+        .btn-secondary:hover { background: #616161; }
+        footer {
+            margin-top: 4rem;
+            padding: 2rem 1rem;
+            text-align: center;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+        footer a { color: var(--accent); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🌱 Devvyn's Data Node</h1>
+        <p>Open research datasets and biodiversity informatics</p>
+    </header>
+
+    <main>
+        <div class="intro">
+            <h2>Accessible, Citable, Connected</h2>
+            <p>Public datasets from research projects, updated continuously and archived permanently.</p>
+        </div>
+
+        <div class="projects">
+            <div class="project-card">
+                <h2>AAFC Herbarium</h2>
+                <p>
+                    <strong>2,702 specimen records</strong> from Agriculture and Agri-Food Canada's herbarium collection.
+                    Darwin Core format, GBIF-ready, extracted via OCR + AI.
+                </p>
+                <div class="links">
+                    <a href="/aafc/herbarium/" class="btn">📥 Access Data</a>
+                    <a href="https://aafc.devvyn.ca" class="btn-secondary btn">📖 Docs</a>
+                    <a href="https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025" class="btn-secondary btn">💻 Code</a>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.85rem; color: #999;">
+                    Latest: <code>/aafc/herbarium/latest/occurrence.csv</code>
+                </p>
+            </div>
+
+            <div class="project-card" style="opacity: 0.6;">
+                <h2>Future Projects</h2>
+                <p>More datasets coming soon. Each project gets its own namespace for clean organization and stable URLs.</p>
+                <div class="links">
+                    <a href="https://devvyn.ca" class="btn-secondary btn">About Me</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>
+            <strong>Data Node Entity:</strong> <a href="https://devvyn.ca">Devvyn Murphy</a> |
+            <a href="https://github.com/devvyn">GitHub</a> |
+            <a href="https://orcid.org/0000-0002-1234-5678">ORCID</a>
+        </p>
+        <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+            All datasets: <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0 (Public Domain)</a>
+        </p>
+    </footer>
+</body>
+</html>

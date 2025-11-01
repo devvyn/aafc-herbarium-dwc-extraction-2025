@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Manually publish latest data to docs/data-latest/ for continuous access.
+Manually publish latest data to docs/data/aafc/herbarium/latest/ for continuous access.
 
 This script does locally what the GitHub Action does automatically.
 Use this to test publishing before pushing to main.
@@ -31,7 +31,7 @@ def find_latest_data():
 
 
 def publish_continuous():
-    """Publish latest data to docs/data-latest/."""
+    """Publish latest data to docs/data/aafc/herbarium/latest/."""
 
     print("=" * 70)
     print("CONTINUOUS DATA PUBLISHING")
@@ -68,12 +68,12 @@ def publish_continuous():
         include_checksums=True,
     )
 
-    # Prepare output
-    output = Path("docs/data-latest")
+    # Prepare output (namespaced)
+    output = Path("docs/data/aafc/herbarium/latest")
     output.mkdir(exist_ok=True, parents=True)
 
     # Copy files
-    print("📦 Publishing to docs/data-latest/...")
+    print("📦 Publishing to docs/data/aafc/herbarium/latest/...")
     shutil.copy(csv_path, output / "occurrence.csv")
     shutil.move(str(archive_path), str(output / "dwc-archive.zip"))
 
@@ -122,7 +122,7 @@ def publish_continuous():
     print(f"📁 Output: {output}")
     print()
     print("🌐 After committing and pushing:")
-    print("   https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/data-latest/")
+    print("   https://data.devvyn.ca/aafc/herbarium/latest/")
 
     return 0
 

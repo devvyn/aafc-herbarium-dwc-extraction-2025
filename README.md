@@ -21,11 +21,11 @@ Get immediate access to extracted Darwin Core data from AAFC specimens:
 
 | Format | Size | Best For | Download |
 |--------|------|----------|----------|
-| **CSV** | 606 KB | Spreadsheets, R, Python | [occurrence.csv](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/data/occurrence.csv) |
-| **Darwin Core Archive** | 168 KB | GBIF, biodiversity platforms | [dwc-archive.zip](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/data/dwc-archive.zip) |
-| **JSONL** | 2.5 MB | API integration, confidence scores | [raw.jsonl](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/data/raw.jsonl) |
+| **CSV** | 606 KB | Spreadsheets, R, Python | [occurrence.csv](https://data.devvyn.ca/aafc/herbarium/latest/occurrence.csv) |
+| **Darwin Core Archive** | 168 KB | GBIF, biodiversity platforms | [dwc-archive.zip](https://data.devvyn.ca/aafc/herbarium/latest/dwc-archive.zip) |
+| **JSONL** | 2.5 MB | API integration, confidence scores | [raw.jsonl](https://data.devvyn.ca/aafc/herbarium/latest/raw.jsonl) |
 
-📖 **[Full Dataset Documentation →](https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/)**
+📖 **[Full Dataset Documentation →](https://data.devvyn.ca/aafc/herbarium/)**
 
 ⚠️ **Disclaimer**: This is a PREVIEW dataset extracted via OCR + AI. NOT manually verified. Expect ~70-80% accuracy on core fields. Use for research/testing only, not taxonomic decisions.
 

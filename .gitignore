@@ -278,6 +278,7 @@ examples/.DS_Store
 *.jsonl
 !published/**/metadata.json
 !published/**/CITATION.cff
+!docs/data/**/*.jsonl
 
 # Database files
 *.db
@@ -291,6 +292,7 @@ backups/
 *.tar.gz
 *.zip
 *.7z
+!docs/data/**/*.zip
 
 # Backup files
 *_backup/

@@ -77,8 +77,8 @@ jobs:
               include_checksums=True
           )
 
-          # Prepare output directory
-          output_dir = Path("docs/data-latest")
+          # Prepare output directory (namespaced)
+          output_dir = Path("docs/data/aafc/herbarium/latest")
           output_dir.mkdir(exist_ok=True, parents=True)
 
           # Copy files to output
@@ -113,7 +113,7 @@ jobs:
 
       - name: Generate data changelog
         run: |
-          cat > docs/data-latest/CHANGELOG.md <<'CHANGELOG'
+          cat > docs/data/aafc/herbarium/latest/CHANGELOG.md <<'CHANGELOG'
           # Data Changelog (Latest/Continuous)
 
           This directory contains the **latest unreleased data** from the main branch.
@@ -214,13 +214,13 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add docs/data-latest/ docs/index.md
+          git add docs/data/aafc/herbarium/latest/ docs/index.md
 
           # Check if there are changes to commit
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "data: Update latest/continuous dataset
+            git commit -m "data: Update latest dataset (aafc/herbarium)
 
           Auto-published from commit ${{ github.sha }}
 
@@ -230,7 +230,7 @@ jobs:
           🤖 Automated continuous data publishing"
 
             git push
-            echo "✅ Published latest data to docs/data-latest/"
+            echo "✅ Published latest data to docs/data/aafc/herbarium/latest/"
           fi
 
       - name: Summary
@@ -242,7 +242,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Access URLs" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- CSV: https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/data-latest/occurrence.csv" >> $GITHUB_STEP_SUMMARY
-          echo "- Archive: https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/data-latest/dwc-archive.zip" >> $GITHUB_STEP_SUMMARY
-          echo "- JSONL: https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/data-latest/raw.jsonl" >> $GITHUB_STEP_SUMMARY
-          echo "- Metadata: https://devvyn.github.io/aafc-herbarium-dwc-extraction-2025/data-latest/metadata.json" >> $GITHUB_STEP_SUMMARY
+          echo "- CSV: https://data.devvyn.ca/aafc/herbarium/latest/occurrence.csv" >> $GITHUB_STEP_SUMMARY
+          echo "- Archive: https://data.devvyn.ca/aafc/herbarium/latest/dwc-archive.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- JSONL: https://data.devvyn.ca/aafc/herbarium/latest/raw.jsonl" >> $GITHUB_STEP_SUMMARY
+          echo "- Metadata: https://data.devvyn.ca/aafc/herbarium/latest/metadata.json" >> $GITHUB_STEP_SUMMARY

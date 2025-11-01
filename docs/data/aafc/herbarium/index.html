@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AAFC Herbarium Dataset</title>
+    <meta name="description" content="2,702 herbarium specimen records from Agriculture and Agri-Food Canada">
+    <link rel="canonical" href="https://data.devvyn.ca/aafc/herbarium/">
+    <style>
+        :root { --primary: #2e7d32; --accent: #00897b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: #212121; background: #fafafa; }
+        header { background: var(--primary); color: white; padding: 2rem 1rem; }
+        nav { background: #1b5e20; padding: 0.5rem 1rem; }
+        nav a { color: white; text-decoration: none; margin-right: 1.5rem; }
+        nav a:hover { text-decoration: underline; }
+        main { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+        .download-box { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: #f5f5f5; font-weight: 600; }
+        code { background: #f5f5f5; padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.9em; }
+        .btn { display: inline-block; padding: 0.5rem 1.5rem; background: var(--accent); color: white; text-decoration: none; border-radius: 4px; }
+        .btn:hover { background: #00796b; }
+        .warning { background: #fff3cd; border-left: 4px solid #ff9800; padding: 1rem; margin: 1rem 0; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🌿 AAFC Herbarium Dataset</h1>
+        <p>Agriculture and Agri-Food Canada Herbarium Collection</p>
+    </header>
+
+    <nav>
+        <a href="/data/">← Data Hub</a>
+        <a href="https://aafc.devvyn.ca">📖 Documentation</a>
+        <a href="https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025">💻 Source Code</a>
+        <a href="https://devvyn.ca">👤 About</a>
+    </nav>
+
+    <main>
+        <div class="warning">
+            <strong>⚠️ Preview/Beta Dataset</strong> - Extracted via OCR + AI, not manually verified. ~70-80% accuracy on core fields. Use for research/testing only.
+        </div>
+
+        <div class="download-box">
+            <h2>📥 Download Latest (Continuous)</h2>
+            <p>Bleeding-edge data, updated automatically with every improvement. <strong>Not stable</strong> - may change without notice.</p>
+
+            <table>
+                <tr>
+                    <th>Format</th>
+                    <th>Size</th>
+                    <th>Download</th>
+                </tr>
+                <tr>
+                    <td><strong>CSV</strong><br>Darwin Core format</td>
+                    <td>~600 KB</td>
+                    <td><a href="latest/occurrence.csv" class="btn">occurrence.csv</a></td>
+                </tr>
+                <tr>
+                    <td><strong>Darwin Core Archive</strong><br>GBIF-ready ZIP</td>
+                    <td>~170 KB</td>
+                    <td><a href="latest/dwc-archive.zip" class="btn">dwc-archive.zip</a></td>
+                </tr>
+                <tr>
+                    <td><strong>JSONL</strong><br>With confidence scores</td>
+                    <td>~2.5 MB</td>
+                    <td><a href="latest/raw.jsonl" class="btn">raw.jsonl</a></td>
+                </tr>
+                <tr>
+                    <td><strong>Metadata</strong><br>Build info</td>
+                    <td>~1 KB</td>
+                    <td><a href="latest/metadata.json" class="btn">metadata.json</a></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="download-box">
+            <h2>📦 Stable Releases</h2>
+            <p>Versioned snapshots for citations and production use.</p>
+            <p><a href="https://github.com/devvyn/aafc-herbarium-dwc-extraction-2025/releases" class="btn">View Releases on GitHub →</a></p>
+        </div>
+
+        <h2>📊 Dataset Information</h2>
+        <ul style="list-style: none; line-height: 2;">
+            <li><strong>Records:</strong> 2,702 herbarium specimens</li>
+            <li><strong>Institution:</strong> Agriculture and Agri-Food Canada (AAFC)</li>
+            <li><strong>Collection:</strong> Saskatoon Research and Development Centre</li>
+            <li><strong>Geographic Focus:</strong> Saskatchewan, Canada</li>
+            <li><strong>License:</strong> <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0 (Public Domain)</a></li>
+        </ul>
+
+        <h2>🔗 Direct URLs</h2>
+        <p>For programmatic access:</p>
+        <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto;"><code>https://data.devvyn.ca/aafc/herbarium/latest/occurrence.csv
+https://data.devvyn.ca/aafc/herbarium/latest/dwc-archive.zip
+https://data.devvyn.ca/aafc/herbarium/latest/raw.jsonl
+https://data.devvyn.ca/aafc/herbarium/latest/metadata.json</code></pre>
+
+        <h2>📖 Documentation</h2>
+        <p>For complete usage guides, API reference, and development documentation, visit:</p>
+        <p><a href="https://aafc.devvyn.ca" class="btn">Full Documentation →</a></p>
+    </main>
+
+    <footer style="text-align: center; padding: 2rem; color: #666; margin-top: 3rem;">
+        <p><strong>Citation:</strong> Murphy, D. (2025). AAFC Herbarium Dataset. <a href="https://data.devvyn.ca/aafc/herbarium/">https://data.devvyn.ca/aafc/herbarium/</a></p>
+    </footer>
+</body>
+</html>
